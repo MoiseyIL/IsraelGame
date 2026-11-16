@@ -77,6 +77,8 @@ button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 .uc[aria-pressed="true"]{border-color:var(--fr);box-shadow:0 0 0 1px var(--fr)}
 .uc .n{font-size:14px;font-weight:700;letter-spacing:.03em;display:flex;align-items:center;gap:6px}
 .uc .n i{width:7px;height:7px;border-radius:50%;background:var(--mute)}
+.uc .n .ico{width:24px;height:17px;flex:0 0 auto}
+.leg svg[viewBox="0 0 30 26"]{height:26px}
 .uc .n i.boy{background:var(--hos)}.uc .n i.mar{background:var(--amber)}.uc .n i.obo{background:var(--civ)}.uc .n i.off{background:#555c63}
 .uc small{font-family:var(--f-mono);font-size:11px;color:var(--mute);white-space:nowrap}
 @media (orientation:landscape) and (min-width:700px){
@@ -189,12 +191,15 @@ button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
     <h2>5. Управление и связь</h2>
     <p>Карта — схема города с сеткой 200 м (столбцы A–G, ряды 1–11) и номерами зданий. Отделения докладывают по схеме <b>SALUTE</b>: численность, действия, место, принадлежность, время, оружие.</p>
     <div class="leg">
-      <svg viewBox="0 0 30 22"><rect x="2" y="3" width="26" height="16" fill="#a8dcf5" stroke="#14324a" stroke-width="1.5"/><path d="M2 3l26 16M28 3L2 19" stroke="#14324a" stroke-width="1.2"/></svg><span>свои (метку двигаете вы)</span>
+      <svg viewBox="0 0 30 26"><rect x="2" y="3" width="26" height="16" fill="#a8dcf5" stroke="#14324a" stroke-width="1.5"/><path d="M2 3l26 16M28 3L2 19" stroke="#14324a" stroke-width="1.2"/><rect x="9" y="7" width="12" height="8" fill="#a8dcf5"/><text x="15" y="13.6" font-size="7" font-weight="700" text-anchor="middle" fill="#14324a" font-family="Arial,sans-serif">SF</text></svg><span>ЯМАМ «Кобра-1/2»: штурмовая группа спецназа</span>
+      <svg viewBox="0 0 30 26"><rect x="2" y="3" width="26" height="16" fill="#a8dcf5" stroke="#14324a" stroke-width="1.5"/><path d="M7 8h16M7 8v7M15 8v7M23 8v7" stroke="#14324a" stroke-width="1.7" fill="none"/></svg><span>сапёры «Алмаз» («Яхалом»)</span>
+      <svg viewBox="0 0 30 26"><rect x="2" y="3" width="26" height="16" fill="#a8dcf5" stroke="#14324a" stroke-width="1.5"/><path d="M2 19L28 3" stroke="#14324a" stroke-width="1.2"/><rect x="9" y="7" width="12" height="8" fill="#a8dcf5"/><text x="15" y="13.6" font-size="7" font-weight="700" text-anchor="middle" fill="#14324a" font-family="Arial,sans-serif">SF</text><circle cx="9" cy="23" r="2.3" fill="#14324a"/><circle cx="21" cy="23" r="2.3" fill="#14324a"/></svg><span>«Вишня»: мистаарвим, колёса — в машине</span>
       <svg viewBox="0 0 30 22"><path d="M15 1l10 10-10 10L5 11z" fill="#ff9b9b" stroke="#7a1010" stroke-width="1.5"/></svg><span>противник, цель подтверждена</span>
       <svg viewBox="0 0 30 22"><circle cx="15" cy="11" r="8" fill="#ffef8a" stroke="#6b5a00" stroke-width="1.5"/></svg><span>неопознанные</span>
       <svg viewBox="0 0 30 22"><rect x="7" y="3" width="16" height="16" fill="#a8e6a1" stroke="#1f5a1a" stroke-width="1.5"/></svg><span>мирные жители</span>
       <svg viewBox="0 0 30 22"><circle cx="15" cy="11" r="8" fill="#e3c08a" stroke="#5a3a10" stroke-width="1.5"/><path d="M10 8h10l-5 7z" fill="#5a3a10"/></svg><span>подземный ход</span>
     </div>
+    <p style="font-size:13px;color:#5d646c">Метки своих двигаете вы.</p>
     <p>Коснитесь здания на карте, чтобы отметить его или запросить удар. Коснитесь метки отделения, чтобы отдать приказ. Где сейчас отделения, вы знаете только из их докладов.</p>
     <button class="go" id="bGo">Начать операцию</button>
     <button class="go alt" id="bEnd" hidden>Завершить операцию</button>
@@ -772,7 +777,7 @@ function lamp(k){$('#lamp').className='lamp'+(k?' '+k:'');}
 /* ---------- cards ---------- */
 const unitsEl=$('#units');let selId=null;
 function updUnits(){
-  if(!unitsEl.children.length){S.units.forEach(u=>{const b=document.createElement('button');b.className='uc';b.dataset.id=u.id;b.innerHTML='<span class="n"><i></i><span></span></span><small></small>';b.onclick=()=>selectUnit(u.id,true);unitsEl.appendChild(b);});}
+  if(!unitsEl.children.length){S.units.forEach(u=>{const b=document.createElement('button');b.className='uc';b.dataset.id=u.id;b.innerHTML='<span class="n"><i></i>'+unitIco(u)+'<span></span></span><small></small>';b.onclick=()=>selectUnit(u.id,true);unitsEl.appendChild(b);});}
   for(const b of unitsEl.children){const u=U_(b.dataset.id),k=S.known[u.id];b.querySelector('.n span').textContent=u.call;b.setAttribute('aria-pressed',String(selId===u.id));const dot=b.querySelector('.n i');let line;
     if(u.type==='inf'){line=`${k.st} · ${fmt(k.t)}: ${k.men}${k.wounded?'+'+k.wounded+'р':''} чел, БК ${k.ammo}%`;dot.className={'бой':'boy','марш':'mar','штурм':'boy','вход':'boy','зачистка':'boy','отход':'mar','оцепление':'obo','эвакуация':'mar','обыск':'obo','в машине':'mar','разведка':'mar','наблюдение':'obo','выход на позицию':'mar','снайпер':'boy','на позиции':'obo','небоеспособно':'off'}[k.st]||'';}
     else if(u.type==='uav'){line=`барражирует · ${cell(S.uav.tx,S.uav.ty)}`;dot.className='obo';}
@@ -801,6 +806,14 @@ function symUnk(c,x,y){c.beginPath();c.arc(x,y,9,0,7);c.fillStyle='#ffef8a';c.fi
 function symTun(c,x,y){c.beginPath();c.arc(x,y,9,0,7);c.fillStyle='#e3c08a';c.fill();c.strokeStyle='#5a3a10';c.lineWidth=1.8;c.stroke();c.beginPath();c.moveTo(x-5,y-3);c.lineTo(x+5,y-3);c.lineTo(x,y+4);c.closePath();c.fillStyle='#5a3a10';c.fill();}
 function symCiv(c,x,y){c.fillStyle='#a8e6a1';c.strokeStyle='#1f5a1a';c.lineWidth=1.8;c.fillRect(x-8,y-8,16,16);c.strokeRect(x-8,y-8,16,16);}
 const UI={target:null};
+function unitGlyph(c,u,sx,sy,w,h){c.strokeStyle='#14324a';c.lineWidth=1.2;c.beginPath();
+  if(u.sap){c.moveTo(sx-8,sy-4);c.lineTo(sx+8,sy-4);for(const dx of [-8,0,8]){c.moveTo(sx+dx,sy-4);c.lineTo(sx+dx,sy+4);}c.lineWidth=1.8;c.stroke();}
+  else{if(u.uc){c.moveTo(sx-w/2,sy+h/2);c.lineTo(sx+w/2,sy-h/2);}else{c.moveTo(sx-w/2,sy-h/2);c.lineTo(sx+w/2,sy+h/2);c.moveTo(sx+w/2,sy-h/2);c.lineTo(sx-w/2,sy+h/2);}c.stroke();
+    c.fillStyle='#a8dcf5';c.fillRect(sx-6.5,sy-4.5,13,9);c.fillStyle='#14324a';c.font='700 8px Arial, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('SF',sx,sy+.5);}
+  if(u.veh){c.fillStyle='#14324a';for(const dx of [-6,6]){c.beginPath();c.arc(sx+dx,sy+h/2+4,2.4,0,7);c.fill();}}}
+function unitIco(u){if(u.type!=='inf')return'';const F='<rect x=\"2\" y=\"3\" width=\"26\" height=\"16\" fill=\"#a8dcf5\" stroke=\"#14324a\" stroke-width=\"1.5\"/>';const S2='<rect x=\"9\" y=\"7\" width=\"12\" height=\"8\" fill=\"#a8dcf5\"/><text x=\"15\" y=\"13.6\" font-size=\"7\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#14324a\" font-family=\"Arial,sans-serif\">SF</text>';
+  if(u.sap)return'<svg class="ico" viewBox="0 0 30 22">'+F+'<path d="M7 8h16M7 8v7M15 8v7M23 8v7" stroke="#14324a" stroke-width="1.7" fill="none"/></svg>';
+  return'<svg class="ico" viewBox="0 0 30 22">'+F+(u.uc?'<path d="M2 19L28 3" stroke="#14324a" stroke-width="1.2"/>':'<path d="M2 3l26 16M28 3L2 19" stroke="#14324a" stroke-width="1.2"/>')+S2+'</svg>';}
 function render(){
   if(!dirty||!mapCv)return;dirty=false;const c=ctx;
   c.setTransform(dpr,0,0,dpr,0,0);c.fillStyle='#15181c';c.fillRect(0,0,cw,ch);
@@ -842,9 +855,9 @@ function render(){
   for(const u of S.units){const m=S.marks.own[u.id];const [sx,sy]=toS(m.x,m.y);c.save();const w=28,h=18;
     if(selId===u.id){c.fillStyle='rgba(31,111,176,.3)';c.fillRect(sx-w/2-5,sy-h/2-5,w+10,h+10);}
     c.fillStyle='#a8dcf5';c.strokeStyle='#14324a';c.lineWidth=1.6;c.fillRect(sx-w/2,sy-h/2,w,h);c.strokeRect(sx-w/2,sy-h/2,w,h);
-    c.beginPath();if(u.type==='inf'){c.moveTo(sx-w/2,sy-h/2);c.lineTo(sx+w/2,sy+h/2);c.moveTo(sx+w/2,sy-h/2);c.lineTo(sx-w/2,sy+h/2);c.lineWidth=1.1;c.stroke();}
+    if(u.type==='inf'){unitGlyph(c,u,sx,sy,w,h);}
     else{c.fillStyle='#14324a';c.font='700 11px "Roboto Condensed", sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(u.type==='uav'?'БПЛА':u.sh==='М'?'ВОП':'MED',sx,sy+.5);}
-    c.font='700 11px "Roboto Condensed", sans-serif';c.textAlign='center';c.textBaseline='middle';if(u.type==='inf')halo(c,u.sh,sx,sy+h/2+9,'#14324a');c.restore();}
+    c.font='700 11px "Roboto Condensed", sans-serif';c.textAlign='center';c.textBaseline='middle';if(u.type==='inf')halo(c,u.sh,sx,sy+h/2+(u.veh?15:9),'#14324a');c.restore();}
   if(t&&t.pt&&!t.b){const [sx,sy]=toS(t.pt.x,t.pt.y);c.save();c.strokeStyle='#e9a21a';c.lineWidth=2;c.beginPath();c.arc(sx,sy,10,0,7);c.moveTo(sx-17,sy);c.lineTo(sx+17,sy);c.moveTo(sx,sy-17);c.lineTo(sx,sy+17);c.stroke();c.restore();}
 }
 
