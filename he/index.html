@@ -68,7 +68,7 @@ button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 .msg.live .txt::after{content:"▌";color:var(--amber)}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
 .chip{font-family:var(--f-mono);font-size:12px;border:1px solid currentColor;background:transparent;border-radius:5px;padding:4px 8px}
-.chip.pos{color:var(--fr)}.chip.hos{color:var(--hos)}.chip.unk{color:var(--unk)}.chip.civ{color:var(--civ)}.chip.tun{color:#d9a866}
+.chip.pos{color:var(--fr)}.chip.hos{color:var(--hos)}.chip.unk{color:var(--unk)}.chip.civ{color:var(--civ)}.chip.ied{color:#f0b13a}.chip.tun{color:#d9a866}
 .chip.used{opacity:.55}
 .empty{color:var(--mute);padding:10px 0;font-size:12px}
 #units{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
@@ -201,6 +201,7 @@ button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
       <svg viewBox="0 0 30 22"><circle cx="15" cy="11" r="8" fill="#ffef8a" stroke="#6b5a00" stroke-width="1.5"/></svg><span>לא מזוהים</span>
       <svg viewBox="0 0 30 22"><rect x="7" y="3" width="16" height="16" fill="#a8e6a1" stroke="#1f5a1a" stroke-width="1.5"/></svg><span>אזרחים</span>
       <svg viewBox="0 0 30 22"><circle cx="15" cy="11" r="8" fill="#e3c08a" stroke="#5a3a10" stroke-width="1.5"/><path d="M10 8h10l-5 7z" fill="#5a3a10"/></svg><span>מנהרה</span>
+      <svg viewBox="0 0 30 22"><path d="M15 2L25 19H5z" fill="#ffcf5a" stroke="#7a3a00" stroke-width="1.5"/><text x="15" y="17" font-size="10" font-weight="700" text-anchor="middle" fill="#5a2800" font-family="Arial">!</text></svg><span>מטען: ברחוב או על דלת מבנה</span>
     </div>
     <p style="font-size:13px;color:#5d646c">את הסימונים של כוחותינו מזיזים אתם.</p>
     <p>געו במבנה במפה כדי לסמן אותו או לבקש תקיפה. געו בסימון של צוות כדי לתת לו פקודה. איפה הצוותים נמצאים — אתם יודעים רק מהדיווחים בקשר.</p>
@@ -354,7 +355,7 @@ function say(u,text,chips,o){o=o||{};const m={from:u.call,uid:u.id||null,text,ch
   if(m.urgent||o.front){m.front=!!o.front;const i=S.radio.q.findIndex(x=>!x.urgent&&!x.front);if(i<0)S.radio.q.push(m);else S.radio.q.splice(i,0,m);}else S.radio.q.push(m);}
 function hq(text,act){S.radio.q.push({from:'צפע',out:true,text,act,chips:[]});}
 function posChip(u){return{k:'pos',uid:u.id,x:u.x,y:u.y,label:`${u.sh} ← ${cell(u.x,u.y)}${(bldAt(u.x,u.y,45)?' · מבנה '+bldAt(u.x,u.y,45).n:'')}`};}
-function bChip(n,k){return{k,b:n,label:`${{hos:'אויב',unk:'לא מזוהים',civ:'אזרחים',tun:'מנהרה'}[k]}: מבנה ${n}`};}
+function bChip(n,k){return{k,b:n,label:`${{hos:'אויב',unk:'לא מזוהים',civ:'אזרחים',tun:'מנהרה',ied:'מטען'}[k]}: מבנה ${n}`};}
 function ptChip(e){return{k:'hos',x:e.x+(Math.random()-.5)*30,y:e.y+(Math.random()-.5)*30,n:cnt(e.men),label:`אויב: ${cell(e.x,e.y)}`};}
 function salute(e,act){const where=e.bld&&e.mode!=='move'&&e.mode!=='patrol'?`${e.roof?'גג מבנה':'מבנה'} ${e.bld}, משבצת ${cell(e.x,e.y)}`:placeTxt(e.x,e.y);
   return`דיווח: כמות — ${cnt(e.men)}; פעילות — ${act}; מיקום — ${where}; זיהוי — ללא מדים, חמושים; שעה — ${fmt(S.t)}; נשק — ${pick(WEAP)}.`;}
@@ -381,7 +382,7 @@ function radioStep(rdt){
 function doAct(a){const u=a.uid?U_(a.uid):null;
   if(a.k==='order')orderExec(u,a);else if(a.k==='rep')sayReport(u);else if(a.k==='strike')strikeExec(a);else if(a.k==='med')medExec(a);
   else if(a.k==='uav'){S.uav.tx=a.x;S.uav.ty=a.y;say(U_('ya'),'צפע, כאן זיק. רות, עובר לגזרה החדשה, אהיה שם בעוד דקה.',[],{front:true});}
-  else if(a.k==='cleared'){if(a.b===S.T)S.marks.b[a.b]='tun';else if(a.civ)S.marks.b[a.b]='civ';else delete S.marks.b[a.b];}
+  else if(a.k==='cleared'){if(S.marks.bied)delete S.marks.bied[a.b];if(a.b===S.T)S.marks.b[a.b]='tun';else if(a.civ)S.marks.b[a.b]='civ';else delete S.marks.b[a.b];}
   else if(a.k==='clrOrd')delete S.marks.ord[a.uid];else if(a.k==='clrLz')S.marks.lz=S.marks.lz.filter(z=>z.id!==a.id);
   else if(a.k==='pc')pcExec(u,a);
   else if(a.k==='blowTunnel'){if(!u.sap||u.inB!==S.T||S.tunnelBlown)say(u,`צפע, כאן ${u.call}. אין כאן מנהרה או אין חבלנים.`,[],{front:true});else{u.tunT=240;say(u,`כאן ${u.call}. רות, מניחים מטענים בפיר.`,[],{front:true,known:'st'});}}
@@ -560,7 +561,7 @@ function tick(dt){
     parts.push(n?`אנשים: ${n}`:'אין אנשים');if(k){parts.push(`חמושים: ${k}, ${awake?'ערים':'ישנים'}`);pid=b;ch.push(bChip(b,'hos'));if(civ)parts.push(`אזרחים: ${civ}`);}else if(civ){parts.push('לא נראה נשק');ch.push(bChip(b,'civ'));}
     if(b===S.decoy&&Math.random()<.7)parts.push('על השולחן רמקול שמשמיע הקלטת קולות');
     if(en.some(e=>e.leader)&&Math.random()<.6){parts.push('«המהנדס» זוהה לפי הפנים');ko=['eng','אותר'];}
-    if(S.traps[b])parts.push('מטען על הדלת מבפנים');
+    if(S.traps[b]&&ch.push(bChip(b,'ied')))parts.push('מטען על הדלת מבפנים');
     if(b===S.T&&Math.random()<.7){parts.push('במרתף פיר מנהרה');ch.push(bChip(b,'tun'));}
     if(b===S.Wk&&S.lab==='intact'){parts.push('מעבדה: חומר נפץ, חלקי מטענים');if(!ko)ko=['lab','אותרה'];}
     if(heard)parts.push('נראה ששמעו את הרחפן — התעוררו');
@@ -572,7 +573,7 @@ function tick(dt){
     if(en.some(e=>e.roof)){parts.push('על הגג תצפיתן');pid=b;}
     else if(en.length&&Math.random()<(u.uc?.6:.35)){parts.push('בכניסה שומר חמוש');pid=b;}
     if(b===S.T&&Math.random()<(u.uc?.85:.5)){parts.push('בחצר אדמה טרייה, שקי עפר ומכסה מוסתר — נראה כמו פיר מנהרה');ch.push(bChip(b,'tun'));}else parts.push('סימנים למנהרה לא נראים');
-    if(S.traps[b]&&Math.random()<.5)parts.push('על הדלת חוטים — ייתכן מטען');
+    if(S.traps[b]&&Math.random()<.5&&ch.push(bChip(b,'ied')))parts.push('על הדלת חוטים — ייתכן מטען');
     if(b===S.Wk&&S.lab==='intact'&&Math.random()<(u.uc?.7:.45)){parts.push('החלונות מכוסים, ריח כימי מהאוורור — נראה כמו מעבדה');ch.push(bChip(b,'unk'));}
     if(pid)ch.push(bChip(b,'hos'));
     if(!u.uc&&en.length&&!S.alarm&&Math.random()<.15){spot=true;scheduleAlarm(en[0],60);}
@@ -589,7 +590,7 @@ function tick(dt){
       if(u.tb===S.T)t+=' הכלב סימן פיר מנהרה.';
       if(u.tb===S.Wk&&S.lab==='intact')t+=' הכלב סימן חומר נפץ בתוך המבנה.';
       if(en.length){en.forEach(e=>e.alert=true);if(Math.random()<.4){enemyShot(en[0]);S.stats.dogsLost++;t+=' הכלב נורה.';}else S.dogs++;}else S.dogs++;
-      say(u,t+' עבור.',en.length?[bChip(u.tb,'hos')]:ppl?[bChip(u.tb,'unk')]:[],{known:'st',pid:en.length?u.tb:0,front:true});}
+      say(u,t+' עבור.',(en.length?[bChip(u.tb,'hos')]:ppl?[bChip(u.tb,'unk')]:[]).concat(S.traps[u.tb]?[bChip(u.tb,'ied')]:[]),{known:'st',pid:en.length?u.tb:0,front:true});}
     if(u.breachT<=0){u.st='clearing';u.inB=u.tb;const B=BN(u.tb);u.clearT=Math.min(900,90+B.area*B.fl*.22)*(u.men<6?1.3:1)*(u.method==='dog'?.85:1);u.civHit=0;u.trapNote='';u.bldEK=0;
       if(S.traps[u.tb]){delete S.traps[u.tb];if(u.method==='door'){const k=(u.tb===S.decoy?2:1)+(Math.random()<.5?1:0);for(let i=0;i<k&&u.men>0;i++)casualty(u);raiseAlarm();say(u,`צפע, כאן ${u.call}! פיצוץ בכניסה למבנה ${u.tb}! ${k===1?'פצוע אחד':'יש נפגעים'}! ממשיכים!`,[],{urgent:true,known:'st'});}else u.trapNote=' המטען בכניסה נוטרל.';}
       if(u.method==='wall'){u.surpT=60;raiseAlarm();}
@@ -631,7 +632,7 @@ function tick(dt){
   // roadside IEDs
   for(const d of (S.ieds||[])){if(d.gone)continue;d.seen=d.seen||{};for(const u of U){if((u.men<=0&&u.wounded<=0)||u.inB||d.seen[u.id])continue;const dist=Math.hypot(u.x-d.x,u.y-d.y);
     if(u.veh&&dist<12){d.seen[u.id]=1;if(Math.random()<.4){d.gone=true;raiseAlarm();u.veh=false;S.car=null;S.marks.car=null;const k=2+(Math.random()<.5?1:0);for(let i=0;i<k&&u.men>0;i++)casualty(u);u.st='hold';u.tx=u.x;u.ty=u.y;delete S.marks.ord[u.id];say(u,`צפע, כאן ${u.call}!! הרכב עלה על מטען, ${placeTxt(u.x,u.y)}! יש נפגעים! ממשיכים ברגל.`,[posChip(u)],{urgent:true,known:'full'});}break;}
-    if(!u.veh&&dist<10){d.seen[u.id]=1;if(Math.random()<(u.pace==='fast'?.3:.75)){d.gone=true;S.marks.m.push({id:S.nid++,x:d.x,y:d.y,t:S.t,n:'מטען'});say(u,`צפע, כאן ${u.call}. מטען ברחוב, ${placeTxt(d.x,d.y)}. עוקפים.`,[],{known:'st'});}else if(Math.random()<.5){d.gone=true;raiseAlarm();casualty(u);say(u,`צפע, כאן ${u.call}! עלינו על מטען, ${placeTxt(u.x,u.y)}! יש פצוע!`,[],{urgent:true,known:'st'});}break;}}}
+    if(!u.veh&&dist<10){d.seen[u.id]=1;if(Math.random()<(u.pace==='fast'?.3:.75)){d.gone=true;say(u,`צפע, כאן ${u.call}. מטען ברחוב, ${placeTxt(d.x,d.y)}. עוקפים.`,[{k:'ied',x:d.x,y:d.y,label:'מטען: '+cell(d.x,d.y)}],{known:'st'});}else if(Math.random()<.5){d.gone=true;raiseAlarm();casualty(u);say(u,`צפע, כאן ${u.call}! עלינו על מטען, ${placeTxt(u.x,u.y)}! יש פצוע!`,[],{urgent:true,known:'st'});}break;}}}
   // UAV
   stepTo(S.uav,S.uav.tx,S.uav.ty,25*dt);S.marks.own.ya={x:S.uav.tx,y:S.uav.ty};
   const ya=U_('ya');ya.seen=ya.seen||{};
@@ -792,6 +793,7 @@ function liveUpdate(m,p){if(!liveEl)liveStart(m);liveEl.querySelector('.txt').te
 function liveEnd(m){const nb=nearBottom();const el=msgEl(m);if(liveEl&&liveEl.parentNode)liveEl.replaceWith(el);else logEl.appendChild(el);liveEl=null;while(logEl.children.length>220)logEl.firstChild.remove();if(nb)logEl.scrollTop=logEl.scrollHeight;}
 function rebuildLog(){logEl.innerHTML='';if(!S.log.length)logEl.innerHTML='<div class="empty">הקשר שקט. קראו את הפקודה והתחילו את המבצע.</div>';S.log.forEach(m=>logEl.appendChild(msgEl(m)));liveEl=null;if(S.radio.cur)liveStart(S.radio.cur);logEl.scrollTop=logEl.scrollHeight;}
 function useChip(m,c,b){let p;
+  if(c.k==='ied'){if(c.b){(S.marks.bied||(S.marks.bied={}))[c.b]=1;p={x:BN(c.b).cx,y:BN(c.b).cy};}else{S.marks.ied=S.marks.ied||[];if(!(c.mid&&S.marks.ied.find(e=>e.id===c.mid))){c.mid=S.nid++;S.marks.ied.push({id:c.mid,x:c.x,y:c.y,t:m.t});}p=c;}c.used=true;b.classList.add('used');b.textContent='✓ '+c.label;dirty=true;if(p)ensureVisible(p.x,p.y);return;}
   if(c.k==='pos'){S.marks.own[c.uid]={x:c.x,y:c.y};p=c;}
   else if(c.b){S.marks.b[c.b]=c.k;p={x:BN(c.b).cx,y:BN(c.b).cy};}
   else{const ex=c.mid&&S.marks.m.find(e=>e.id===c.mid);if(ex){ex.x=c.x;ex.y=c.y;}else{c.mid=S.nid++;S.marks.m.push({id:c.mid,x:c.x,y:c.y,t:m.t,n:c.n});}p=c;}
@@ -828,6 +830,7 @@ function halo(c,t,x,y,col){c.lineWidth=3;c.strokeStyle='rgba(244,242,236,.92)';c
 function symHos(c,x,y,r,t){c.beginPath();c.moveTo(x,y-r);c.lineTo(x+r,y);c.lineTo(x,y+r);c.lineTo(x-r,y);c.closePath();c.fillStyle='#ff9b9b';c.fill();c.strokeStyle='#7a1010';c.lineWidth=1.8;c.stroke();if(t){c.fillStyle='#5a0b0b';c.font='700 10px "Rubik", sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(t,x,y+.5);}}
 function symUnk(c,x,y){c.beginPath();c.arc(x,y,9,0,7);c.fillStyle='#ffef8a';c.fill();c.strokeStyle='#6b5a00';c.lineWidth=1.8;c.stroke();c.fillStyle='#4a3e00';c.font='700 11px "Rubik", sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('?',x,y+.5);}
 function symTun(c,x,y){c.beginPath();c.arc(x,y,9,0,7);c.fillStyle='#e3c08a';c.fill();c.strokeStyle='#5a3a10';c.lineWidth=1.8;c.stroke();c.beginPath();c.moveTo(x-5,y-3);c.lineTo(x+5,y-3);c.lineTo(x,y+4);c.closePath();c.fillStyle='#5a3a10';c.fill();}
+function symIed(c,x,y,r){c.beginPath();c.moveTo(x,y-r);c.lineTo(x+r,y+r*.8);c.lineTo(x-r,y+r*.8);c.closePath();c.fillStyle='#ffcf5a';c.fill();c.strokeStyle='#7a3a00';c.lineWidth=1.8;c.stroke();c.fillStyle='#5a2800';c.font='700 '+Math.round(r*1.1)+'px Arial, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('!',x,y+r*.3);}
 function symCiv(c,x,y){c.fillStyle='#a8e6a1';c.strokeStyle='#1f5a1a';c.lineWidth=1.8;c.fillRect(x-8,y-8,16,16);c.strokeRect(x-8,y-8,16,16);}
 const UI={target:null};
 function unitGlyph(c,u,sx,sy,w,h){c.strokeStyle='#14324a';c.lineWidth=1.2;c.beginPath();
@@ -865,6 +868,8 @@ function render(){
   {const [sx,sy]=toS(STAGE.x,STAGE.y);c.font='700 12px "Rubik", sans-serif';c.textAlign='center';halo(c,'נק״כ «ארז»',sx,sy+28,'#14324a');}
   // building marks
   for(const n in S.marks.b){const b=BN(+n),[sx,sy]=toS(b.cx,b.cy),k=S.marks.b[n];const ox=sx+14,oy=sy-12;if(k==='hos')symHos(c,ox,oy,10,'');else if(k==='unk')symUnk(c,ox,oy);else if(k==='civ')symCiv(c,ox,oy);else if(k==='tun')symTun(c,ox,oy);}
+  for(const n in (S.marks.bied||{})){const b=BN(+n),[sx,sy]=toS(b.cx,b.cy);symIed(c,sx-15,sy-12,9);}
+  for(const m of (S.marks.ied||[])){const [sx,sy]=toS(m.x,m.y);symIed(c,sx,sy,11);c.font='10px Arial, sans-serif';c.textAlign='center';c.textBaseline='middle';halo(c,'מטען '+fmt(m.t),sx,sy+19,'#7a3a00');}
   for(const m of S.marks.m){const [sx,sy]=toS(m.x,m.y);symHos(c,sx,sy,11,'');c.font='10px "Heebo", sans-serif';c.textAlign='center';c.textBaseline='middle';halo(c,fmt(m.t),sx,sy+19,'#7a1010');}
   for(const id in S.marks.ord){const o=S.marks.ord[id];const a=toS(o.fx,o.fy),b=toS(o.x,o.y);arrow(c,a[0],a[1],b[0],b[1],'#1f6fb0');}
   for(const m of S.marks.strike){const b=BN(m.b),[sx,sy]=toS(b.cx,b.cy),r=100*K*V.s;c.save();c.strokeStyle='#c42828';c.lineWidth=2;c.setLineDash([5,4]);c.beginPath();c.arc(sx,sy,r,0,7);c.stroke();c.setLineDash([]);c.font='700 11px "Rubik", sans-serif';c.textAlign='center';c.textBaseline='middle';halo(c,m.tI?(S.t<m.tI?`תקיפה ${fmt(m.tI)}`:'תקיפה'):'בקשה',sx,sy-r-8,'#c42828');c.restore();}
@@ -889,6 +894,7 @@ function render(){
 const ptrs=new Map();let gest=null;
 function pos(e){const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};}
 function hitMark(x,y){for(const u of [...S.units].reverse()){const m=S.marks.own[u.id];const [sx,sy]=toS(m.x,m.y);if(Math.abs(sx-x)<20&&Math.abs(sy-y)<16)return{kind:'own',id:u.id,drag:(u.type==='inf')&&!UI.target};}
+  for(const m of (S.marks.ied||[])){const [sx,sy]=toS(m.x,m.y);if(Math.hypot(sx-x,sy-y)<16)return{kind:'ied',id:m.id,drag:!UI.target};}
   for(let i=S.marks.m.length-1;i>=0;i--){const m=S.marks.m[i];const [sx,sy]=toS(m.x,m.y);if(Math.hypot(sx-x,sy-y)<16)return{kind:'pt',id:m.id,drag:!UI.target};}return null;}
 cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);const p=pos(e);ptrs.set(e.pointerId,p);
   if(ptrs.size===1)gest={type:'pan',sx:p.x,sy:p.y,ox:V.ox,oy:V.oy,t:performance.now(),moved:false,mark:hitMark(p.x,p.y)};
@@ -896,7 +902,7 @@ cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);const p=
 cv.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId))return;const p=pos(e);ptrs.set(e.pointerId,p);if(!gest)return;
   if(gest.type==='pinch'&&ptrs.size>=2){const [a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y),mx=(a.x+b.x)/2,my=(a.y+b.y)/2;const wx=(gest.mx-gest.ox)/gest.s,wy=(gest.my-gest.oy)/gest.s;V.s=clamp(gest.s*d/gest.d,minS(),maxS());V.ox=mx-wx*V.s;V.oy=my-wy*V.s;clampView();}
   else if(gest.type==='pan'){const dx=p.x-gest.sx,dy=p.y-gest.sy;if(!gest.moved&&Math.hypot(dx,dy)>7)gest.moved=true;if(!gest.moved)return;
-    if(gest.mark&&gest.mark.drag){const [mx,my]=toM(p.x,p.y);const o=gest.mark.kind==='own'?S.marks.own[gest.mark.id]:S.marks.m.find(m=>m.id===gest.mark.id);if(o){o.x=clamp(mx,0,MWm);o.y=clamp(my,0,MHm);}dirty=true;}
+    if(gest.mark&&gest.mark.drag){const [mx,my]=toM(p.x,p.y);const o=gest.mark.kind==='own'?S.marks.own[gest.mark.id]:gest.mark.kind==='ied'?(S.marks.ied||[]).find(m=>m.id===gest.mark.id):S.marks.m.find(m=>m.id===gest.mark.id);if(o){o.x=clamp(mx,0,MWm);o.y=clamp(my,0,MHm);}dirty=true;}
     else{V.ox=gest.ox+dx;V.oy=gest.oy+dy;clampView();}}});
 function endPtr(e){if(!ptrs.has(e.pointerId))return;ptrs.delete(e.pointerId);if(gest&&gest.type==='pan'&&!gest.moved&&performance.now()-gest.t<600&&e.type==='pointerup')onTap(gest.sx,gest.sy,gest.mark);gest=ptrs.size?{type:'none'}:null;}
 cv.addEventListener('pointerup',endPtr);cv.addEventListener('pointercancel',endPtr);
@@ -904,7 +910,7 @@ cv.addEventListener('wheel',e=>{e.preventDefault();const p=pos(e);const wx=(p.x-
 function onTap(x,y,mark){const [mx,my]=toM(x,y);if(mx<0||my<0||mx>MWm||my>MHm)return;
   const t=UI.target;
   if(t){if(t.needB){const b=bldAt(mx,my,25);if(!b)return;t.b=b.n;t.pt={x:b.cx,y:b.cy};}else{t.pt={x:mx,y:my};}updTarget();dirty=true;return;}
-  if(mark){if(mark.kind==='own')selectUnit(mark.id,false);else openPtSheet(mark.id);return;}
+  if(mark){if(mark.kind==='own')selectUnit(mark.id,false);else if(mark.kind==='ied')openIedSheet(mark.id);else openPtSheet(mark.id);return;}
   const b=bldAt(mx,my,0);if(b){openBldSheet(b.n);return;}
   if(selId){selId=null;updUnits();dirty=true;}}
 
@@ -959,11 +965,11 @@ function selectUnit(id,center){selId=id;updUnits();dirty=true;const u=U_(id),k=S
 מסוק פנוי — 5 דק׳ למנחת, אחרת מקפיצים עוד אחד — 12 דק׳. מבית החולים המסוק חוזר תוך 20 דק׳.`,[
       {t:'מנחת',d:'בחרו נקודה',on:()=>startTarget('med','an')},{t:'דווח',d:'מוכנות',on:()=>hq('ינשוף, כאן צפע. דווח מוכנות. עבור.',{k:'rep',uid:'an'})}]);}}
 function openBldSheet(n){const b=BN(n);const mk=S.marks.b[n];const pid=S.pidT[n];
-  const info=[`משבצת ${cell(b.cx,b.cy)}. קומות: ${b.fl}.${b.prot?' ברשימת האיסור לתקיפה ('+b.prot+').':''}`,`אימות מטרה: ${pid?fmt(pid)+(S.t-pid>900?' (פג תוקף)':''):'אין'}.`,S.cleared[n]?'טוהר.':'',S.destroyed[n]?'הרוס.':''].filter(Boolean).join('\n');
+  const info=[`משבצת ${cell(b.cx,b.cy)}. קומות: ${b.fl}.${b.prot?' ברשימת האיסור לתקיפה ('+b.prot+').':''}`,`אימות מטרה: ${pid?fmt(pid)+(S.t-pid>900?' (פג תוקף)':''):'אין'}.`,S.marks.bied&&S.marks.bied[n]?'סומן מטען בכניסה.':'',S.cleared[n]?'טוהר.':'',S.destroyed[n]?'הרוס.':''].filter(Boolean).join('\n');
   const near=infs().filter(u=>{const m=S.marks.own[u.id];return Math.hypot(m.x-b.cx,m.y-b.cy)<100;}).map(u=>u.call);
   const set=k=>()=>{if(k)S.marks.b[n]=k;else delete S.marks.b[n];dirty=true;};
   openSheet(`מבנה ${n}`,info+(near.length?`\nזהירות: לפי הסימונים שלכם, קרוב מ־100 מ׳: ${near.join(', ')}.`:''),[
-    {t:'אויב',d:'סימון אדום',on:set('hos')},{t:'לא מזוהים',d:'סימון צהוב',on:set('unk')},{t:'אזרחים',d:'סימון ירוק',on:set('civ')},{t:'מנהרה',d:'סימון חום',on:set('tun')},{t:'הסר סימון',d:mk?'למחוק':'אין סימון',dis:!mk,on:set(null)},
+    {t:'אויב',d:'סימון אדום',on:set('hos')},{t:'לא מזוהים',d:'סימון צהוב',on:set('unk')},{t:'אזרחים',d:'סימון ירוק',on:set('civ')},{t:'מנהרה',d:'סימון חום',on:set('tun')},{t:'הסר סימון',d:mk?'למחוק':'אין סימון',dis:!mk,on:set(null)},{t:'סימון מטען',d:S.marks.bied&&S.marks.bied[n]?'להסיר מהדלת':'לסמן על הדלת',on:()=>{S.marks.bied=S.marks.bied||{};if(S.marks.bied[n])delete S.marks.bied[n];else S.marks.bied[n]=1;dirty=true;}},
     {t:'תקיפת «שרף»',d:!S.started||S.over?'המבצע לא פעיל':b.prot?'ברשימת האיסור':'בדיקה ובקשה',dis:!S.started||S.over,danger:true,wide:true,on:()=>openStrikeSheet(n)}]);}
 function openStrikeSheet(n){const b=BN(n),M=S.mol,pid=S.pidT[n],ok=M.st==='station';
   const near=infs().filter(u=>{const m=S.marks.own[u.id];return Math.hypot(m.x-b.cx,m.y-b.cy)<100;}).map(u=>u.call);
@@ -971,6 +977,7 @@ function openStrikeSheet(n){const b=BN(n),M=S.mol,pid=S.pidT[n],ok=M.st==='stati
   openSheet(`תקיפת מבנה ${n}`,`שרף: ${ok?`בגזרה, טילים ${M.ammo}`:'לא בגזרה'}.\nאימות מטרה: ${pid?fmt(pid)+(S.t-pid>900?' (פג תוקף)':''):'אין'}.${b.prot?'\nהמבנה ברשימת האיסור ('+b.prot+').':''}\nאזרחים במבנה: ${S.marks.b[n]==='civ'?'לפי הנתונים שלכם יש':'לא ידוע'}.${near.length?`\nזהירות: לפי הסימונים שלכם, קרוב מ־100 מ׳: ${near.join(', ')}.`:''}\n«הקש בגג» נותן לדיירים לצאת, אבל גם מחבלים עלולים לברוח.`,[
     {t:'עם «הקש בגג»',d:'2 טילים · תקיפה בעוד 6 דק׳',dis:!ok||M.ammo<2,on:go(true)},
     {t:'בלי אזהרה',d:'טיל 1 · תקיפה בעוד 1.5 דק׳',danger:true,dis:!ok||M.ammo<1,on:go(false)}]);}
+function openIedSheet(id){const m=(S.marks.ied||[]).find(e=>e.id===id);if(!m)return;openSheet('סימון מטען',`סומן ב־${fmt(m.t)} · ${placeTxt(m.x,m.y)}.`,[{t:'מחק סימון',d:'למחוק מהמפה',danger:true,wide:true,on:()=>{S.marks.ied=S.marks.ied.filter(e=>e.id!==id);dirty=true;}}]);}
 function openPtSheet(id){const m=S.marks.m.find(e=>e.id===id);if(!m)return;openSheet('סימון אויב',`סומן ב־${fmt(m.t)} · ${placeTxt(m.x,m.y)}. החוליה יכלה לזוז.`,[{t:'מחק סימון',d:'למחוק מהמפה',danger:true,wide:true,on:()=>{S.marks.m=S.marks.m.filter(e=>e.id!==id);dirty=true;}}]);}
 const TGT={move:['לאן לנוע',0],assault:['לאיזה מבנה לפרוץ',1],cordon:['איזה מבנה לכתר',1],retreat:['לאן לסגת',0],strike:['מבנה לתקיפת «שרף»',1],med:['מנחת לינשוף',0],uav:['גזרת שהייה לזיק',0],cover:['אזור חיפוי לשרף',0],snipe:['על גג איזה מבנה התצפיתן',1],recon:['על איזה מבנה לתצפת',1],drone:['לאיזה מבנה להטיס רחפן',1]};
 function startTarget(kind,uid,pt,b,method){UI.target={kind,uid,pt:pt||null,b:b||0,needB:TGT[kind][1],method};updTarget();dirty=true;}

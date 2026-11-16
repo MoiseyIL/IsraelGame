@@ -68,7 +68,7 @@ button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 .msg.live .txt::after{content:"▌";color:var(--amber)}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
 .chip{font-family:var(--f-mono);font-size:12px;border:1px solid currentColor;background:transparent;border-radius:5px;padding:4px 8px}
-.chip.pos{color:var(--fr)}.chip.hos{color:var(--hos)}.chip.unk{color:var(--unk)}.chip.civ{color:var(--civ)}.chip.tun{color:#d9a866}
+.chip.pos{color:var(--fr)}.chip.hos{color:var(--hos)}.chip.unk{color:var(--unk)}.chip.civ{color:var(--civ)}.chip.ied{color:#f0b13a}.chip.tun{color:#d9a866}
 .chip.used{opacity:.55}
 .empty{color:var(--mute);padding:10px 0;font-size:12px}
 #units{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
@@ -199,6 +199,7 @@ button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
       <svg viewBox="0 0 30 22"><circle cx="15" cy="11" r="8" fill="#ffef8a" stroke="#6b5a00" stroke-width="1.5"/></svg><span>неопознанные</span>
       <svg viewBox="0 0 30 22"><rect x="7" y="3" width="16" height="16" fill="#a8e6a1" stroke="#1f5a1a" stroke-width="1.5"/></svg><span>мирные жители</span>
       <svg viewBox="0 0 30 22"><circle cx="15" cy="11" r="8" fill="#e3c08a" stroke="#5a3a10" stroke-width="1.5"/><path d="M10 8h10l-5 7z" fill="#5a3a10"/></svg><span>подземный ход</span>
+      <svg viewBox="0 0 30 22"><path d="M15 2L25 19H5z" fill="#ffcf5a" stroke="#7a3a00" stroke-width="1.5"/><text x="15" y="17" font-size="10" font-weight="700" text-anchor="middle" fill="#5a2800" font-family="Arial">!</text></svg><span>СВУ: на улице или на двери здания</span>
     </div>
     <p style="font-size:13px;color:#5d646c">Метки своих двигаете вы.</p>
     <p>Коснитесь здания на карте, чтобы отметить его или запросить удар. Коснитесь метки отделения, чтобы отдать приказ. Где сейчас отделения, вы знаете только из их докладов.</p>
@@ -351,7 +352,7 @@ function say(u,text,chips,o){o=o||{};const m={from:u.call,uid:u.id||null,text,ch
   if(m.urgent||o.front){m.front=!!o.front;const i=S.radio.q.findIndex(x=>!x.urgent&&!x.front);if(i<0)S.radio.q.push(m);else S.radio.q.splice(i,0,m);}else S.radio.q.push(m);}
 function hq(text,act){S.radio.q.push({from:'Кобра-6',out:true,text,act,chips:[]});}
 function posChip(u){return{k:'pos',uid:u.id,x:u.x,y:u.y,label:`${u.sh} → ${cell(u.x,u.y)}${(bldAt(u.x,u.y,45)?' · зд. '+bldAt(u.x,u.y,45).n:'')}`};}
-function bChip(n,k){return{k,b:n,label:`${{hos:'противник',unk:'неопознанные',civ:'мирные',tun:'подземный ход'}[k]}: зд. ${n}`};}
+function bChip(n,k){return{k,b:n,label:`${{hos:'противник',unk:'неопознанные',civ:'мирные',tun:'подземный ход',ied:'СВУ'}[k]}: зд. ${n}`};}
 function ptChip(e){return{k:'hos',x:e.x+(Math.random()-.5)*30,y:e.y+(Math.random()-.5)*30,n:cnt(e.men),label:`противник: ${cell(e.x,e.y)}`};}
 function salute(e,act){const where=e.bld&&e.mode!=='move'&&e.mode!=='patrol'?`${e.roof?'крыша здания':'здание'} ${e.bld}, квадрат ${cell(e.x,e.y)}`:placeTxt(e.x,e.y);
   return`SALUTE: численность — ${cnt(e.men)}; действия — ${act}; место — ${where}; принадлежность — без формы, вооружены; время — ${fmt(S.t)}; оружие — ${pick(WEAP)}.`;}
@@ -378,7 +379,7 @@ function radioStep(rdt){
 function doAct(a){const u=a.uid?U_(a.uid):null;
   if(a.k==='order')orderExec(u,a);else if(a.k==='rep')sayReport(u);else if(a.k==='strike')strikeExec(a);else if(a.k==='med')medExec(a);
   else if(a.k==='uav'){S.uav.tx=a.x;S.uav.ty=a.y;say(U_('ya'),'Кобра-6, я Ястреб. Принял, перехожу в новый район, буду через минуту.',[],{front:true});}
-  else if(a.k==='cleared'){if(a.b===S.T)S.marks.b[a.b]='tun';else if(a.civ)S.marks.b[a.b]='civ';else delete S.marks.b[a.b];}
+  else if(a.k==='cleared'){if(S.marks.bied)delete S.marks.bied[a.b];if(a.b===S.T)S.marks.b[a.b]='tun';else if(a.civ)S.marks.b[a.b]='civ';else delete S.marks.b[a.b];}
   else if(a.k==='clrOrd')delete S.marks.ord[a.uid];else if(a.k==='clrLz')S.marks.lz=S.marks.lz.filter(z=>z.id!==a.id);
   else if(a.k==='pc')pcExec(u,a);
   else if(a.k==='blowTunnel'){if(!u.sap||u.inB!==S.T||S.tunnelBlown)say(u,`Кобра-6, я ${u.call}. Здесь нет хода или нет сапёров.`,[],{front:true});else{u.tunT=240;say(u,`Я ${u.call}. Принял, закладываем заряды в шахту.`,[],{front:true,known:'st'});}}
@@ -557,7 +558,7 @@ function tick(dt){
     parts.push(n?`людей ${n}`:'людей нет');if(k){parts.push(`вооружённых ${k}, ${awake?'не спят':'спят'}`);pid=b;ch.push(bChip(b,'hos'));if(civ)parts.push(`мирных ${civ}`);}else if(civ){parts.push('оружия не видно');ch.push(bChip(b,'civ'));}
     if(b===S.decoy&&Math.random()<.7)parts.push('на столе динамик, играет запись голосов');
     if(en.some(e=>e.leader)&&Math.random()<.6){parts.push('«Инженер» опознан по лицу');ko=['eng','обнаружен'];}
-    if(S.traps[b])parts.push('на двери изнутри взрывное устройство');
+    if(S.traps[b]&&ch.push(bChip(b,'ied')))parts.push('на двери изнутри взрывное устройство');
     if(b===S.T&&Math.random()<.7){parts.push('в подвале шахта подземного хода');ch.push(bChip(b,'tun'));}
     if(b===S.Wk&&S.lab==='intact'){parts.push('мастерская: взрывчатка, детали СВУ');if(!ko)ko=['lab','обнаружена'];}
     if(heard)parts.push('похоже, дрон услышали — проснулись');
@@ -569,7 +570,7 @@ function tick(dt){
     if(en.some(e=>e.roof)){parts.push('на крыше наблюдатель');pid=b;}
     else if(en.length&&Math.random()<(u.uc?.6:.35)){parts.push('у входа вооружённый часовой');pid=b;}
     if(b===S.T&&Math.random()<(u.uc?.85:.5)){parts.push('во дворе свежая земля, мешки с грунтом, прикрытый люк — похоже на шахту подземного хода');ch.push(bChip(b,'tun'));}else parts.push('признаков подземного хода не видно');
-    if(S.traps[b]&&Math.random()<.5)parts.push('на двери провода — возможно, взрывное устройство');
+    if(S.traps[b]&&Math.random()<.5&&ch.push(bChip(b,'ied')))parts.push('на двери провода — возможно, взрывное устройство');
     if(b===S.Wk&&S.lab==='intact'&&Math.random()<(u.uc?.7:.45)){parts.push('окна заклеены, из вентиляции химический запах — похоже на мастерскую');ch.push(bChip(b,'unk'));}
     if(pid)ch.push(bChip(b,'hos'));
     if(!u.uc&&en.length&&!S.alarm&&Math.random()<.15){spot=true;scheduleAlarm(en[0],60);}
@@ -586,7 +587,7 @@ function tick(dt){
       if(u.tb===S.T)t+=' Собака обозначила шахту подземного хода.';
       if(u.tb===S.Wk&&S.lab==='intact')t+=' Собака обозначила взрывчатку внутри здания.';
       if(en.length){en.forEach(e=>e.alert=true);if(Math.random()<.4){enemyShot(en[0]);S.stats.dogsLost++;t+=' Собаку застрелили.';}else S.dogs++;}else S.dogs++;
-      say(u,t+' Приём.',en.length?[bChip(u.tb,'hos')]:ppl?[bChip(u.tb,'unk')]:[],{known:'st',pid:en.length?u.tb:0,front:true});}
+      say(u,t+' Приём.',(en.length?[bChip(u.tb,'hos')]:ppl?[bChip(u.tb,'unk')]:[]).concat(S.traps[u.tb]?[bChip(u.tb,'ied')]:[]),{known:'st',pid:en.length?u.tb:0,front:true});}
     if(u.breachT<=0){u.st='clearing';u.inB=u.tb;const B=BN(u.tb);u.clearT=Math.min(900,90+B.area*B.fl*.22)*(u.men<6?1.3:1)*(u.method==='dog'?.85:1);u.civHit=0;u.trapNote='';u.bldEK=0;
       if(S.traps[u.tb]){delete S.traps[u.tb];if(u.method==='door'){const k=(u.tb===S.decoy?2:1)+(Math.random()<.5?1:0);for(let i=0;i<k&&u.men>0;i++)casualty(u);raiseAlarm();say(u,`Кобра-6, я ${u.call}! Подрыв на входе в здание ${u.tb}! ${k===1?'Один раненый':'Есть потери'}! Продолжаем!`,[],{urgent:true,known:'st'});}else u.trapNote=' Взрывное устройство на входе обезврежено.';}
       if(u.method==='wall'){u.surpT=60;raiseAlarm();}
@@ -628,7 +629,7 @@ function tick(dt){
   // roadside IEDs
   for(const d of (S.ieds||[])){if(d.gone)continue;d.seen=d.seen||{};for(const u of U){if((u.men<=0&&u.wounded<=0)||u.inB||d.seen[u.id])continue;const dist=Math.hypot(u.x-d.x,u.y-d.y);
     if(u.veh&&dist<12){d.seen[u.id]=1;if(Math.random()<.4){d.gone=true;raiseAlarm();u.veh=false;S.car=null;S.marks.car=null;const k=2+(Math.random()<.5?1:0);for(let i=0;i<k&&u.men>0;i++)casualty(u);u.st='hold';u.tx=u.x;u.ty=u.y;delete S.marks.ord[u.id];say(u,`Кобра-6, я ${u.call}!! Машина подорвалась на СВУ, ${placeTxt(u.x,u.y)}! Есть потери! Дальше пешком.`,[posChip(u)],{urgent:true,known:'full'});}break;}
-    if(!u.veh&&dist<10){d.seen[u.id]=1;if(Math.random()<(u.pace==='fast'?.3:.75)){d.gone=true;S.marks.m.push({id:S.nid++,x:d.x,y:d.y,t:S.t,n:'СВУ'});say(u,`Кобра-6, я ${u.call}. На улице взрывное устройство, ${placeTxt(d.x,d.y)}. Обходим.`,[],{known:'st'});}else if(Math.random()<.5){d.gone=true;raiseAlarm();casualty(u);say(u,`Кобра-6, я ${u.call}! Подрыв на СВУ, ${placeTxt(u.x,u.y)}! Есть раненый!`,[],{urgent:true,known:'st'});}break;}}}
+    if(!u.veh&&dist<10){d.seen[u.id]=1;if(Math.random()<(u.pace==='fast'?.3:.75)){d.gone=true;say(u,`Кобра-6, я ${u.call}. На улице взрывное устройство, ${placeTxt(d.x,d.y)}. Обходим.`,[{k:'ied',x:d.x,y:d.y,label:'СВУ: '+cell(d.x,d.y)}],{known:'st'});}else if(Math.random()<.5){d.gone=true;raiseAlarm();casualty(u);say(u,`Кобра-6, я ${u.call}! Подрыв на СВУ, ${placeTxt(u.x,u.y)}! Есть раненый!`,[],{urgent:true,known:'st'});}break;}}}
   // UAV
   stepTo(S.uav,S.uav.tx,S.uav.ty,25*dt);S.marks.own.ya={x:S.uav.tx,y:S.uav.ty};
   const ya=U_('ya');ya.seen=ya.seen||{};
@@ -789,6 +790,7 @@ function liveUpdate(m,p){if(!liveEl)liveStart(m);liveEl.querySelector('.txt').te
 function liveEnd(m){const nb=nearBottom();const el=msgEl(m);if(liveEl&&liveEl.parentNode)liveEl.replaceWith(el);else logEl.appendChild(el);liveEl=null;while(logEl.children.length>220)logEl.firstChild.remove();if(nb)logEl.scrollTop=logEl.scrollHeight;}
 function rebuildLog(){logEl.innerHTML='';if(!S.log.length)logEl.innerHTML='<div class="empty">Эфир молчит. Изучите приказ и начните операцию.</div>';S.log.forEach(m=>logEl.appendChild(msgEl(m)));liveEl=null;if(S.radio.cur)liveStart(S.radio.cur);logEl.scrollTop=logEl.scrollHeight;}
 function useChip(m,c,b){let p;
+  if(c.k==='ied'){if(c.b){(S.marks.bied||(S.marks.bied={}))[c.b]=1;p={x:BN(c.b).cx,y:BN(c.b).cy};}else{S.marks.ied=S.marks.ied||[];if(!(c.mid&&S.marks.ied.find(e=>e.id===c.mid))){c.mid=S.nid++;S.marks.ied.push({id:c.mid,x:c.x,y:c.y,t:m.t});}p=c;}c.used=true;b.classList.add('used');b.textContent='✓ '+c.label;dirty=true;if(p)ensureVisible(p.x,p.y);return;}
   if(c.k==='pos'){S.marks.own[c.uid]={x:c.x,y:c.y};p=c;}
   else if(c.b){S.marks.b[c.b]=c.k;p={x:BN(c.b).cx,y:BN(c.b).cy};}
   else{const ex=c.mid&&S.marks.m.find(e=>e.id===c.mid);if(ex){ex.x=c.x;ex.y=c.y;}else{c.mid=S.nid++;S.marks.m.push({id:c.mid,x:c.x,y:c.y,t:m.t,n:c.n});}p=c;}
@@ -825,6 +827,7 @@ function halo(c,t,x,y,col){c.lineWidth=3;c.strokeStyle='rgba(244,242,236,.92)';c
 function symHos(c,x,y,r,t){c.beginPath();c.moveTo(x,y-r);c.lineTo(x+r,y);c.lineTo(x,y+r);c.lineTo(x-r,y);c.closePath();c.fillStyle='#ff9b9b';c.fill();c.strokeStyle='#7a1010';c.lineWidth=1.8;c.stroke();if(t){c.fillStyle='#5a0b0b';c.font='700 10px "Roboto Condensed", sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(t,x,y+.5);}}
 function symUnk(c,x,y){c.beginPath();c.arc(x,y,9,0,7);c.fillStyle='#ffef8a';c.fill();c.strokeStyle='#6b5a00';c.lineWidth=1.8;c.stroke();c.fillStyle='#4a3e00';c.font='700 11px "Roboto Condensed", sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('?',x,y+.5);}
 function symTun(c,x,y){c.beginPath();c.arc(x,y,9,0,7);c.fillStyle='#e3c08a';c.fill();c.strokeStyle='#5a3a10';c.lineWidth=1.8;c.stroke();c.beginPath();c.moveTo(x-5,y-3);c.lineTo(x+5,y-3);c.lineTo(x,y+4);c.closePath();c.fillStyle='#5a3a10';c.fill();}
+function symIed(c,x,y,r){c.beginPath();c.moveTo(x,y-r);c.lineTo(x+r,y+r*.8);c.lineTo(x-r,y+r*.8);c.closePath();c.fillStyle='#ffcf5a';c.fill();c.strokeStyle='#7a3a00';c.lineWidth=1.8;c.stroke();c.fillStyle='#5a2800';c.font='700 '+Math.round(r*1.1)+'px Arial, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('!',x,y+r*.3);}
 function symCiv(c,x,y){c.fillStyle='#a8e6a1';c.strokeStyle='#1f5a1a';c.lineWidth=1.8;c.fillRect(x-8,y-8,16,16);c.strokeRect(x-8,y-8,16,16);}
 const UI={target:null};
 function unitGlyph(c,u,sx,sy,w,h){c.strokeStyle='#14324a';c.lineWidth=1.2;c.beginPath();
@@ -862,6 +865,8 @@ function render(){
   {const [sx,sy]=toS(STAGE.x,STAGE.y);c.font='700 11px "Roboto Condensed", sans-serif';c.textAlign='center';halo(c,'ТС «Кедр»',sx,sy+28,'#14324a');}
   // building marks
   for(const n in S.marks.b){const b=BN(+n),[sx,sy]=toS(b.cx,b.cy),k=S.marks.b[n];const ox=sx+14,oy=sy-12;if(k==='hos')symHos(c,ox,oy,10,'');else if(k==='unk')symUnk(c,ox,oy);else if(k==='civ')symCiv(c,ox,oy);else if(k==='tun')symTun(c,ox,oy);}
+  for(const n in (S.marks.bied||{})){const b=BN(+n),[sx,sy]=toS(b.cx,b.cy);symIed(c,sx-15,sy-12,9);}
+  for(const m of (S.marks.ied||[])){const [sx,sy]=toS(m.x,m.y);symIed(c,sx,sy,11);c.font='10px Arial, sans-serif';c.textAlign='center';c.textBaseline='middle';halo(c,'СВУ '+fmt(m.t),sx,sy+19,'#7a3a00');}
   for(const m of S.marks.m){const [sx,sy]=toS(m.x,m.y);symHos(c,sx,sy,11,'');c.font='10px "PT Mono", monospace';c.textAlign='center';c.textBaseline='middle';halo(c,fmt(m.t),sx,sy+19,'#7a1010');}
   for(const id in S.marks.ord){const o=S.marks.ord[id];const a=toS(o.fx,o.fy),b=toS(o.x,o.y);arrow(c,a[0],a[1],b[0],b[1],'#1f6fb0');}
   for(const m of S.marks.strike){const b=BN(m.b),[sx,sy]=toS(b.cx,b.cy),r=100*K*V.s;c.save();c.strokeStyle='#c42828';c.lineWidth=2;c.setLineDash([5,4]);c.beginPath();c.arc(sx,sy,r,0,7);c.stroke();c.setLineDash([]);c.font='700 11px "Roboto Condensed", sans-serif';c.textAlign='center';c.textBaseline='middle';halo(c,m.tI?(S.t<m.tI?`удар ${fmt(m.tI)}`:'удар'):'заявка',sx,sy-r-8,'#c42828');c.restore();}
@@ -886,6 +891,7 @@ function render(){
 const ptrs=new Map();let gest=null;
 function pos(e){const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};}
 function hitMark(x,y){for(const u of [...S.units].reverse()){const m=S.marks.own[u.id];const [sx,sy]=toS(m.x,m.y);if(Math.abs(sx-x)<20&&Math.abs(sy-y)<16)return{kind:'own',id:u.id,drag:(u.type==='inf')&&!UI.target};}
+  for(const m of (S.marks.ied||[])){const [sx,sy]=toS(m.x,m.y);if(Math.hypot(sx-x,sy-y)<16)return{kind:'ied',id:m.id,drag:!UI.target};}
   for(let i=S.marks.m.length-1;i>=0;i--){const m=S.marks.m[i];const [sx,sy]=toS(m.x,m.y);if(Math.hypot(sx-x,sy-y)<16)return{kind:'pt',id:m.id,drag:!UI.target};}return null;}
 cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);const p=pos(e);ptrs.set(e.pointerId,p);
   if(ptrs.size===1)gest={type:'pan',sx:p.x,sy:p.y,ox:V.ox,oy:V.oy,t:performance.now(),moved:false,mark:hitMark(p.x,p.y)};
@@ -893,7 +899,7 @@ cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);const p=
 cv.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId))return;const p=pos(e);ptrs.set(e.pointerId,p);if(!gest)return;
   if(gest.type==='pinch'&&ptrs.size>=2){const [a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y),mx=(a.x+b.x)/2,my=(a.y+b.y)/2;const wx=(gest.mx-gest.ox)/gest.s,wy=(gest.my-gest.oy)/gest.s;V.s=clamp(gest.s*d/gest.d,minS(),maxS());V.ox=mx-wx*V.s;V.oy=my-wy*V.s;clampView();}
   else if(gest.type==='pan'){const dx=p.x-gest.sx,dy=p.y-gest.sy;if(!gest.moved&&Math.hypot(dx,dy)>7)gest.moved=true;if(!gest.moved)return;
-    if(gest.mark&&gest.mark.drag){const [mx,my]=toM(p.x,p.y);const o=gest.mark.kind==='own'?S.marks.own[gest.mark.id]:S.marks.m.find(m=>m.id===gest.mark.id);if(o){o.x=clamp(mx,0,MWm);o.y=clamp(my,0,MHm);}dirty=true;}
+    if(gest.mark&&gest.mark.drag){const [mx,my]=toM(p.x,p.y);const o=gest.mark.kind==='own'?S.marks.own[gest.mark.id]:gest.mark.kind==='ied'?(S.marks.ied||[]).find(m=>m.id===gest.mark.id):S.marks.m.find(m=>m.id===gest.mark.id);if(o){o.x=clamp(mx,0,MWm);o.y=clamp(my,0,MHm);}dirty=true;}
     else{V.ox=gest.ox+dx;V.oy=gest.oy+dy;clampView();}}});
 function endPtr(e){if(!ptrs.has(e.pointerId))return;ptrs.delete(e.pointerId);if(gest&&gest.type==='pan'&&!gest.moved&&performance.now()-gest.t<600&&e.type==='pointerup')onTap(gest.sx,gest.sy,gest.mark);gest=ptrs.size?{type:'none'}:null;}
 cv.addEventListener('pointerup',endPtr);cv.addEventListener('pointercancel',endPtr);
@@ -901,7 +907,7 @@ cv.addEventListener('wheel',e=>{e.preventDefault();const p=pos(e);const wx=(p.x-
 function onTap(x,y,mark){const [mx,my]=toM(x,y);if(mx<0||my<0||mx>MWm||my>MHm)return;
   const t=UI.target;
   if(t){if(t.needB){const b=bldAt(mx,my,25);if(!b)return;t.b=b.n;t.pt={x:b.cx,y:b.cy};}else{t.pt={x:mx,y:my};}updTarget();dirty=true;return;}
-  if(mark){if(mark.kind==='own')selectUnit(mark.id,false);else openPtSheet(mark.id);return;}
+  if(mark){if(mark.kind==='own')selectUnit(mark.id,false);else if(mark.kind==='ied')openIedSheet(mark.id);else openPtSheet(mark.id);return;}
   const b=bldAt(mx,my,0);if(b){openBldSheet(b.n);return;}
   if(selId){selId=null;updUnits();dirty=true;}}
 
@@ -956,11 +962,11 @@ function selectUnit(id,center){selId=id;updUnits();dirty=true;const u=U_(id),k=S
 Свободная машина — 5 мин до площадки, иначе поднимают ещё одну — 12 мин. Из госпиталя машина возвращается через 20 мин.`,[
       {t:'Площадка',d:'указать точку',on:()=>startTarget('med','an')},{t:'Доложить',d:'готовность',on:()=>hq('Ангел, я Кобра-6. Доложи готовность. Приём.',{k:'rep',uid:'an'})}]);}}
 function openBldSheet(n){const b=BN(n);const mk=S.marks.b[n];const pid=S.pidT[n];
-  const info=[`Квадрат ${cell(b.cx,b.cy)}. Этажей: ${b.fl}.${b.prot?' В СПИСКЕ ЗАПРЕТА НА УДАРЫ ('+b.prot+').':''}`,`Подтверждение цели: ${pid?fmt(pid)+(S.t-pid>900?' (устарело)':''):'нет'}.`,S.cleared[n]?'Зачищено.':'',S.destroyed[n]?'Разрушено.':''].filter(Boolean).join('\n');
+  const info=[`Квадрат ${cell(b.cx,b.cy)}. Этажей: ${b.fl}.${b.prot?' В СПИСКЕ ЗАПРЕТА НА УДАРЫ ('+b.prot+').':''}`,`Подтверждение цели: ${pid?fmt(pid)+(S.t-pid>900?' (устарело)':''):'нет'}.`,S.marks.bied&&S.marks.bied[n]?'Отмечено СВУ на входе.':'',S.cleared[n]?'Зачищено.':'',S.destroyed[n]?'Разрушено.':''].filter(Boolean).join('\n');
   const near=infs().filter(u=>{const m=S.marks.own[u.id];return Math.hypot(m.x-b.cx,m.y-b.cy)<100;}).map(u=>u.call);
   const set=k=>()=>{if(k)S.marks.b[n]=k;else delete S.marks.b[n];dirty=true;};
   openSheet(`Здание ${n}`,info+(near.length?`\nВНИМАНИЕ: по вашим меткам ближе 100 м: ${near.join(', ')}.`:''),[
-    {t:'Противник',d:'красная метка',on:set('hos')},{t:'Неопознанные',d:'жёлтая метка',on:set('unk')},{t:'Мирные',d:'зелёная метка',on:set('civ')},{t:'Подземный ход',d:'коричневая метка',on:set('tun')},{t:'Снять метку',d:mk?'стереть':'меток нет',dis:!mk,on:set(null)},
+    {t:'Противник',d:'красная метка',on:set('hos')},{t:'Неопознанные',d:'жёлтая метка',on:set('unk')},{t:'Мирные',d:'зелёная метка',on:set('civ')},{t:'Подземный ход',d:'коричневая метка',on:set('tun')},{t:'Снять метку',d:mk?'стереть':'меток нет',dis:!mk,on:set(null)},{t:'Метка СВУ',d:S.marks.bied&&S.marks.bied[n]?'снять с двери':'поставить на дверь',on:()=>{S.marks.bied=S.marks.bied||{};if(S.marks.bied[n])delete S.marks.bied[n];else S.marks.bied[n]=1;dirty=true;}},
     {t:'Удар «Молота»',d:!S.started||S.over?'операция не идёт':b.prot?'объект в списке запрета':'проверка и заявка',dis:!S.started||S.over,danger:true,wide:true,on:()=>openStrikeSheet(n)}]);}
 function openStrikeSheet(n){const b=BN(n),M=S.mol,pid=S.pidT[n],ok=M.st==='station';
   const near=infs().filter(u=>{const m=S.marks.own[u.id];return Math.hypot(m.x-b.cx,m.y-b.cy)<100;}).map(u=>u.call);
@@ -968,6 +974,7 @@ function openStrikeSheet(n){const b=BN(n),M=S.mol,pid=S.pidT[n],ok=M.st==='stati
   openSheet(`Удар по зданию ${n}`,`Молот: ${ok?`в зоне, ракет ${M.ammo}`:'не в зоне'}.\nПодтверждение цели: ${pid?fmt(pid)+(S.t-pid>900?' (устарело)':''):'нет'}.${b.prot?'\nОБЪЕКТ В СПИСКЕ ЗАПРЕТА ('+b.prot+').':''}\nМирные в здании: ${S.marks.b[n]==='civ'?'по вашим данным есть':'неизвестно'}.${near.length?`\nВНИМАНИЕ: по вашим меткам ближе 100 м: ${near.join(', ')}.`:''}\n«Стук по крыше» даёт жильцам выйти, но и боевики могут уйти.`,[
     {t:'Со «стуком по крыше»',d:'2 ракеты · удар через 6 мин',dis:!ok||M.ammo<2,on:go(true)},
     {t:'Без предупреждения',d:'1 ракета · удар через 1,5 мин',danger:true,dis:!ok||M.ammo<1,on:go(false)}]);}
+function openIedSheet(id){const m=(S.marks.ied||[]).find(e=>e.id===id);if(!m)return;openSheet('Метка СВУ',`Отмечена ${fmt(m.t)} · ${placeTxt(m.x,m.y)}.`,[{t:'Удалить метку',d:'стереть с карты',danger:true,wide:true,on:()=>{S.marks.ied=S.marks.ied.filter(e=>e.id!==id);dirty=true;}}]);}
 function openPtSheet(id){const m=S.marks.m.find(e=>e.id===id);if(!m)return;openSheet('Метка противника',`Отмечена ${fmt(m.t)} · ${placeTxt(m.x,m.y)}. Группа могла уйти.`,[{t:'Удалить метку',d:'стереть с карты',danger:true,wide:true,on:()=>{S.marks.m=S.marks.m.filter(e=>e.id!==id);dirty=true;}}]);}
 const TGT={move:['Куда выдвигаться',0],assault:['Какое здание штурмовать',1],cordon:['Какое здание оцепить',1],retreat:['Куда отходить',0],strike:['Здание для удара «Молота»',1],med:['Площадка для Ангела',0],uav:['Район барражирования Ястреба',0],cover:['Район прикрытия для Молота',0],snipe:['На крыше какого здания наблюдатель',1],recon:['Какое здание разведать',1],drone:['Куда запустить дрон',1]};
 function startTarget(kind,uid,pt,b,method){UI.target={kind,uid,pt:pt||null,b:b||0,needB:TGT[kind][1],method};updTarget();dirty=true;}
