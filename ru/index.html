@@ -175,6 +175,7 @@ button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
       <li><b>«Скороварка»</b> (нохаль сир лахац): оцепить здание и давить по нарастающей. Этапы: громкоговоритель, предупредительный огонь, ПТУР, снос бульдозером D9. Мирные выходят, боевики могут сдаться. Но это время, а у цели может быть подземный ход.</li>
       <li><b>«Стук по крыше»</b>: предупредительная ракета перед ударом. Жильцы успевают выйти, но могут уйти и боевики.</li>
       <li><b>Разведка здания</b>: группа скрытно подходит и полторы-две минуты наблюдает: есть ли люди, охрана, взрывные устройства на двери, признаки подземного хода. «Вишня» замечает больше и почти не рискует быть замеченной. Собаки «Окец» тоже находят шахты ходов.</li>
+      <li><b>Задержанный</b>: «Инженера» можно опросить на месте (быстро, но он может соврать или промолчать) или вывезти вертолётом в ШАБАК (дольше, зато показания надёжнее). Так можно узнать, где мастерская.</li>
       <li><b>Темп и маршрут</b>: «скрытно» — около 2,5 км/ч в городе, «быстро» — около 6 км/ч, но группу легче заметить и услышать. Группы идут по улицам, а не сквозь дома. Зачистка дома занимает от 2 до 15 минут: зависит от площади и этажности.</li>
       <li><b>Скрытность.</b> Наши выстрелы с глушителем слышно метров на 70. Если выстрелит противник, его слышно на 300 м, и через минуту он поднимет всю ячейку, если его не успеть нейтрализовать. Взрывы поднимают тревогу сразу. Наблюдатель, который вас заметил, поднимет тревогу через полминуты; снайпер с глушителем может снять его заранее. По тревоге «Инженер» бежит к подземному ходу, если его дом не оцеплен. Оцепление здания с ходом (группа в 120 м) перекрывает отход.</li>
     </ul>
@@ -364,6 +365,8 @@ function doAct(a){const u=a.uid?U_(a.uid):null;
   else if(a.k==='cleared'){if(a.b===S.T)S.marks.b[a.b]='tun';else if(a.civ)S.marks.b[a.b]='civ';else delete S.marks.b[a.b];}
   else if(a.k==='clrOrd')delete S.marks.ord[a.uid];else if(a.k==='clrLz')S.marks.lz=S.marks.lz.filter(z=>z.id!==a.id);
   else if(a.k==='pc')pcExec(u,a);
+  else if(a.k==='interr'){if(!S.pris||S.pris.uid!==u.id||S.pris.st!=='held')say(u,`Кобра-6, я ${u.call}. Задержанного у нас нет.`,[],{front:true});else if(S.pris.asked)say(u,`Кобра-6, я ${u.call}. Уже опросили, больше ничего не скажет.`,[],{front:true});else{S.pris.st='q';S.pris.tQ=S.t+300;S.pris.asked=true;say(u,`Я ${u.call}. Принял, опрашиваем задержанного.`,[],{front:true});}}
+  else if(a.k==='prisEvac'){if(!S.pris||S.pris.st!=='held')say(u,`Кобра-6, я ${u.call}. Задержанного у нас нет.`,[],{front:true});else{const h=S.med,fresh=h.free>0;if(fresh)h.free--;const id=S.nid++;h.trips.push({id,x:u.x,y:u.y,tA:S.t+(fresh?300:720),st:'in',pris:true});S.marks.lz.push({id,x:u.x,y:u.y});say(U_('an'),fresh?'Я Ангел. Принял, лечу за задержанным. Буду через пять минут.':'Я Ангел. Свободных машин нет — поднимаем ещё одну, будет через двенадцать минут.',[],{front:true});}}
   else if(a.k==='pace'){u.pace=a.pace;say(u,`Я ${u.call}. Принял, ${a.pace==='fast'?'быстрый темп':'скрытный темп'}.`,[],{front:true});}
   else if(a.k==='dismount'){if(!u.veh)say(u,`Кобра-6, я ${u.call}. Мы и так пешком.`,[],{front:true});else{u.veh=false;S.car={x:u.x,y:u.y};u.st='hold';u.tx=u.x;u.ty=u.y;delete S.marks.ord[u.id];say(u,`Кобра-6, я ${u.call}. Высадились: ${placeTxt(u.x,u.y)}. Машина там.`,[posChip(u)],{front:true,known:'st',act:{k:'car',x:u.x,y:u.y}});}}
   else if(a.k==='mount'){if(u.veh)say(u,`Кобра-6, я ${u.call}. Мы уже в машине.`,[],{front:true});else if(!S.car)say(u,`Кобра-6, я ${u.call}. Машины рядом нет.`,[],{front:true});else{u.st='move';u.tx=S.car.x;u.ty=S.car.y;u.mountOn=true;u.inB=0;say(u,`Я ${u.call}. Принял, идём к машине.`,[],{front:true,known:'st'});}}
@@ -430,7 +433,7 @@ function pcResolve(b,pc){const u=U_(pc.uid),st=pc.stage;let out=0,harm=0,det=0,c
   for(let i=S.civ[b];i>0;i--){const r=Math.random();if(r<pHarm){addCivW(b);harm++;}else if(r<pHarm+pOut){S.civ[b]--;out++;}}
   S.civOut+=out;
   for(const e of alive()){if(e.bld!==b||e.mv)continue;
-    if(e.leader){if(Math.random()<pSur*.8){e.leader=false;e.men--;det++;S.stats.det++;if(S.leader==='free'){S.leader='captured';lead='captured';}}else if(Math.random()<pCas*.5){e.leader=false;e.men--;cas++;S.stats.ek++;if(S.leader==='free'){S.leader='killed';lead='killed';}}}
+    if(e.leader){if(Math.random()<pSur*.8){e.leader=false;e.men--;det++;S.stats.det++;if(S.leader==='free'){S.leader='captured';lead='captured';S.pris={uid:pc.uid,st:'held'};}}else if(Math.random()<pCas*.5){e.leader=false;e.men--;cas++;S.stats.ek++;if(S.leader==='free'){S.leader='killed';lead='killed';}}}
     for(let i=e.men-(e.leader?1:0);i>0;i--){const r=Math.random();if(r<pSur){e.men--;det++;S.stats.det++;}else if(r<pSur+pCas){e.men--;cas++;S.stats.ek++;}}
     if(e.men<=0)e.gone=true;}
   const armed=alive().some(e=>e.bld===b&&!e.mv);
@@ -506,7 +509,7 @@ function tick(dt){
   for(const e of alive()){while(e.acc>=1&&e.men>0){e.acc-=1;
       if(e.leader&&(e.men===1||Math.random()<(e.cont.some(id=>U_(id).cm[e.id]==='close')?1:.35)/e.men)){e.leader=false;if(S.leader==='free'){S.leader='killed';const u=U_(e.cont[0]);if(u)say(u,`Кобра-6, я ${u.call}. Объект «Инженер» нейтрализован. Повторяю: «Инженер» — ликвидирован.`,[],{urgent:true,kobj:['eng','ликвидирован']});}}
       e.men--;S.stats.ek++;e.unrep=(e.unrep||0)+1;if(e.cont.length){const k=U_(e.cont[Math.floor(Math.random()*e.cont.length)]);e.lastK=k.id;if(k.inB&&k.inB===e.bld)k.bldEK=(k.bldEK||0)+1;}}
-    if(e.leader&&e.men===1&&e.cont.some(id=>U_(id).cm[e.id]==='close')&&Math.random()<.025*(e.cont.some(id=>U_(id).uc)?2:1)*dt){e.gone=true;e.leader=false;S.leader='captured';S.stats.det++;const u=U_(e.cont[0]);say(u,`Кобра-6, я ${u.call}! «Инженер» задержан! Повторяю: объект задержан, живой.`,[],{urgent:true,kobj:['eng','задержан'],det:1});}
+    if(e.leader&&e.men===1&&e.cont.some(id=>U_(id).cm[e.id]==='close')&&Math.random()<.025*(e.cont.some(id=>U_(id).uc)?2:1)*dt){e.gone=true;e.leader=false;S.leader='captured';S.stats.det++;const u=U_(e.cont[0]);S.pris={uid:u.id,st:'held'};say(u,`Кобра-6, я ${u.call}! «Инженер» задержан! Повторяю: объект задержан, живой.`,[],{urgent:true,kobj:['eng','задержан'],det:1});}
     if(e.men<=0&&!e.gone){e.gone=true;if(e.lastK||e.cont.length){const u=U_(e.lastK||e.cont[0]);const n=e.unrep||0;e.unrep=0;const where=e.bld&&!e.mv&&e.mode!=='patrol'?`${e.roof?'на крыше здания':'в здании'} ${e.bld}`:placeTxt(e.x,e.y);
       say(u,`Кобра-6, я ${u.call}. Группа противника ${where} нейтрализована.${n?` Уничтожено боевиков: ${n}.`:''} Приём.`,[],{known:'st',ek:n});}}}
   for(const u of U){while(u.acc>=1&&u.men>0){u.acc-=1;casualty(u);}}
@@ -634,6 +637,13 @@ function tick(dt){
     if(danger){a.tA=S.t+300;if(!a.warned){a.warned=true;say({call:'Координация',type:'x'},`Кобра-6, я Координация. Скорая «Красного Полумесяца» не может подъехать к зданию ${a.b}: рядом идёт бой. Ждёт на въезде в город. Приём.`,[],{front:true});}continue;}
     a.done=true;const list=S.civW.filter(c=>c.b===a.b&&cwActive(c));list.forEach(c=>{c.st='evac';S.civEvac++;});
     say({call:'Координация',type:'x'},list.length?`Кобра-6, я Координация. Скорая забрала из здания ${a.b} раненых мирных: ${list.length}. Везут в больницу. Приём.`:`Кобра-6, я Координация. Скорая у здания ${a.b}, раненых не застала. Приём.`,[],{front:true});}
+  // detainee
+  if(S.pris){const P=S.pris;
+    const decoy=()=>{const W=BN(S.Wk);const c=BL.filter(b=>b.n!==S.Wk&&!b.prot&&Math.hypot(b.cx-W.cx,b.cy-W.cy)>120&&Math.hypot(b.cx-W.cx,b.cy-W.cy)<400);return(c.length?pick(c):pick(BL.filter(b=>b.n!==S.Wk))).n;};
+    if(P.st==='q'&&S.t>=P.tQ){P.st='held';const u=U_(P.uid);const r=Math.random();let n=0;if(r<.35)n=S.Wk;else if(r<.65)n=decoy();
+      if(n)say(u,`Кобра-6, я ${u.call}. Задержанный говорит: мастерская в здании ${n}. Приём.`,[bChip(n,'unk')],{front:true});else say(u,`Кобра-6, я ${u.call}. Задержанный молчит. Приём.`,[],{front:true});}
+    if(P.st==='evac'&&S.t>=P.tR){P.st='done';const r=Math.random();let n=0,tun=false;if(r<.75){n=S.Wk;tun=Math.random()<.5;}else if(r<.85)n=decoy();
+      if(n)say({call:'Разведка',type:'x'},`Кобра-6, я Разведка. ШАБАК допросил «Инженера». По его показаниям, мастерская в здании ${n}${tun?`, подземный ход — из здания ${S.T}`:''}. Приём.`,[bChip(n,'unk')].concat(tun?[bChip(S.T,'tun')]:[]),{urgent:true});else say({call:'Разведка',type:'x'},'Кобра-6, я Разведка. «Инженер» на допросе пока молчит. Приём.',[],{urgent:true});}}
   // pressure cooker
   for(const b in S.pc){const pc=S.pc[b];if(pc.busy&&S.t>=pc.tE){pc.busy=false;pcResolve(+b,pc);}}
   // attack helicopter
@@ -648,7 +658,7 @@ function tick(dt){
       if(hot&&Math.random()<.6)say(an,'Кобра-6, я Ангел! Площадка под огнём, посадку не произвожу, ухожу!',[],{urgent:true,act:{k:'clrLz',id:tr.id}});
       else{const near=U.filter(u=>(u.men>0||u.wounded>0)&&Math.hypot(u.x-tr.x,u.y-tr.y)<150);
         if(!near.length)say(an,'Кобра-6, я Ангел. На площадке никого нет, ухожу.',[],{act:{k:'clrLz',id:tr.id}});
-        else{let w=0,cw=0;near.forEach(u=>{w+=u.wounded;S.stats.evac+=u.wounded;u.wounded=0;u.wT=0;u.ammo=100;u.lowAmmo=false;u.morale=Math.min(90,u.morale+15);});S.civW.forEach(c=>{const B=BN(c.b);if(cwActive(c)&&Math.hypot(B.cx-tr.x,B.cy-tr.y)<150){c.st='evac';S.civEvac++;cw++;}});say(an,`Кобра-6, я Ангел. ${w?`Забрал раненых: ${w}.`:'Наших раненых нет.'}${cw?` Забрал раненых мирных: ${cw}.`:''} Боекомплект выгружен. Ухожу в госпиталь.`,[],{act:{k:'clrLz',id:tr.id}});}}
+        else{let w=0,cw=0;near.forEach(u=>{w+=u.wounded;S.stats.evac+=u.wounded;u.wounded=0;u.wT=0;u.ammo=100;u.lowAmmo=false;u.morale=Math.min(90,u.morale+15);});S.civW.forEach(c=>{const B=BN(c.b);if(cwActive(c)&&Math.hypot(B.cx-tr.x,B.cy-tr.y)<150){c.st='evac';S.civEvac++;cw++;}});let pr=false;if(tr.pris&&S.pris&&S.pris.st==='held'){const hu=U_(S.pris.uid);if(hu&&Math.hypot(hu.x-tr.x,hu.y-tr.y)<150){S.pris.st='evac';S.pris.tR=S.t+1500;pr=true;}}say(an,`Кобра-6, я Ангел. ${w?`Забрал раненых: ${w}.`:'Наших раненых нет.'}${cw?` Забрал раненых мирных: ${cw}.`:''}${pr?' Задержанный на борту, везу в ШАБАК.':''} Боекомплект выгружен. Ухожу в госпиталь.`,[],{act:{k:'clrLz',id:tr.id}});}}
       tr.st='out';tr.tB=S.t+1200;}
     else if(tr.st==='out'&&S.t>=tr.tB){tr.st='done';S.med.free++;say(an,'Кобра-6, я Ангел. Машина вернулась на базу, готова к вылету.',[]);}}
   S.med.trips=S.med.trips.filter(t=>t.st!=='done');
@@ -663,7 +673,7 @@ function scheduleAlarm(e,d){if(S.alarm)return;e.caller=true;e.alert=true;if(!S.a
 function enemyShot(e){if(S.alarm)return;scheduleAlarm(e,60);noise(e.x,e.y,300);}
 function sleepEntry(u){let det=0,woke=0,lead=false;for(const e of alive()){if(e.bld!==u.tb||e.mv||e.alert)continue;
   if(e.kind==='look'){e.alert=true;woke+=e.men;continue;}const p=u.uc?.75:.55;
-  if(e.leader&&Math.random()<p*.9){e.leader=false;e.men--;det++;lead=true;if(S.leader==='free')S.leader='captured';}
+  if(e.leader&&Math.random()<p*.9){e.leader=false;e.men--;det++;lead=true;if(S.leader==='free'){S.leader='captured';S.pris={uid:u.id,st:'held'};}}
   for(let i=e.men-(e.leader?1:0);i>0;i--)if(Math.random()<p){e.men--;det++;}
   if(e.men<=0)e.gone=true;else{e.alert=true;woke+=e.men;}}
   S.stats.det+=det;if(det||woke)say(u,`Кобра-6, я ${u.call}. Вошли тихо.${det?` Взяли спящими: ${det}.`:''}${lead?' Среди задержанных — «Инженер»!':''}${woke?` Проснулись: ${woke}, работаем.`:''}`,[],{urgent:!!woke||lead,known:'st',det,kobj:lead?['eng','задержан']:null});}
@@ -683,7 +693,7 @@ function showDebrief(){
   $('#dMeta').textContent=`${fmt(S.t)} · ${S.endWhy==='wiped'?'отделения потеряли боеспособность':S.endWhy==='done'?'задачи выполнены, отход':S.endWhy==='manual'?'операция завершена по решению командира':'06:30, приказ на отход'}`;
   $('#dRes').textContent=S.result;
   const lt={killed:'ликвидирован',captured:'задержан',escaped:'ушёл',free:'не найден'}[S.leader];
-  const rows=[['«Инженер»',lt],['Мастерская',S.lab==='destroyed'?'уничтожена':'цела'],['Боевиков нейтрализовано',`${S.stats.ek} из 12`],['Мирные: ранены / погибли',`${S.civW.length} / ${S.civDead}`],['Мирным: помощь / эвакуированы',`${S.civAid} / ${S.civEvac}`],['Наши погибшие',`${S.stats.kia}${S.stats.died?` (умерли от ран: ${S.stats.died})`:''}`],['Раненые: эвакуировано',S.stats.evac],['Раненые: не эвакуировано',left],['Задержано',S.stats.det],['Мирных выведено из зданий',S.civOut],['Собак потеряно',S.stats.dogsLost],['Мировой резонанс',`${resonance()} · ${resLevel(resonance())}`]];
+  const rows=[['«Инженер»',lt],['Мастерская',S.lab==='destroyed'?'уничтожена':'цела'],['Боевиков нейтрализовано',`${S.stats.ek} из 12`],['Мирные: ранены / погибли',`${S.civW.length} / ${S.civDead}`],['Мирным: помощь / эвакуированы',`${S.civAid} / ${S.civEvac}`],['Наши погибшие',`${S.stats.kia}${S.stats.died?` (умерли от ран: ${S.stats.died})`:''}`],['Раненые: эвакуировано',S.stats.evac],['Раненые: не эвакуировано',left],['Задержано',S.stats.det],...(S.leader==='captured'?[['«Инженер» сейчас',S.pris&&(S.pris.st==='evac'||S.pris.st==='done')?'передан ШАБАК':'у группы']]:[]),['Мирных выведено из зданий',S.civOut],['Собак потеряно',S.stats.dogsLost],['Мировой резонанс',`${resonance()} · ${resLevel(resonance())}`]];
   $('#dStat').innerHTML='';rows.forEach(([a,b])=>{const x=document.createElement('span');x.textContent=a;const y=document.createElement('b');y.textContent=b;$('#dStat').append(x,y);});
   let note=`«Инженер» был в здании ${S.L}, подземный ход — в здании ${S.T}, мастерская — в здании ${S.Wk}. Метки отделений расходились с реальностью в среднем на ${err} м.`;
   if(S.civHarm)note+=` Пострадавшие среди мирного населения: ${S.civHarm}${S.strikeCiv?`, из них при ударах: ${S.strikeCiv}`:''}. Каждый такой случай подлежит расследованию.`;
@@ -837,6 +847,8 @@ function selectUnit(id,center){selId=id;updUnits();dirty=true;const u=U_(id),k=S
       {t:'Занять позицию',d:'стоять, наблюдать',on:()=>hq(`${u.call}, я Кобра-6. Стой, занять позицию, наблюдать. Приём.`,{k:'order',uid:id,kind:'hold'})},
       {t:'Отходить',d:'указать точку',on:()=>startTarget('retreat',id)},
       {t:'Доложить обстановку',d:'где вы, потери, БК',on:()=>hq(`${u.call}, я Кобра-6. Доложи обстановку. Приём.`,{k:'rep',uid:id})}];
+    if(S.pris&&S.pris.uid===id&&S.pris.st==='held'){btns.push({t:'Допросить на месте',d:S.pris.asked?'уже опросили':'быстро, ~5 мин, может соврать',dis:!!S.pris.asked,on:()=>hq(`${u.call}, я Кобра-6. Опросить задержанного: где мастерская. Приём.`,{k:'interr',uid:id})});
+      btns.push({t:'Эвакуировать в ШАБАК',d:'вертушкой: дольше, но надёжнее',on:()=>hq(`Ангел, я Кобра-6. Забрать задержанного для ШАБАК: ${placeTxt(m.x,m.y)}. Приём.`,{k:'prisEvac',uid:id})});}
     btns.push({t:u.pace==='fast'?'Темп: быстро':'Темп: скрытно',d:u.pace==='fast'?'перейти на скрытный':'перейти на быстрый: слышно и видно',on:()=>hq(`${u.call}, я Кобра-6. Перейти на ${u.pace==='fast'?'скрытный':'быстрый'} темп. Приём.`,{k:'pace',uid:id,pace:u.pace==='fast'?'stealth':'fast'})});
     if(u.veh)btns.push({t:'Высадиться здесь',d:'машина останется',on:()=>hq(`${u.call}, я Кобра-6. Высадиться здесь. Приём.`,{k:'dismount',uid:id})});
     else if(u.id==='dv'&&S.car)btns.push({t:'Сесть в машину',d:'вернуться к машине',on:()=>hq(`${u.call}, я Кобра-6. Вернуться к машине. Приём.`,{k:'mount',uid:id})});
