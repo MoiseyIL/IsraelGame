@@ -176,6 +176,8 @@ button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
       <li><b>נוהל «סיר לחץ»</b>: לכתר את המבנה ולהגביר את הלחץ בשלבים: כריזה, ירי אזהרה, טיל נ״ט, הריסה בדחפור D9. אזרחים יוצאים, מחבלים עשויים להיכנע. אבל זה לוקח זמן, ולמטרה עשויה להיות מנהרה.</li>
       <li><b>«הקש בגג»</b>: טיל אזהרה לפני תקיפה. הדיירים מספיקים לצאת, אבל גם מחבלים עלולים לברוח.</li>
       <li><b>תצפית על מבנה</b>: הצוות מתקרב בחשאי ומתצפת דקה וחצי עד שתיים: אנשים, שמירה, מטענים על הדלת, סימנים למנהרה. דובדבן רואה יותר וכמעט לא מתגלה. גם כלבי עוקץ מוצאים פירי מנהרות.</li>
+      <li><b>איפה המעבדה</b>: המודיעין נותן משבצת, והיא מסומנת במפה. יעזרו לדייק: רחפן, תצפית על מבנה (ריח כימי, חלונות מכוסים), כלב (מריח חומר נפץ), תחקור העצור או חיפוש על גופת «המהנדס».</li>
+      <li><b>פינוי חירום</b>: אפשר להחזיר כל צוות מיד לבסיס. שם הפצועים עוברים לרפואה, הצוות מתחמש ושוב מוכן לצאת. מסוק הפינוי טס ישר לצוות: הצוות מסמן את המנחת בעצמו.</li>
       <li><b>עצור</b>: את «המהנדס» אפשר לתחקר בשטח (מהר, אבל הוא עלול לשקר או לשתוק) או לפנות במסוק לשב״כ (לוקח זמן, אבל העדות אמינה יותר). כך אפשר לגלות איפה המעבדה.</li>
       <li><b>קצב ומסלול</b>: «שקט» — כ־2.5 קמ״ש בעיר, «מהיר» — כ־6 קמ״ש, אבל קל יותר לראות ולשמוע את הצוות. הצוותים נעים ברחובות, לא דרך הבתים. טיהור בית לוקח 2 עד 15 דקות, לפי השטח ומספר הקומות.</li>
       <li><b>הפתעה</b>: את הירי שלנו עם משתיק שומעים עד כ־70 מ׳. אם האויב יורה, שומעים אותו עד 300 מ׳, ותוך דקה הוא מקפיץ את כל החוליה, אם לא מנטרלים אותו קודם. פיצוצים מקפיצים כוננות מיד. תצפיתן שזיהה אתכם יתריע תוך חצי דקה; צלף עם משתיק יכול לנטרל אותו מראש. בכוננות «המהנדס» בורח למנהרה, אם הבית שלו לא מכותר. כיתור המבנה עם המנהרה (צוות עד 120 מ׳) חוסם לו את הדרך.</li>
@@ -334,7 +336,7 @@ const alive=()=>S.enemies.filter(e=>!e.gone&&e.men>0);
 const outside=e=>!e.bld||e.roof||e.mode==='move'||e.mode==='patrol';
 
 /* ---------- radio ---------- */
-function stLabel(u){if(u.men<=1)return'לא כשיר';if(u.veh)return'ברכב';if(u.cont.length)return'בקרב';return{move:'בתנועה',recon:'סיור',obs:'בתצפית',snipe:'יציאה לעמדה',aim:'צלף בפעולה',assault:'הסתערות',breach:'פריצה',clearing:'טיהור',cordon:'כיתור',retreat:'נסיגה',hold:'בעמדה',broken:'לא כשיר'}[u.st]||'במקום';}
+function stLabel(u){if(u.men<=1)return'לא כשיר';if(u.veh)return'ברכב';if(u.cont.length)return'בקרב';return{move:'בתנועה',exfil:'פינוי',search:'חיפוש',recon:'סיור',obs:'בתצפית',snipe:'יציאה לעמדה',aim:'צלף בפעולה',assault:'הסתערות',breach:'פריצה',clearing:'טיהור',cordon:'כיתור',retreat:'נסיגה',hold:'בעמדה',broken:'לא כשיר'}[u.st]||'במקום';}
 function say(u,text,chips,o){o=o||{};const m={from:u.call,uid:u.id||null,text,chips:chips||[],urgent:!!o.urgent,act:o.act||null,kobj:o.kobj||null,pid:o.pid||0,ek:o.ek||0,det:o.det||0};
   if(o.known&&u.type==='inf')m.known=o.known==='full'?{men:u.men,wounded:u.wounded,ammo:Math.round(u.ammo/10)*10,st:stLabel(u),full:true}:{st:stLabel(u)};
   if(m.urgent||o.front){m.front=!!o.front;const i=S.radio.q.findIndex(x=>!x.urgent&&!x.front);if(i<0)S.radio.q.push(m);else S.radio.q.splice(i,0,m);}else S.radio.q.push(m);}
@@ -370,8 +372,11 @@ function doAct(a){const u=a.uid?U_(a.uid):null;
   else if(a.k==='cleared'){if(a.b===S.T)S.marks.b[a.b]='tun';else if(a.civ)S.marks.b[a.b]='civ';else delete S.marks.b[a.b];}
   else if(a.k==='clrOrd')delete S.marks.ord[a.uid];else if(a.k==='clrLz')S.marks.lz=S.marks.lz.filter(z=>z.id!==a.id);
   else if(a.k==='pc')pcExec(u,a);
+  else if(a.k==='exfil'){u.st='exfil';u.tx=STAGE.x;u.ty=STAGE.y;u.inB=0;u.cordon=0;u.pace='fast';u.demo=0;delete S.marks.ord[u.id];say(u,`כאן ${u.call}. רות, מתנתקים וחוזרים לבסיס.`,[],{front:true,known:'st'});}
+  else if(a.k==='search'){if(!S.body||S.body.searched)say(u,`צפע, כאן ${u.call}. כבר חיפשו על הגופה.`,[],{front:true});else{u.st='move';u.tx=S.body.x;u.ty=S.body.y;u.searchOn=true;u.inB=0;say(u,`כאן ${u.call}. רות, הולכים לגופה.`,[],{front:true,known:'st'});}}
+  else if(a.k==='labArea')S.marks.labArea={x:Math.floor(a.x/CELL)*CELL,y:Math.floor(a.y/CELL)*CELL};
   else if(a.k==='interr'){if(!S.pris||S.pris.uid!==u.id||S.pris.st!=='held')say(u,`צפע, כאן ${u.call}. אין אצלנו עצור.`,[],{front:true});else if(S.pris.asked)say(u,`צפע, כאן ${u.call}. כבר תחקרנו, הוא לא יגיד יותר.`,[],{front:true});else{S.pris.st='q';S.pris.tQ=S.t+300;S.pris.asked=true;say(u,`כאן ${u.call}. רות, מתחקרים את העצור.`,[],{front:true});}}
-  else if(a.k==='prisEvac'){if(!S.pris||S.pris.st!=='held')say(u,`צפע, כאן ${u.call}. אין אצלנו עצור.`,[],{front:true});else{const h=S.med,fresh=h.free>0;if(fresh)h.free--;const id=S.nid++;h.trips.push({id,x:u.x,y:u.y,tA:S.t+(fresh?300:720),st:'in',pris:true});S.marks.lz.push({id,x:u.x,y:u.y});say(U_('an'),fresh?'כאן ינשוף. רות, טס לאסוף את העצור. אגיע בעוד חמש דקות.':'כאן ינשוף. אין מסוק פנוי — מקפיצים עוד אחד, יגיע בעוד שתים-עשרה דקות.',[],{front:true});}}
+  else if(a.k==='prisEvac'){if(!S.pris||S.pris.st!=='held')say(u,`צפע, כאן ${u.call}. אין אצלנו עצור.`,[],{front:true});else{const h=S.med,fresh=h.free>0;if(fresh)h.free--;const id=S.nid++;h.trips.push({id,x:u.x,y:u.y,tA:S.t+(fresh?300:720),st:'in',pris:true,uid:u.id});S.marks.lz.push({id,x:u.x,y:u.y});say(U_('an'),fresh?'כאן ינשוף. רות, טס לאסוף את העצור. אגיע בעוד חמש דקות.':'כאן ינשוף. אין מסוק פנוי — מקפיצים עוד אחד, יגיע בעוד שתים-עשרה דקות.',[],{front:true});}}
   else if(a.k==='pace'){u.pace=a.pace;say(u,`כאן ${u.call}. רות, ${a.pace==='fast'?'קצב מהיר':'קצב שקט'}.`,[],{front:true});}
   else if(a.k==='dismount'){if(!u.veh)say(u,`צפע, כאן ${u.call}. אנחנו ממילא רגליים.`,[],{front:true});else{u.veh=false;S.car={x:u.x,y:u.y};u.st='hold';u.tx=u.x;u.ty=u.y;delete S.marks.ord[u.id];say(u,`צפע, כאן ${u.call}. ירדנו מהרכב: ${placeTxt(u.x,u.y)}. הרכב נשאר שם.`,[posChip(u)],{front:true,known:'st',act:{k:'car',x:u.x,y:u.y}});}}
   else if(a.k==='mount'){if(u.veh)say(u,`צפע, כאן ${u.call}. אנחנו כבר ברכב.`,[],{front:true});else if(!S.car)say(u,`צפע, כאן ${u.call}. אין רכב.`,[],{front:true});else{u.st='move';u.tx=S.car.x;u.ty=S.car.y;u.mountOn=true;u.inB=0;say(u,`כאן ${u.call}. רות, הולכים לרכב.`,[],{front:true,known:'st'});}}
@@ -421,7 +426,7 @@ function strikeExec(a){const u=U_('mo'),M=S.mol;const mk=S.marks.strike.find(m=>
 }
 function molRtb(){const M=S.mol,u=U_('mo');if(M.st!=='station'){say(u,'צפע, כאן שרף. כבר בבסיס.',[],{front:true});return;}M.st='rtb';M.tA=S.t+2400;say(u,'כאן שרף. רות, טס להתחמש. אחזור בעוד 40 דקות.',[],{front:true});}
 function molNew(){const M=S.mol;if(M.relief){say(U_('mo'),`צפע, כאן שרף. המחליף כבר בדרך, יגיע ב־${fmt(M.relief)}.`,[],{front:true});return;}M.relief=S.t+1200;say({call:'אוויר',type:'x'},'צפע, כאן אוויר. רות, מקפיצים מסוק חדש להחליף את שרף. יגיע לגזרה בעוד 20 דקות. עבור.',[],{front:true});}
-function medExec(a){const u=U_('an'),h=S.med;const fresh=h.free>0;if(fresh)h.free--;h.trips.push({id:a.lz,x:a.x,y:a.y,tA:S.t+(fresh?300:720),st:'in'});
+function medExec(a){const u=U_('an'),h=S.med;const fresh=h.free>0;if(fresh)h.free--;h.trips.push({id:a.lz,x:a.x,y:a.y,tA:S.t+(fresh?300:720),st:'in',uid:a.uid||null});
   say(u,fresh?'כאן ינשוף. רות, ממריא. אגיע בעוד חמש דקות. סמנו את המנחת בפנס אינפרה-אדום.':'כאן ינשוף. אין מסוק פנוי — מקפיצים עוד אחד. יגיע בעוד שתים-עשרה דקות. סמנו את המנחת.',[],{front:true});}
 const PCN=['','כריזה','ירי אזהרה','טיל נ״ט על המבנה','הריסה בדחפור D9'];
 function pcExec(u,a){const b=a.b;const pc=S.pc[b]||(S.pc[b]={stage:0,busy:false});
@@ -431,14 +436,14 @@ function pcExec(u,a){const b=a.b;const pc=S.pc[b]||(S.pc[b]={stage:0,busy:false}
   const t=['',`רות. כורזים בערבית: כולם לצאת ממבנה ${b} עם ידיים למעלה.`,`רות. פותחים בירי אזהרה על קירות מבנה ${b}.`,`רות. כריזה אחרונה, ואז טיל נ״ט על מבנה ${b}.`,'רות. מזמינים D9, יגיע בעוד עשר דקות.'][a.stage];
   say(u,`כאן ${u.call}. ${t}`,[],{front:true,known:'st'});}
 function pcResolve(b,pc){const u=U_(pc.uid),st=pc.stage;let out=0,harm=0,det=0,cas=0,lead='';
-  if(st===4){S.destroyed[b]=true;for(const e of alive())if(e.bld===b&&!e.mv){S.stats.ek+=e.men;if(e.leader&&S.leader==='free'){S.leader='killed';lead='killed';}e.men=0;e.gone=true;}
+  if(st===4){S.destroyed[b]=true;for(const e of alive())if(e.bld===b&&!e.mv){S.stats.ek+=e.men;if(e.leader&&S.leader==='free'){S.leader='killed';lead='killed';S.body={x:e.x,y:e.y,rubble:true};}e.men=0;e.gone=true;}
     harm=S.civ[b];S.civHarm+=harm;S.civDead+=harm;S.civ[b]=0;killCivIn(b);if(b===S.Wk&&S.lab==='intact')S.lab='destroyed';
     say(u,`צפע, כאן ${u.call}. ה־D9 הרס את מבנה ${b}.${lead?' «המהנדס» נשאר מתחת להריסות.':''}${harm?' במבנה נשארו אנשים.':''} עבור.`,[],{known:'st',front:true,kobj:lead?['eng','חוסל']:(b===S.Wk?['lab','הושמדה']:null)});return;}
   const pOut=[0,.9,.7,.5][st],pHarm=[0,0,.04,.3][st],pSur=[0,.12,.25,.35][st],pCas=[0,0,0,.3][st];
   for(let i=S.civ[b];i>0;i--){const r=Math.random();if(r<pHarm){addCivW(b);harm++;}else if(r<pHarm+pOut){S.civ[b]--;out++;}}
   S.civOut+=out;
   for(const e of alive()){if(e.bld!==b||e.mv)continue;
-    if(e.leader){if(Math.random()<pSur*.8){e.leader=false;e.men--;det++;S.stats.det++;if(S.leader==='free'){S.leader='captured';lead='captured';S.pris={uid:pc.uid,st:'held'};}}else if(Math.random()<pCas*.5){e.leader=false;e.men--;cas++;S.stats.ek++;if(S.leader==='free'){S.leader='killed';lead='killed';}}}
+    if(e.leader){if(Math.random()<pSur*.8){e.leader=false;e.men--;det++;S.stats.det++;if(S.leader==='free'){S.leader='captured';lead='captured';S.pris={uid:pc.uid,st:'held'};}}else if(Math.random()<pCas*.5){e.leader=false;e.men--;cas++;S.stats.ek++;if(S.leader==='free'){S.leader='killed';lead='killed';S.body={x:e.x,y:e.y,rubble:false};}}}
     for(let i=e.men-(e.leader?1:0);i>0;i--){const r=Math.random();if(r<pSur){e.men--;det++;S.stats.det++;}else if(r<pSur+pCas){e.men--;cas++;S.stats.ek++;}}
     if(e.men<=0)e.gone=true;}
   const armed=alive().some(e=>e.bld===b&&!e.mv);
@@ -512,18 +517,20 @@ function tick(dt){
   for(const e of alive()){if(!e.cont.length||e.mode==='flee')continue;if(!e.fired){e.fired=true;enemyShot(e);}const sh=1/e.cont.length;
     for(const id of e.cont){const u=U_(id),m=u.cm[e.id];const cov=m==='close'?1:u.inB?.5:(u.st==='hold'||u.st==='cordon')?.6:1;u.acc+=(m==='close'?.0065*(u.surpT>0?.5:1)*(u.dogBonus?.65:1):.0028)*e.men*sh*cov*(u.uc?.8:1)*dt;}}
   for(const e of alive()){while(e.acc>=1&&e.men>0){e.acc-=1;
-      if(e.leader&&(e.men===1||Math.random()<(e.cont.some(id=>U_(id).cm[e.id]==='close')?1:.35)/e.men)){e.leader=false;if(S.leader==='free'){S.leader='killed';const u=U_(e.cont[0]);if(u)say(u,`צפע, כאן ${u.call}. «המהנדס» נוטרל. חוזר: «המהנדס» — חוסל.`,[],{urgent:true,kobj:['eng','חוסל']});}}
+      if(e.leader&&(e.men===1||Math.random()<(e.cont.some(id=>U_(id).cm[e.id]==='close')?1:.35)/e.men)){e.leader=false;if(S.leader==='free'){S.leader='killed';S.body={x:e.x,y:e.y,rubble:false};const u=U_(e.cont[0]);if(u)say(u,`צפע, כאן ${u.call}. «המהנדס» נוטרל. חוזר: «המהנדס» — חוסל.`,[],{urgent:true,kobj:['eng','חוסל']});}}
       e.men--;S.stats.ek++;e.unrep=(e.unrep||0)+1;if(e.cont.length){const k=U_(e.cont[Math.floor(Math.random()*e.cont.length)]);e.lastK=k.id;if(k.inB&&k.inB===e.bld)k.bldEK=(k.bldEK||0)+1;}}
     if(e.leader&&e.men===1&&e.cont.some(id=>U_(id).cm[e.id]==='close')&&Math.random()<.025*(e.cont.some(id=>U_(id).uc)?2:1)*dt){e.gone=true;e.leader=false;S.leader='captured';S.stats.det++;const u=U_(e.cont[0]);S.pris={uid:u.id,st:'held'};say(u,`צפע, כאן ${u.call}! «המהנדס» נעצר! חוזר: המטרה נעצרה, בחיים.`,[],{urgent:true,kobj:['eng','נעצר'],det:1});}
     if(e.men<=0&&!e.gone){e.gone=true;if(e.lastK||e.cont.length){const u=U_(e.lastK||e.cont[0]);const n=e.unrep||0;e.unrep=0;const where=e.bld&&!e.mv&&e.mode!=='patrol'?`${e.roof?'על גג מבנה':'במבנה'} ${e.bld}`:placeTxt(e.x,e.y);
       say(u,`צפע, כאן ${u.call}. חוליית האויב ${where} נוטרלה.${n?` מחבלים שנוטרלו: ${n}.`:''} עבור.`,[],{known:'st',ek:n});}}}
   for(const u of U){while(u.acc>=1&&u.men>0){u.acc-=1;casualty(u);}}
   // own movement
-  for(const u of U){if(u.men<=0||!['move','assault','cordon','retreat','snipe','recon'].includes(u.st))continue;
-    const tw=inTown(u.x,u.y);let sp=u.veh?(tw?7:10):u.pace==='fast'?(tw?1.6:2):(tw?.7:.9);if(u.cont.length){if(u.st==='move'||u.st==='cordon'||u.st==='snipe'||u.st==='recon')sp=0;else if(u.st==='assault')sp*=.4;}if(u.wounded>u.men)sp*=.7;
+  for(const u of U){if(u.men<=0||!['move','assault','cordon','retreat','snipe','recon','exfil'].includes(u.st))continue;
+    const tw=inTown(u.x,u.y);let sp=u.veh?(tw?7:10):u.pace==='fast'?(tw?1.6:2):(tw?.7:.9);if(u.cont.length){if(u.st==='move'||u.st==='cordon'||u.st==='snipe'||u.st==='recon')sp=0;else if(u.st==='assault')sp*=.4;else if(u.st==='exfil')sp*=.7;}if(u.wounded>u.men)sp*=.7;
     if(sp>0&&u.pace==='fast'&&!u.veh)noise(u.x,u.y,30);
     if(sp>0&&moveAlong(u,sp*dt)){
       if(u.mountOn){u.mountOn=false;u.veh=true;S.car=null;u.st='hold';delete S.marks.ord[u.id];say(u,`צפע, כאן ${u.call}. עלינו לרכב.`,[],{known:'st',act:{k:'car',x:null}});continue;}
+      if(u.st==='exfil'){const w=u.wounded;S.stats.evac+=w;u.wounded=0;u.wT=0;u.ammo=100;u.lowAmmo=false;u.morale=Math.min(90,u.morale+20);u.drones=3;u.st='hold';u.pace='stealth';let pr=false;if(S.pris&&S.pris.uid===u.id&&S.pris.st==='held'){S.pris.st='evac';S.pris.tR=S.t+1500;pr=true;}if(u.veh){u.veh=false;S.car={x:u.x,y:u.y};}say(u,`צפע, כאן ${u.call}. הגענו לבסיס.${w?` פצועים הועברו לרפואה: ${w}.`:''}${pr?' העצור הועבר לשב״כ.':''} התחמשנו, מוכנים לצאת.`,[posChip(u)],{known:'full'});continue;}
+      if(u.searchOn){u.searchOn=false;u.st='search';u.searchT=S.body&&S.body.rubble?600:120;if(u.veh){u.veh=false;S.car={x:u.x,y:u.y};}say(u,(S.body.rubble?`צפע, כאן ${u.call}. גופת «המהנדס» מתחת להריסות, מפנים, זה ייקח זמן.`:`צפע, כאן ${u.call}. ליד גופת «המהנדס», מחפשים.`),[],{known:'st'});continue;}
       if(u.veh){u.veh=false;S.car={x:u.x,y:u.y};say(u,`צפע, כאן ${u.call}. ירדנו מהרכב: ${placeTxt(u.x,u.y)}. הרכב נשאר שם.`,[posChip(u)],{known:'st',act:{k:'car',x:u.x,y:u.y}});}
       if(u.st==='recon'){u.st='obs';u.obsT=u.uc?90:120;say(u,`צפע, כאן ${u.call}. ליד מבנה ${u.tb}, בתצפית חשאית.`,[],{known:'st',act:{k:'clrOrd',uid:u.id}});}
       else if(u.st==='snipe'){u.st='aim';u.aimT=20;say(u,`צפע, כאן ${u.call}. בעמדה, הצלף עובד על גג מבנה ${u.tb}.`,[],{known:'st',act:{k:'clrOrd',uid:u.id}});}
@@ -549,6 +556,7 @@ function tick(dt){
     else if(en.length&&Math.random()<(u.uc?.6:.35)){parts.push('בכניסה שומר חמוש');pid=b;}
     if(b===S.T&&Math.random()<(u.uc?.85:.5)){parts.push('בחצר אדמה טרייה, שקי עפר ומכסה מוסתר — נראה כמו פיר מנהרה');ch.push(bChip(b,'tun'));}else parts.push('סימנים למנהרה לא נראים');
     if(S.traps[b]&&Math.random()<.5)parts.push('על הדלת חוטים — ייתכן מטען');
+    if(b===S.Wk&&S.lab==='intact'&&Math.random()<(u.uc?.7:.45)){parts.push('החלונות מכוסים, ריח כימי מהאוורור — נראה כמו מעבדה');ch.push(bChip(b,'unk'));}
     if(pid)ch.push(bChip(b,'hos'));
     if(!u.uc&&en.length&&!S.alarm&&Math.random()<.15){spot=true;scheduleAlarm(en[0],60);}
     say(u,`צפע, כאן ${u.call}. מבנה ${b}: ${parts.join('; ')}.${spot?' נראה שזיהו אותנו מהחלון!':''} עבור.`,ch,{known:'st',front:true,urgent:spot,pid});}
@@ -562,6 +570,7 @@ function tick(dt){
     if(u.method==='dog'&&!u.dogDone&&u.breachT<=15){u.dogDone=true;u.dogBonus=true;const en=alive().filter(e=>e.bld===u.tb&&e.mode!=='move');const ppl=S.civ[u.tb]+en.reduce((s,e)=>s+e.men,0);
       let t=`צפע, כאן ${u.call}. הכלב סרק את מבנה ${u.tb}: `+(ppl?(en.length?'בפנים חמושים':'בפנים אנשים, לא סימן נשק'):'אין אנשים')+(S.traps[u.tb]?', בכניסה מטען.':', אין מטען בכניסה.');
       if(u.tb===S.T)t+=' הכלב סימן פיר מנהרה.';
+      if(u.tb===S.Wk&&S.lab==='intact')t+=' הכלב סימן חומר נפץ בתוך המבנה.';
       if(en.length){en.forEach(e=>e.alert=true);if(Math.random()<.4){enemyShot(en[0]);S.stats.dogsLost++;t+=' הכלב נורה.';}else S.dogs++;}else S.dogs++;
       say(u,t+' עבור.',en.length?[bChip(u.tb,'hos')]:ppl?[bChip(u.tb,'unk')]:[],{known:'st',pid:en.length?u.tb:0,front:true});}
     if(u.breachT<=0){u.st='clearing';u.inB=u.tb;const B=BN(u.tb);u.clearT=Math.min(900,90+B.area*B.fl*.22)*(u.men<6?1.3:1)*(u.method==='dog'?.85:1);u.civHit=0;u.trapNote='';u.bldEK=0;
@@ -624,7 +633,7 @@ function tick(dt){
     for(const e of alive())if(e.bld===n&&!e.mv&&!e.leader&&e.mode!=='tunnel'&&Math.random()<.3){fl+=e.men;S.fled+=e.men;e.gone=true;}
     const B=BN(n);if(Math.hypot(S.uav.x-B.cx,S.uav.y-B.cy)<450)say(U_('ya'),`צפע, כאן זיק. «הקש בגג» על מבנה ${n} בוצע. ${out+fl?`אנשים ברחו מהמבנה: ${out+fl}.`:'איש לא יצא מהמבנה.'} עבור.`,[],{urgent:true});}
   for(const p of S.strike.pend){if(p.done||S.t<p.tI)continue;p.done=true;const B=BN(p.b);S.destroyed[p.b]=true;raiseAlarm();
-    for(const e of alive())if(e.bld===p.b&&!e.mv||Math.hypot(e.x-B.cx,e.y-B.cy)<20){S.stats.ek+=e.men;if(e.leader&&S.leader==='free')S.leader='killed';e.men=0;e.gone=true;}
+    for(const e of alive())if(e.bld===p.b&&!e.mv||Math.hypot(e.x-B.cx,e.y-B.cy)<20){S.stats.ek+=e.men;if(e.leader&&S.leader==='free'){S.leader='killed';S.body={x:e.x,y:e.y,rubble:true};}e.men=0;e.gone=true;}
     const civ=S.civ[p.b];S.civHarm+=civ;S.civDead+=civ;S.civ[p.b]=0;killCivIn(p.b);S.strikeCiv=(S.strikeCiv||0)+civ;
     for(const b of BL){if(b.n===p.b)continue;const dx=Math.max(b.x0-B.x1,0,B.x0-b.x1),dy=Math.max(b.y0-B.y1,0,B.y0-b.y1);if(Math.hypot(dx,dy)<6&&S.civ[b.n]>0&&Math.random()<.5){addCivW(b.n);S.strikeCiv++;}}
     if(p.b===S.Wk&&S.lab==='intact')S.lab='destroyed';
@@ -642,6 +651,11 @@ function tick(dt){
     if(danger){a.tA=S.t+300;if(!a.warned){a.warned=true;say({call:'מת״ק',type:'x'},`צפע, כאן מת״ק. האמבולנס של הסהר האדום לא יכול להגיע למבנה ${a.b}: יש קרב בסביבה. ממתין בכניסה לעיר. עבור.`,[],{front:true});}continue;}
     a.done=true;const list=S.civW.filter(c=>c.b===a.b&&cwActive(c));list.forEach(c=>{c.st='evac';S.civEvac++;});
     say({call:'מת״ק',type:'x'},list.length?`צפע, כאן מת״ק. האמבולנס פינה ממבנה ${a.b} אזרחים פצועים: ${list.length}. בדרך לבית החולים. עבור.`:`צפע, כאן מת״ק. האמבולנס הגיע למבנה ${a.b}, לא מצא פצועים. עבור.`,[],{front:true});}
+  // body search
+  for(const u of U){if(u.st!=='search'||u.men<=0)continue;u.searchT-=dt;if(u.searchT>0)continue;u.st='hold';if(!S.body)continue;S.body.searched=true;const rb=S.body.rubble,r=Math.random();
+    if(r<(rb?.3:.7)){const tun=Math.random()<.4;say(u,`צפע, כאן ${u.call}. חיפשנו על גופת «המהנדס»: טלפון ורשימות. המעבדה — במבנה ${S.Wk}.${tun?` יש שרטוט של המנהרה ממבנה ${S.T}.`:''} עבור.`,[bChip(S.Wk,'unk')].concat(tun?[bChip(S.T,'tun')]:[]),{known:'st',front:true});}
+    else if(r<(rb?.6:1))say(u,`צפע, כאן ${u.call}. חיפשנו על גופת «המהנדס»: ברשימות מסומנת משבצת ${cell(BN(S.Wk).cx,BN(S.Wk).cy)}. לא יותר מזה. עבור.`,[],{known:'st',front:true,act:{k:'labArea',x:BN(S.Wk).cx,y:BN(S.Wk).cy}});
+    else say(u,`צפע, כאן ${u.call}. מתחת להריסות לא נמצא דבר מועיל. עבור.`,[],{known:'st',front:true});}
   // detainee
   if(S.pris){const P=S.pris;
     const decoy=()=>{const W=BN(S.Wk);const c=BL.filter(b=>b.n!==S.Wk&&!b.prot&&Math.hypot(b.cx-W.cx,b.cy-W.cy)>120&&Math.hypot(b.cx-W.cx,b.cy-W.cy)<400);return(c.length?pick(c):pick(BL.filter(b=>b.n!==S.Wk))).n;};
@@ -659,9 +673,9 @@ function tick(dt){
   // medevac
   const an=U_('an');
   for(const tr of S.med.trips){
-    if(tr.st==='in'&&S.t>=tr.tA){const hot=alive().some(e=>(outside(e)||e.alert)&&Math.hypot(e.x-tr.x,e.y-tr.y)<200);
+    if(tr.st==='in'&&S.t>=tr.tA){if(tr.uid){const tu=U_(tr.uid);if(tu){tr.x=tu.x;tr.y=tu.y;const z=S.marks.lz.find(z=>z.id===tr.id);if(z){z.x=tu.x;z.y=tu.y;}}}const hot=alive().some(e=>(outside(e)||e.alert)&&Math.hypot(e.x-tr.x,e.y-tr.y)<200);
       if(hot&&Math.random()<.6)say(an,'צפע, כאן ינשוף! המנחת תחת אש, לא נוחת, מתרחק!',[],{urgent:true,act:{k:'clrLz',id:tr.id}});
-      else{const near=U.filter(u=>(u.men>0||u.wounded>0)&&Math.hypot(u.x-tr.x,u.y-tr.y)<150);
+      else{const near=U.filter(u=>(u.men>0||u.wounded>0)&&Math.hypot(u.x-tr.x,u.y-tr.y)<200);
         if(!near.length)say(an,'צפע, כאן ינשוף. אין אף אחד במנחת, מתרחק.',[],{act:{k:'clrLz',id:tr.id}});
         else{let w=0,cw=0;near.forEach(u=>{w+=u.wounded;S.stats.evac+=u.wounded;u.wounded=0;u.wT=0;u.ammo=100;u.lowAmmo=false;u.morale=Math.min(90,u.morale+15);});S.civW.forEach(c=>{const B=BN(c.b);if(cwActive(c)&&Math.hypot(B.cx-tr.x,B.cy-tr.y)<150){c.st='evac';S.civEvac++;cw++;}});let pr=false;if(tr.pris&&S.pris&&S.pris.st==='held'){const hu=U_(S.pris.uid);if(hu&&Math.hypot(hu.x-tr.x,hu.y-tr.y)<150){S.pris.st='evac';S.pris.tR=S.t+1500;pr=true;}}say(an,`צפע, כאן ינשוף. ${w?`פיניתי פצועים: ${w}.`:'אין פצועים שלנו.'}${cw?` פיניתי אזרחים פצועים: ${cw}.`:''}${pr?' העצור על המסוק, בדרך לשב״כ.':''} התחמושת נפרקה. טס לבית החולים.`,[],{act:{k:'clrLz',id:tr.id}});}}
       tr.st='out';tr.tB=S.t+1200;}
@@ -739,7 +753,7 @@ const unitsEl=$('#units');let selId=null;
 function updUnits(){
   if(!unitsEl.children.length){S.units.forEach(u=>{const b=document.createElement('button');b.className='uc';b.dataset.id=u.id;b.innerHTML='<span class="n"><i></i><span></span></span><small></small>';b.onclick=()=>selectUnit(u.id,true);unitsEl.appendChild(b);});}
   for(const b of unitsEl.children){const u=U_(b.dataset.id),k=S.known[u.id];b.querySelector('.n span').textContent=u.call;b.setAttribute('aria-pressed',String(selId===u.id));const dot=b.querySelector('.n i');let line;
-    if(u.type==='inf'){line=`${k.st} · ${fmt(k.t)}: ${k.men}${k.wounded?'+'+k.wounded+'פ':''} לוחמים, תחמושת ${k.ammo}%`;dot.className={'בקרב':'boy','בתנועה':'mar','הסתערות':'boy','פריצה':'boy','טיהור':'boy','נסיגה':'mar','כיתור':'obo','ברכב':'mar','סיור':'mar','בתצפית':'obo','יציאה לעמדה':'mar','צלף בפעולה':'boy','בעמדה':'obo','לא כשיר':'off'}[k.st]||'';}
+    if(u.type==='inf'){line=`${k.st} · ${fmt(k.t)}: ${k.men}${k.wounded?'+'+k.wounded+'פ':''} לוחמים, תחמושת ${k.ammo}%`;dot.className={'בקרב':'boy','בתנועה':'mar','הסתערות':'boy','פריצה':'boy','טיהור':'boy','נסיגה':'mar','כיתור':'obo','פינוי':'mar','חיפוש':'obo','ברכב':'mar','סיור':'mar','בתצפית':'obo','יציאה לעמדה':'mar','צלף בפעולה':'boy','בעמדה':'obo','לא כשיר':'off'}[k.st]||'';}
     else if(u.type==='uav'){line=`בשהייה · ${cell(S.uav.tx,S.uav.ty)}`;dot.className='obo';}
     else if(u.type==='strike'){const M=S.mol;line=M.st==='station'?`בגזרה · טילים ${M.ammo} · ${Math.round(M.fuel/60)} דק׳`:`בבסיס · עד ${fmt(M.tA)}`;dot.className=M.st==='station'?(M.ammo?'obo':'off'):'mar';}
     else{const h=S.med;line=`פנויים ${h.free} · במשימה ${h.trips.length}`;dot.className=h.free?'obo':'mar';}
@@ -774,6 +788,7 @@ function render(){
   for(const n in S.destroyed){const b=BN(+n);c.fillStyle='rgba(30,30,30,.75)';c.fillRect(b.x0,b.y0,b.x1-b.x0,b.y1-b.y0);c.strokeStyle='#111';c.lineWidth=2/(V.s*K);c.beginPath();c.moveTo(b.x0,b.y0);c.lineTo(b.x1,b.y1);c.moveTo(b.x1,b.y0);c.lineTo(b.x0,b.y1);c.stroke();}
   for(const n in S.cleared){const b=BN(+n);c.strokeStyle='#1f6fb0';c.lineWidth=3/(V.s*K);c.strokeRect(b.x0-2,b.y0-2,b.x1-b.x0+4,b.y1-b.y0+4);}
   c.lineWidth=1.2/(V.s*K);c.strokeStyle='rgba(176,30,120,.7)';c.beginPath();for(let x=CELL;x<MWm;x+=CELL){c.moveTo(x,0);c.lineTo(x,MHm);}for(let y=CELL;y<MHm;y+=CELL){c.moveTo(0,y);c.lineTo(MWm,y);}c.stroke();
+  if(S.marks.labArea){const A=S.marks.labArea;c.setLineDash([12/(V.s*K),8/(V.s*K)]);c.strokeStyle='rgba(205,125,20,.95)';c.lineWidth=3/(V.s*K);c.strokeRect(A.x+5,A.y+5,CELL-10,CELL-10);c.setLineDash([]);}
   const t=UI.target;
   if(t&&t.pt){if(t.b){const b=BN(t.b);c.strokeStyle='#e9a21a';c.lineWidth=4/(V.s*K);c.strokeRect(b.x0-3,b.y0-3,b.x1-b.x0+6,b.y1-b.y0+6);if(t.kind==='strike'){c.setLineDash([8/(V.s*K),6/(V.s*K)]);c.strokeStyle='rgba(200,40,40,.8)';c.lineWidth=2/(V.s*K);c.beginPath();c.arc(b.cx,b.cy,100,0,7);c.stroke();c.setLineDash([]);}if(t.kind==='cordon'){c.setLineDash([8/(V.s*K),6/(V.s*K)]);c.strokeStyle='rgba(31,111,176,.8)';c.lineWidth=2/(V.s*K);c.beginPath();c.arc(b.cx,b.cy,120,0,7);c.stroke();c.setLineDash([]);}}
     if(t.kind==='uav'){c.setLineDash([8/(V.s*K),6/(V.s*K)]);c.strokeStyle='rgba(31,111,176,.8)';c.lineWidth=2/(V.s*K);c.beginPath();c.arc(t.pt.x,t.pt.y,320,0,7);c.stroke();c.setLineDash([]);}}
@@ -786,6 +801,7 @@ function render(){
   for(let j=0;j<7;j++){const [sx]=toS(j*CELL+CELL/2,0);if(sx<14||sx>cw-14)continue;c.fillStyle='rgba(120,20,85,.85)';c.fillRect(sx-9,ty-8,18,16);c.fillStyle='#fff';c.fillText(COLS[j],sx,ty);}
   for(let k=0;k<11;k++){const [,sy]=toS(0,k*CELL+CELL/2);if(sy<28||sy>ch-10)continue;c.fillStyle='rgba(120,20,85,.85)';c.fillRect(lx-10,sy-8,20,16);c.fillStyle='#fff';c.fillText(k+1,lx,sy);}
   // staging
+  if(S.marks.labArea){const [sx,sy]=toS(S.marks.labArea.x+CELL/2,S.marks.labArea.y+5);c.font='700 11px "Rubik", "Roboto Condensed", sans-serif';c.textAlign='center';c.textBaseline='middle';halo(c,'אזור המעבדה (מודיעין)',sx,sy+10,'#9a5300');}
   {const [sx,sy]=toS(STAGE.x,STAGE.y);c.font='700 12px "Rubik", sans-serif';c.textAlign='center';halo(c,'נק״כ «ארז»',sx,sy+28,'#14324a');}
   // building marks
   for(const n in S.marks.b){const b=BN(+n),[sx,sy]=toS(b.cx,b.cy),k=S.marks.b[n];const ox=sx+14,oy=sy-12;if(k==='hos')symHos(c,ox,oy,10,'');else if(k==='unk')symUnk(c,ox,oy);else if(k==='civ')symCiv(c,ox,oy);else if(k==='tun')symTun(c,ox,oy);}
@@ -854,6 +870,8 @@ function selectUnit(id,center){selId=id;updUnits();dirty=true;const u=U_(id),k=S
       {t:'דווח מצב',d:'מיקום, נפגעים, תחמושת',on:()=>hq(`${u.call}, כאן צפע. דווח מצב. עבור.`,{k:'rep',uid:id})}];
     if(S.pris&&S.pris.uid===id&&S.pris.st==='held'){btns.push({t:'תחקור מהיר בשטח',d:S.pris.asked?'כבר תוחקר':'מהיר, ~5 דק׳, עלול לשקר',dis:!!S.pris.asked,on:()=>hq(`${u.call}, כאן צפע. לתחקר את העצור: איפה המעבדה. עבור.`,{k:'interr',uid:id})});
       btns.push({t:'פינוי לשב״כ',d:'במסוק: לוקח זמן, אבל אמין יותר',on:()=>hq(`ינשוף, כאן צפע. לאסוף עצור לשב״כ: ${placeTxt(m.x,m.y)}. עבור.`,{k:'prisEvac',uid:id})});}
+    btns.push({t:'פינוי חירום לבסיס',d:'לצאת מהקרב: פצועים ועצור — לבסיס',danger:true,wide:true,on:()=>hq(`${u.call}, כאן צפע. לחזור מיד לבסיס. עבור.`,{k:'exfil',uid:id})});
+    if((S.kobj.eng==='חוסל')&&S.body&&!S.body.searched)btns.push({t:'חיפוש על גופת «המהנדס»',d:S.body.rubble?'מתחת להריסות, ~10 דק׳':'טלפון, רשימות · ~2 דק׳',wide:true,on:()=>hq(`${u.call}, כאן צפע. לחפש על גופת «המהנדס». עבור.`,{k:'search',uid:id})});
     btns.push({t:u.pace==='fast'?'קצב: מהיר':'קצב: שקט',d:u.pace==='fast'?'לעבור לשקט':'לעבור למהיר: שומעים ורואים',on:()=>hq(`${u.call}, כאן צפע. לעבור לקצב ${u.pace==='fast'?'שקט':'מהיר'}. עבור.`,{k:'pace',uid:id,pace:u.pace==='fast'?'stealth':'fast'})});
     if(u.veh)btns.push({t:'לרדת מהרכב כאן',d:'הרכב יישאר',on:()=>hq(`${u.call}, כאן צפע. לרדת מהרכב כאן. עבור.`,{k:'dismount',uid:id})});
     else if(u.id==='dv'&&S.car)btns.push({t:'לחזור לרכב',d:'ללכת לרכב',on:()=>hq(`${u.call}, כאן צפע. לחזור לרכב. עבור.`,{k:'mount',uid:id})});
@@ -863,7 +881,7 @@ function selectUnit(id,center){selId=id;updUnits();dirty=true;const u=U_(id),k=S
       btns.push({t:'טיפול באזרחים פצועים',d:nh?`חובש · ${nh} אנשים · 3 דק׳`:'כבר טופלו',dis:!nh||u.aidT>0,on:()=>hq(`${u.call}, כאן צפע. טפלו באזרחים הפצועים. עבור.`,{k:'civAid',uid:id})});
       btns.push({t:'אמבולנס דרך המת״ק',d:amb?'כבר הוזמן':'הסהר האדום · ~20 דק׳',dis:amb,on:()=>hq(`מת״ק, כאן צפע. צריך אמבולנס לאזרחים פצועים: מבנה ${u.inB}, משבצת ${cell(u.x,u.y)}. עבור.`,{k:'civAmb',b:u.inB})});}
     if(S.kobj.lab==='אותרה'&&u.inB===S.Wk&&!(u.demo>0))btns.push({t:'השמדת המעבדה',d:'פיצוץ, 5 דקות',wide:true,on:()=>hq(`${u.call}, כאן צפע. להשמיד את המעבדה בפיצוץ. להוציא אזרחים. עבור.`,{k:'demo',uid:id})});
-    btns.push({t:'הזמן ינשוף אליהם',d:(h.free?'מסוק פנוי · 5 דק׳':'מסוק חדש · 12 דק׳')+' · יפנה גם אזרחים',wide:true,on:()=>startTarget('med','an',{x:m.x,y:m.y})});
+    btns.push({t:'הזמן ינשוף אליהם',d:(h.free?'מסוק פנוי · 5 דק׳':'מסוק חדש · 12 דק׳')+' · יפנה גם אזרחים',wide:true,on:()=>{const lz=S.nid++;S.marks.lz.push({id:lz,x:m.x,y:m.y});hq(`ינשוף, כאן צפע. פינוי פצועים עבור ${u.call}, הם יסמנו את המנחת במקום. עבור.`,{k:'med',x:m.x,y:m.y,lz,uid:id});}});
     openSheet(u.call,`דיווח אחרון ${fmt(k.t)}: כשירים ${k.men}${k.wounded?', פצועים '+k.wounded:''}, תחמושת ${k.ammo}%. עכשיו: ${k.st}.\nהסימון שלכם: ${placeTxt(m.x,m.y)}.`,btns);}
   else if(u.type==='uav')openSheet('זיק','כטב״ם. רואה רחובות וגגות ברדיוס של כ־300 מ׳ מנקודת השהייה. לא רואה בתוך מבנים.',[
       {t:'שנה גזרה',d:'בחרו נקודה',on:()=>startTarget('uav','ya')},{t:'דווח',d:'מה רואה',on:()=>hq('זיק, כאן צפע. דווח מה אתה רואה. עבור.',{k:'rep',uid:'ya'})}]);
@@ -922,7 +940,7 @@ $('#bGo').onclick=()=>{$('#brief').hidden=true;$('#bNew').hidden=true;initAudio(
     hq('כל התחנות ברשת «צפע», כאן צפע. מבצע «רשת» — מתחילים. שקט ברשת. דווחו מוכנות. עבור.');
     infs().forEach(u=>say(u,`צפע, כאן ${u.call}. בנק״כ «ארז», מוכן לתנועה. עבור.`,[posChip(u)],{known:'full'}));
     say(U_('ya'),'צפע, כאן זיק. באוויר, שוהה דרומית לעיר. עבור.');
-    say({call:'מודיעין',type:'x'},`צפע, כאן מודיעין. «המהנדס», לפי המידע האחרון, נמצא באחד המבנים: ${S.cand.join(', ')}. איתו שניים-שלושה מאבטחים. המעבדה — כנראה במשבצת ${cell(BN(S.Wk).cx,BN(S.Wk).cy)}. ייתכנו תצפיתנים על הגגות בכניסה הדרומית ומטענים בכניסות. ייתכן שיש מנהרה, והפתח שלה עד 200 מ׳ מהבית של «המהנדס». עבור.`,S.cand.map(n=>bChip(n,'unk')));}
+    say({call:'מודיעין',type:'x'},`צפע, כאן מודיעין. «המהנדס», לפי המידע האחרון, נמצא באחד המבנים: ${S.cand.join(', ')}. איתו שניים-שלושה מאבטחים. המעבדה — כנראה במשבצת ${cell(BN(S.Wk).cx,BN(S.Wk).cy)}. ייתכנו תצפיתנים על הגגות בכניסה הדרומית ומטענים בכניסות. ייתכן שיש מנהרה, והפתח שלה עד 200 מ׳ מהבית של «המהנדס». עבור.`,S.cand.map(n=>bChip(n,'unk')),{act:{k:'labArea',x:BN(S.Wk).cx,y:BN(S.Wk).cy}});}
   else if(!S.over)S.speed=1;setSpeedUI();};
 $('#bTruth').onclick=()=>{S.truth=true;$('#debrief').hidden=true;$('#truthPill').hidden=false;const L=BN(S.L);centerOn(L.cx,L.cy,clamp(cw/W*2.4,minS(),maxS()));};
 $('#truthPill').onclick=()=>{$('#debrief').hidden=false;};
