@@ -185,6 +185,7 @@ button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
       <li><b>איפה המעבדה</b>: המודיעין נותן משבצת, והיא מסומנת במפה. יעזרו לדייק: רחפן, תצפית על מבנה (ריח כימי, חלונות מכוסים), כלב (מריח חומר נפץ), תחקור העצור או חיפוש על גופת «המהנדס».</li>
       <li><b>פינוי חירום</b>: אפשר להחזיר כל צוות מיד לבסיס. שם הפצועים עוברים לרפואה, הצוות מתחמש ושוב מוכן לצאת. מסוק הפינוי טס ישר לצוות: הצוות מסמן את המנחת בעצמו.</li>
       <li><b>עצור</b>: את «המהנדס» אפשר לתחקר בשטח (מהר, אבל הוא עלול לשקר או לשתוק) או לפנות במסוק לשב״כ (לוקח זמן, אבל העדות אמינה יותר). כך אפשר לגלות איפה המעבדה.</li>
+      <li><b>מפקדי הצוותים פועלים לבד</b>: תחת אש הצוות משיב אש ותופס את המחסה הקרוב מחוץ לקו הראייה של היורה, ומדווח מאיפה האש. משם המפקד מחליט לפי המצב: מחזיק מחסה ומדכא, ביתרון — מאגף ופורץ, ואם האויב חזק יותר, יש הרבה פצועים או שהמשימה חשאית — מתנתק ועוקף ברחוב אחר. כשהאש פוסקת, הצוות ממשיך במשימה. לפצועים תחת אש רק שמים חוסם עורקים, הטיפול — אחרי הקרב. קרב מתנהל רק בקו ראייה לאורך הרחובות.</li>
       <li><b>קצב ומסלול</b>: «שקט» — כ־2.5 קמ״ש בעיר, «מהיר» — כ־6 קמ״ש, אבל קל יותר לראות ולשמוע את הצוות. הצוותים נעים ברחובות, לא דרך הבתים. טיהור בית לוקח 2 עד 15 דקות, לפי השטח ומספר הקומות.</li>
       <li><b>הפתעה</b>: את הירי שלנו עם משתיק שומעים עד כ־70 מ׳. אם האויב יורה, שומעים אותו עד 300 מ׳, ותוך דקה הוא מקפיץ את כל החוליה, אם לא מנטרלים אותו קודם. פיצוצים מקפיצים כוננות מיד. תצפיתן שזיהה אתכם יתריע תוך חצי דקה; צלף עם משתיק יכול לנטרל אותו מראש. בכוננות «המהנדס» בורח למנהרה, אם הבית שלו לא מכותר. כיתור המבנה עם המנהרה (צוות עד 120 מ׳) חוסם לו את הדרך.</li>
     </ul>
@@ -349,7 +350,7 @@ const alive=()=>S.enemies.filter(e=>!e.gone&&e.men>0);
 const outside=e=>!e.bld||e.roof||e.mode==='move'||e.mode==='patrol';
 
 /* ---------- radio ---------- */
-function stLabel(u){if(u.men<=1)return'לא כשיר';if(u.veh)return'ברכב';if(u.cont.length)return'בקרב';return{move:'בתנועה',exfil:'פינוי',search:'חיפוש',recon:'סיור',obs:'בתצפית',snipe:'יציאה לעמדה',aim:'צלף בפעולה',assault:'הסתערות',breach:'פריצה',clearing:'טיהור',cordon:'כיתור',retreat:'נסיגה',hold:'בעמדה',broken:'לא כשיר'}[u.st]||'במקום';}
+function stLabel(u){if(u.men<=1)return'לא כשיר';if(u.veh)return'ברכב';if(u.cont.length)return'בקרב';return{move:'בתנועה',cover:'למחסה',incover:'במחסה',exfil:'פינוי',search:'חיפוש',recon:'סיור',obs:'בתצפית',snipe:'יציאה לעמדה',aim:'צלף בפעולה',assault:'הסתערות',breach:'פריצה',clearing:'טיהור',cordon:'כיתור',retreat:'נסיגה',hold:'בעמדה',broken:'לא כשיר'}[u.st]||'במקום';}
 function say(u,text,chips,o){o=o||{};const m={from:u.call,uid:u.id||null,text,chips:chips||[],urgent:!!o.urgent,act:o.act||null,kobj:o.kobj||null,pid:o.pid||0,ek:o.ek||0,det:o.det||0};
   if(o.known&&u.type==='inf')m.known=o.known==='full'?{men:u.men,wounded:u.wounded,ammo:Math.round(u.ammo/10)*10,st:stLabel(u),full:true}:{st:stLabel(u)};
   if(m.urgent||o.front){m.front=!!o.front;const i=S.radio.q.findIndex(x=>!x.urgent&&!x.front);if(i<0)S.radio.q.push(m);else S.radio.q.splice(i,0,m);}else S.radio.q.push(m);}
@@ -407,7 +408,7 @@ function orderExec(u,a){
   if(a.kind==='hold'){u.st='hold';u.tx=u.x;u.ty=u.y;say(u,`כאן ${u.call}. רות, תופסים עמדה ומתצפתים.`,[],{known:'st',front:true});delete S.marks.ord[u.id];return;}
   if(u.st==='clearing'&&a.kind!=='retreat'){const enIn=alive().some(e=>e.bld===u.inB&&!e.roof);if(enIn){say(u,`כאן ${u.call}. בקרב בתוך מבנה ${u.inB}, לא יכולים לצאת.`,[],{front:true,known:'st'});return;}}
   if(u.demo>0){u.demo=0;}
-  u.inB=0;u.st=a.kind;u.tx=a.x;u.ty=a.y;u.tb=a.b||0;
+  u.resume=null;u.autoAs=false;u.byp=0;u.stuckRep=0;u.avoid=[];u.threats=[];u.inB=0;u.st=a.kind;u.tx=a.x;u.ty=a.y;u.tb=a.b||0;
   if(a.kind==='snipe'||a.kind==='recon'){const B=BN(a.b);const dx=u.x-B.cx,dy=u.y-B.cy,d=Math.hypot(dx,dy)||1,r=Math.min(a.kind==='recon'?35:170,d);u.tx=B.cx+dx/d*r;u.ty=B.cy+dy/d*r;}u.cordon=0;u.method=a.method||'door';u.dogDone=false;u.dogBonus=false;
   let noDog=false;if(a.kind==='assault'&&u.method==='dog'){if(S.dogs>0)S.dogs--;else{u.method='door';noDog=true;}}
   const AS={door:`רות, מבנה ${a.b}: כניסה שקטה.`,wall:`רות, מבנה ${a.b}: מפוצצים את הקיר ונכנסים.`,dog:`רות, מבנה ${a.b}: הכלב נכנס ראשון.`,sapper:`רות, מבנה ${a.b}: החבלנים ינטרלו את המטען ואז נכנסים בשקט.`};
@@ -488,13 +489,56 @@ function findPath(sx,sy,tx,ty){if(!NAV)return[[tx,ty]];const s=nearFree(sx,sy),t
   const pop=()=>{const top=hp[0],li=hp.pop(),lf=hf.pop();if(hp.length){hp[0]=li;hf[0]=lf;let k=0;for(;;){const l=2*k+1,r=l+1;let m=k;if(l<hp.length&&hf[l]<hf[m])m=l;if(r<hp.length&&hf[r]<hf[m])m=r;if(m===k)break;[hp[m],hp[k]]=[hp[k],hp[m]];[hf[m],hf[k]]=[hf[k],hf[m]];k=m;}}return top;};
   const hx=t[0],hy=t[1];g[si]=0;push(si,0);const D=[[1,0,1],[-1,0,1],[0,1,1],[0,-1,1],[1,1,1.414],[1,-1,1.414],[-1,1,1.414],[-1,-1,1.414]];
   while(hp.length){const i=pop();if(done[i])continue;done[i]=1;if(i===ti)break;const x=i%NW,y=(i/NW)|0;
-    for(const [dx,dy,c] of D){const nx=x+dx,ny=y+dy;if(!navFree(nx,ny))continue;if(dx&&dy&&(!navFree(x+dx,y)||!navFree(x,y+dy)))continue;const j=ny*NW+nx;const ng=g[i]+c;if(ng<g[j]){g[j]=ng;from[j]=i;push(j,ng+Math.hypot(nx-hx,ny-hy));}}}
+    for(const [dx,dy,c] of D){const nx=x+dx,ny=y+dy;if(!navFree(nx,ny))continue;if(dx&&dy&&(!navFree(x+dx,y)||!navFree(x,y+dy)))continue;const j=ny*NW+nx;let cc=c;if(AV&&AV[j])cc*=25;const ng=g[i]+cc;if(ng<g[j]){g[j]=ng;from[j]=i;push(j,ng+Math.hypot(nx-hx,ny-hy));}}}
   if(from[ti]<0&&si!==ti)return[[tx,ty]];
   const cells=[];for(let i=ti;i!==-1;i=from[i]){cells.push([(i%NW+.5)*NG,(((i/NW)|0)+.5)*NG]);if(i===si)break;}cells.reverse();
   const pts=[];let cur=[sx,sy],k=0;if(!los(sx,sy,cells[0][0],cells[0][1]))pts.push(cells[0]);cur=cells[0];
   while(k<cells.length-1){let j=cells.length-1;while(j>k+1&&!los(cur[0],cur[1],cells[j][0],cells[j][1]))j--;pts.push(cells[j]);cur=cells[j];k=j;}
   pts.push([tx,ty]);return pts;}
-function moveAlong(o,step){const key=Math.round(o.tx)+','+Math.round(o.ty);if(o.pkey!==key||!o.path){o.path=findPath(o.x,o.y,o.tx,o.ty);o.pkey=key;}
+let AV=null;const AVC={};
+function avoidMask(list){const key=list.map(a=>Math.round(a.x)+':'+Math.round(a.y)+':'+(a.bld||0)+':'+a.r).join('|');if(AVC[key])return AVC[key];const m=new Uint8Array(NW*NH);
+  for(const a of list){const R=a.r,t={x:a.x,y:a.y,bld:a.bld||0,mode:a.bld?'defend':'x',mv:false};const x0=Math.max(0,Math.floor((a.x-R)/NG)),x1=Math.min(NW-1,Math.floor((a.x+R)/NG)),y0=Math.max(0,Math.floor((a.y-R)/NG)),y1=Math.min(NH-1,Math.floor((a.y+R)/NG));
+    for(let cy=y0;cy<=y1;cy++)for(let cx=x0;cx<=x1;cx++){if(NAV[cy*NW+cx])continue;const px=(cx+.5)*NG,py=(cy+.5)*NG;if(Math.hypot(px-a.x,py-a.y)>R)continue;if(Math.hypot(px-a.x,py-a.y)<35||losPtE(px,py,t))m[cy*NW+cx]=1;}}
+  AVC[key]=m;return m;}
+function blockOf(x,y){for(const k of BLOCKS)if(x>=k.x0-1&&x<=k.x1+1&&y>=k.y0-1&&y<=k.y1+1)return k;return null;}
+function openPt(x,y,ox,oy){if(navFree(Math.floor(x/NG),Math.floor(y/NG)))return[x,y];const k=blockOf(x,y);if(!k)return[x,y];
+  let px=clamp(ox,k.x0,k.x1),py=clamp(oy,k.y0,k.y1);if(px>k.x0&&px<k.x1&&py>k.y0&&py<k.y1){const dl=px-k.x0,dr=k.x1-px,dt=py-k.y0,db=k.y1-py,m=Math.min(dl,dr,dt,db);if(m===dl)px=k.x0;else if(m===dr)px=k.x1;else if(m===dt)py=k.y0;else py=k.y1;}
+  const dx=ox-px,dy=oy-py,d=Math.hypot(dx,dy)||1;return[px+dx/d*3,py+dy/d*3];}
+function ePos(e,ox,oy){if(e.bld&&!e.mv&&e.mode!=='patrol'&&e.mode!=='move'){const b=BN(e.bld);return openPt(b.cx,b.cy,ox,oy);}return openPt(e.x,e.y,ox,oy);}
+function uPos(u,ox,oy){if(u.inB){const b=BN(u.inB);return openPt(b.cx,b.cy,ox,oy);}return openPt(u.x,u.y,ox,oy);}
+function losUE(u,e){const a=uPos(u,e.x,e.y),b=ePos(e,u.x,u.y);return los(a[0],a[1],b[0],b[1]);}
+function losPtE(x,y,e){const b=ePos(e,x,y);return los(x,y,b[0],b[1]);}
+function findCover(u,en){for(const r of [8,15,24,34,46])for(let a=0;a<16;a++){const x=u.x+Math.cos(a*Math.PI/8)*r,y=u.y+Math.sin(a*Math.PI/8)*r;if(x<0||y<0||x>MWm||y>MHm)continue;if(!navFree(Math.floor(x/NG),Math.floor(y/NG)))continue;if(en.some(e=>losPtE(x,y,e)))continue;return[x,y];}return null;}
+const AUTO_ST=['move','hold','cordon','recon','snipe','obs','aim','search'];
+function resumeOrder(u){const r=u.resume;u.resume=null;if(!r){u.st='hold';u.tx=u.x;u.ty=u.y;return;}
+  if(r.st==='hold'||r.st==='cordon'){u.st='hold';u.tx=u.x;u.ty=u.y;return;}
+  u.st=r.st==='obs'?'recon':r.st==='aim'?'snipe':r.st==='search'?'move':r.st;u.tx=r.tx;u.ty=r.ty;u.tb=r.tb;if(r.st==='search')u.searchOn=true;u.pkey=null;}
+const STUCK_TXT=(u,e)=>`צפע, כאן ${u.call}. אי אפשר לעקוף: הרחובות בטווח אש, האויב ${e.bld&&!outside(e)?'במבנה '+e.bld:placeTxt(e.x,e.y)}. מחזיקים מחסה, מחכים להוראות.`;
+function leaderDecide(u){
+  u.avoid=(u.avoid||[]).filter(a=>a.until>S.t);
+  const en=(u.threats||[]).map(E_).filter(e=>e&&!e.gone&&e.men>0);
+  if(!en.length){if(S.t-(u.contT||0)>20){const was=u.resume&&!['hold','cordon'].includes(u.resume.st);u.threats=[];u.byp=0;resumeOrder(u);if(was)say(u,RESUME_TXT(u),[],{known:'st'});}return;}
+  const ourFP=u.men*(u.ammo>0?1:.2)*(u.uc?1.3:1)*(u.sup>60?.5:1);
+  const enMen=en.reduce((s,e)=>s+e.men,0),enFP=en.reduce((s,e)=>s+e.men*(e.sup>60?.5:1)*(e.bld&&!outside(e)?1.5:1),0);
+  const ratio=ourFP/Math.max(.5,enFP);const mission=u.resume?u.resume.st:'hold';
+  const stealth=['recon','snipe','obs','aim'].includes(mission)&&!S.alarm,heavyW=u.wounded>=Math.max(2,u.men/2),lowAmmo=u.ammo<20,holding=mission==='hold'||mission==='cordon';
+  const tgt=en.find(e=>e.bld&&!outside(e)&&!BN(e.bld).prot&&!S.destroyed[e.bld]);
+  const addAvoid=r=>{for(const e of en)u.avoid.push({x:e.x,y:e.y,r,bld:e.bld&&!outside(e)?e.bld:0,until:S.t+1800});};
+  const stuck=()=>{if(!u.stuckRep){u.stuckRep=1;say(u,STUCK_TXT(u,en[0]),[],{urgent:true,known:'st'});}};
+  if(!holding&&!stealth&&ratio>=2&&enMen<=4&&u.men>=5&&u.ammo>40&&!heavyW&&tgt){const b=tgt.bld,B=BN(b);
+    u.st='assault';u.tb=b;u.tx=B.cx;u.ty=B.cy;u.pkey=null;u.autoAs=true;u.threats=[];
+    u.method=S.marks.bied&&S.marks.bied[b]?(u.sap?'sapper':'wall'):(u.sap?'sapper':'door');say(u,ASSAULT_TXT(u,b),[bChip(b,'hos')],{urgent:true,known:'st',pid:b});return;}
+  if(ratio<.8||heavyW||stealth||lowAmmo){const why=heavyW?WHY_W:lowAmmo?WHY_AMMO:stealth?WHY_STEALTH:WHY_STRONG;
+    if(holding||!u.resume){addAvoid(180);u.threats=[];const e0=en[0];const dx=u.x-e0.x,dy=u.y-e0.y,d=Math.hypot(dx,dy)||1;u.resume=null;u.st='move';u.tx=clamp(u.x+dx/d*120,0,MWm);u.ty=clamp(u.y+dy/d*120,0,MHm);u.pkey=null;say(u,WITHDRAW_TXT(u,why),[],{urgent:true,known:'st'});u.cont=[];return;}
+    if((u.byp||0)>=2){stuck();return;}
+    u.byp=(u.byp||0)+1;addAvoid(180);u.threats=[];resumeOrder(u);say(u,BYPASS_TXT(u,why),[],{urgent:true,known:'st'});u.cont=[];return;}
+  if(!u.cont.length){if(S.t-(u.contT||0)>30){const was=u.resume&&!['hold','cordon'].includes(u.resume.st);
+      if(was){if((u.byp||0)>=2){stuck();return;}u.byp=(u.byp||0)+1;addAvoid(180);}
+      u.threats=[];resumeOrder(u);if(was)say(u,RESUME_TXT(u),[],{known:'st'});}return;}
+  if(!u.holdRep||S.t-u.holdRep>90){u.holdRep=S.t;say(u,HOLD_TXT(u),[],{known:'st',urgent:u.sup>60});}}
+const RESUME_TXT=u=>`צפע, כאן ${u.call}. האש פסקה, ממשיכים במשימה.`;const ASSAULT_TXT=(u,b)=>`צפע, כאן ${u.call}. עליונות האש שלנו, האויב מעט. מאגפים ופורצים למבנה ${b}.`;const BYPASS_TXT=(u,why)=>`צפע, כאן ${u.call}. ${why} מתנתקים ועוקפים ברחוב אחר.`;const WITHDRAW_TXT=(u,why)=>`צפע, כאן ${u.call}. ${why} מתנתקים ויוצאים מטווח האש.`;const HOLD_TXT=u=>`צפע, כאן ${u.call}. מחזיקים מחסה ויורים. ${u.sup>60?'מרותקים באש כבדה, צריך סיוע של «שרף».':'האויב מתנגד.'}`;
+const WHY_STRONG='האויב חזק יותר.',WHY_W='יש הרבה פצועים.',WHY_STEALTH='המשימה חשאית, הקרב מפריע לה.',WHY_AMMO='מעט תחמושת.';
+function moveAlong(o,step){const key=Math.round(o.tx)+','+Math.round(o.ty)+'/'+((o.avoid&&o.avoid.length)||0);if(o.pkey!==key||!o.path){AV=o.avoid&&o.avoid.length?avoidMask(o.avoid):null;o.path=findPath(o.x,o.y,o.tx,o.ty);AV=null;o.pkey=key;}
   while(step>0&&o.path.length){const p=o.path[0];const d=Math.hypot(p[0]-o.x,p[1]-o.y);if(d<=step){o.x=p[0];o.y=p[1];step-=d;o.path.shift();}else{o.x+=(p[0]-o.x)/d*step;o.y+=(p[1]-o.y)/d*step;step=0;}}
   return o.path.length===0;}
 function resonance(){return(S.reson||0)+(S.civDead||0)*2+(S.civW?S.civW.length:0)+Object.keys(S.destroyed||{}).length+(S.noWarn||0);}
@@ -514,24 +558,32 @@ function tick(dt){
   const A=alive();
   // enemy detection of our units
   for(const e of A){for(const u of U){if(u.men<=0)continue;const d=hyp(e,u);const uOut=!u.inB,mov=['move','assault','cordon','retreat'].includes(u.st);
-    if(!S.alarm&&uOut&&!e.gone&&e.kind==='patrol'&&!e.alert&&d<120&&!(u.amb&&u.amb[e.id])&&Math.random()<.05*dt){(u.amb||(u.amb={}))[e.id]=1;let k=0;const p=u.uc?.8:.65;for(let i=e.men;i>0;i--)if(Math.random()<p){e.men--;k++;}S.stats.ek+=k;if(e.men<=0)e.gone=true;else e.alert=true;say(u,`צפע, כאן ${u.call}. מארב לסיור ${placeTxt(e.x,e.y)}: ${k?`נוטרלו ${k}`:'החטאה'}${e.men>0?', השאר יורים בחזרה!':'. בשקט, אין התרעה.'}`,[ptChip(e)],{urgent:e.men>0,known:'st',ek:k});continue;}
+    if(!S.alarm&&uOut&&!e.gone&&e.kind==='patrol'&&!e.alert&&d<120&&losUE(u,e)&&!(u.amb&&u.amb[e.id])&&Math.random()<.05*dt){(u.amb||(u.amb={}))[e.id]=1;let k=0;const p=u.uc?.8:.65;for(let i=e.men;i>0;i--)if(Math.random()<p){e.men--;k++;}S.stats.ek+=k;if(e.men<=0)e.gone=true;else e.alert=true;say(u,`צפע, כאן ${u.call}. מארב לסיור ${placeTxt(e.x,e.y)}: ${k?`נוטרלו ${k}`:'החטאה'}${e.men>0?', השאר יורים בחזרה!':'. בשקט, אין התרעה.'}`,[ptChip(e)],{urgent:e.men>0,known:'st',ek:k});continue;}
     if(!S.alarm&&uOut){
       if(e.kind==='look'&&d<220&&Math.random()<.004*(1-d/220)*(mov?1:.35)*(u.uc?.15:1)*(u.veh?.3:1)*(u.pace==='fast'&&!u.veh?3:1)*(S.dawn?2:1)*dt){scheduleAlarm(e,30);say(u,`צפע, כאן ${u.call}! זיהו אותנו מגג מבנה ${e.bld}! פתחו באש!`,[bChip(e.bld,'hos')],{urgent:true,pid:e.bld,known:'st'});}
-      if(e.kind==='patrol'&&d<110&&Math.random()<.03*(u.uc?.3:1)*(u.veh?.3:1)*(u.pace==='fast'&&!u.veh?2:1)*(S.dawn?2:1)*dt){scheduleAlarm(e,45);say(u,`צפע, כאן ${u.call}! מגע! נתקלנו בסיור של האויב, ${placeTxt(e.x,e.y)}!`,[ptChip(e)],{urgent:true,known:'st'});}
+      if(e.kind==='patrol'&&d<110&&losUE(u,e)&&Math.random()<.03*(u.uc?.3:1)*(u.veh?.3:1)*(u.pace==='fast'&&!u.veh?2:1)*(S.dawn?2:1)*dt){scheduleAlarm(e,45);say(u,`צפע, כאן ${u.call}! מגע! נתקלנו בסיור של האויב, ${placeTxt(e.x,e.y)}!`,[ptChip(e)],{urgent:true,known:'st'});}
     }}}
   // contacts
   for(const u of U){if(u.men<=0)continue;for(const e of alive()){const d=hyp(e,u);let mode=null;
     if(u.inB&&e.bld===u.inB&&e.mode!=='move'){if(e.alert)mode='close';}
-    else if(!u.inB){if(outside(e)&&d<150&&e.alert)mode='street';else if(e.bld&&e.alert&&d<100)mode='window';}
-    else if(u.inB&&outside(e)&&d<120&&e.alert)mode='street';
+    else if(!u.inB){if(outside(e)&&d<150&&e.alert&&losUE(u,e))mode='street';else if(e.bld&&e.alert&&d<100&&losUE(u,e))mode='window';}
+    else if(u.inB&&outside(e)&&d<120&&e.alert&&losUE(u,e))mode='street';
     if(mode){u.cont.push(e.id);e.cont.push(u.id);(u.cm||(u.cm={}))[e.id]=mode;if(mode!=='close'&&e.bld&&!e.mv)u.pidB=e.bld;}}}
+  // react to contact: return fire, get to cover out of the shooter's sight, report with direction/distance
+  for(const u of U){if(u.men<=0)continue;if(u.cont.length)u.contT=S.t;
+    if(!u.cont.length||u.inB||!AUTO_ST.includes(u.st)||!u.cont.some(id=>u.cm[id]!=='close'))continue;
+    let dm=false;if(u.veh){u.veh=false;S.car={x:u.x,y:u.y};S.marks.car={x:u.x,y:u.y};dm=true;}
+    const en=u.cont.map(E_);const e0=en.reduce((a,e)=>!a||Math.hypot(e.x-u.x,e.y-u.y)<Math.hypot(a.x-u.x,a.y-u.y)?e:a,null);
+    if(!u.resume)u.resume={st:u.st,tx:u.tx,ty:u.ty,tb:u.tb};u.threats=[...new Set([...(u.threats||[]),...u.cont])];const cp=findCover(u,en);
+    if(cp){u.st='cover';u.tx=cp[0];u.ty=cp[1];u.pkey=null;say(u,`צפע, כאן ${u.call}. ${dm?'ירדנו מהרכב. ':''}תפסנו מחסה ${placeTxt(u.tx,u.ty)}. האויב ${DIRS[dirIdx(e0.x-u.x,e0.y-u.y)]}, ${Math.max(20,Math.round(Math.hypot(e0.x-u.x,e0.y-u.y)/10)*10)} מטר, ${cnt(e0.men)}${e0.bld&&!outside(e0)?', יורה מחלונות מבנה '+e0.bld:''}. מדכאים באש.`,[],{urgent:true,known:'st'});}
+    else{u.st='incover';u.decT=S.t+12;say(u,`צפע, כאן ${u.call}. ${dm?'ירדנו מהרכב. ':''}אין מחסה קרוב, נלחמים במקום. האויב ${DIRS[dirIdx(e0.x-u.x,e0.y-u.y)]}, ${Math.max(20,Math.round(Math.hypot(e0.x-u.x,e0.y-u.y)/10)*10)} מטר, ${cnt(e0.men)}.`,[],{urgent:true,known:'st'});}}
   // combat
   for(const u of U){if(!u.cont.length||u.men<=0)continue;const sh=1/u.cont.length;
-    for(const id of u.cont){const e=E_(id),m=u.cm[id];const cov=m==='close'?.8:m==='window'?.3:e.roof?.6:.9;e.acc+=(m==='close'?.008:.0045)*(u.uc?1.3:1)*u.men*(u.ammo>0?1:.2)*sh*cov*dt;
+    for(const id of u.cont){const e=E_(id),m=u.cm[id];const cov=m==='close'?.8:m==='window'?.3:e.roof?.6:.9;e.sup=Math.min(100,(e.sup||0)+u.men*sh*dt*1.8*(u.uc?1.3:1));e.acc+=(m==='close'?.008:.0045)*(u.uc?1.3:1)*(u.sup>60?.5:1)*(u.st==='incover'?.8:1)*u.men*(u.ammo>0?1:.2)*sh*cov*dt;
       if(m==='close'&&S.civ[u.inB]>0&&Math.random()<.0012*S.civ[u.inB]*dt){addCivW(u.inB);u.civHit=(u.civHit||0)+1;}}
     u.ammo=Math.max(0,u.ammo-.07*dt);noise(u.x,u.y,70);}
   for(const e of alive()){if(!e.cont.length||e.mode==='flee')continue;if(!e.fired){e.fired=true;enemyShot(e);}const sh=1/e.cont.length;
-    for(const id of e.cont){const u=U_(id),m=u.cm[e.id];const cov=m==='close'?1:u.inB?.5:(u.st==='hold'||u.st==='cordon')?.6:1;u.acc+=(m==='close'?.0065*(u.surpT>0?.5:1)*(u.dogBonus?.65:1):.0028)*e.men*sh*cov*(u.uc?.8:1)*dt;}}
+    for(const id of e.cont){const u=U_(id),m=u.cm[e.id];const cov=m==='close'?1:u.inB?.5:u.st==='incover'?.35:u.st==='cover'?1.1:(u.st==='hold'||u.st==='cordon')?.6:1;u.sup=Math.min(100,(u.sup||0)+e.men*sh*cov*dt*2.2);u.acc+=(m==='close'?.0065*(u.surpT>0?.5:1)*(u.dogBonus?.65:1):.0028)*e.men*sh*cov*(u.uc?.8:1)*(e.sup>60?.5:1)*dt;}}
   for(const e of alive()){while(e.acc>=1&&e.men>0){e.acc-=1;
       if(e.leader&&(e.men===1||Math.random()<(e.cont.some(id=>U_(id).cm[e.id]==='close')?1:.35)/e.men)){e.leader=false;if(S.leader==='free'){S.leader='killed';S.body={x:e.x,y:e.y,rubble:false};const u=U_(e.cont[0]);if(u)say(u,`צפע, כאן ${u.call}. «המהנדס» נוטרל. חוזר: «המהנדס» — חוסל.`,[],{urgent:true,kobj:['eng','חוסל']});}}
       e.men--;S.stats.ek++;e.unrep=(e.unrep||0)+1;if(e.cont.length){const k=U_(e.cont[Math.floor(Math.random()*e.cont.length)]);e.lastK=k.id;if(k.inB&&k.inB===e.bld)k.bldEK=(k.bldEK||0)+1;}}
@@ -540,11 +592,12 @@ function tick(dt){
       say(u,`צפע, כאן ${u.call}. חוליית האויב ${where} נוטרלה.${n?` מחבלים שנוטרלו: ${n}.`:''} עבור.`,[],{known:'st',ek:n});}}}
   for(const u of U){while(u.acc>=1&&u.men>0){u.acc-=1;casualty(u);}}
   // own movement
-  for(const u of U){if(u.men<=0||!['move','assault','cordon','retreat','snipe','recon','exfil'].includes(u.st))continue;
-    const tw=inTown(u.x,u.y);let sp=u.veh?(tw?7:10):u.pace==='fast'?(tw?1.6:2):(tw?.7:.9);if(u.cont.length){if(u.st==='move'||u.st==='cordon'||u.st==='snipe'||u.st==='recon')sp=0;else if(u.st==='assault')sp*=.4;else if(u.st==='exfil')sp*=.7;}if(u.wounded>u.men)sp*=.7;
+  for(const u of U){if(u.men<=0||!['move','assault','cordon','retreat','snipe','recon','exfil','cover'].includes(u.st))continue;
+    const tw=inTown(u.x,u.y);let sp=u.veh?(tw?7:10):u.pace==='fast'?(tw?1.6:2):(tw?.7:.9);if(u.st==='cover')sp=2.2;else if((u.sup||0)>60&&u.st!=='retreat'&&u.st!=='exfil')sp*=.5;if(u.cont.length){if(u.st==='move'||u.st==='cordon'||u.st==='snipe'||u.st==='recon')sp=0;else if(u.st==='assault')sp*=.4;else if(u.st==='exfil')sp*=.7;}if(u.wounded>u.men)sp*=.7;
     if(sp>0&&u.pace==='fast'&&!u.veh)noise(u.x,u.y,30);
     if(sp>0&&moveAlong(u,sp*dt)){
       if(u.mountOn){u.mountOn=false;u.veh=true;S.car=null;u.st='hold';delete S.marks.ord[u.id];say(u,`צפע, כאן ${u.call}. עלינו לרכב.`,[],{known:'st',act:{k:'car',x:null}});continue;}
+      if(u.st==='cover'){u.st='incover';u.decT=S.t+12;continue;}
       if(u.st==='exfil'){const w=u.wounded;S.stats.evac+=w;u.wounded=0;u.wT=0;u.ammo=100;u.lowAmmo=false;u.morale=Math.min(90,u.morale+20);u.drones=3;u.st='hold';u.pace='stealth';let pr=false;if(S.pris&&S.pris.uid===u.id&&S.pris.st==='held'){S.pris.st='evac';S.pris.tR=S.t+1500;pr=true;}if(u.veh){u.veh=false;S.car={x:u.x,y:u.y};}say(u,`צפע, כאן ${u.call}. הגענו לבסיס.${w?` פצועים הועברו לרפואה: ${w}.`:''}${pr?' העצור הועבר לשב״כ.':''} התחמשנו, מוכנים לצאת.`,[posChip(u)],{known:'full'});continue;}
       if(u.searchOn){u.searchOn=false;u.st='search';u.searchT=S.body&&S.body.rubble?600:120;if(u.veh){u.veh=false;S.car={x:u.x,y:u.y};}say(u,(S.body.rubble?`צפע, כאן ${u.call}. גופת «המהנדס» מתחת להריסות, מפנים, זה ייקח זמן.`:`צפע, כאן ${u.call}. ליד גופת «המהנדס», מחפשים.`),[],{known:'st'});continue;}
       if(u.veh){u.veh=false;S.car={x:u.x,y:u.y};say(u,`צפע, כאן ${u.call}. ירדנו מהרכב: ${placeTxt(u.x,u.y)}. הרכב נשאר שם.`,[posChip(u)],{known:'st',act:{k:'car',x:u.x,y:u.y}});}
@@ -583,6 +636,11 @@ function tick(dt){
     if(!lk.length){say(u,`צפע, כאן ${u.call}. אין אף אחד על גג מבנה ${b}.`,[],{known:'st',front:true});continue;}
     for(const e of lk){if(Math.random()<(u.uc?.9:.8)){S.stats.ek+=e.men;const k=e.men;e.men=0;e.gone=true;say(u,`צפע, כאן ${u.call}. התצפיתן על גג מבנה ${b} נוטרל. בשקט, אין התרעה.`,[],{known:'st',front:true,ek:k});}
       else{scheduleAlarm(e,30);say(u,`צפע, כאן ${u.call}! החטאה! התצפיתן על גג מבנה ${b} ירד מהעמדה, עלול להתריע!`,[bChip(b,'hos')],{urgent:true,known:'st',pid:b});}}}
+  // squad leaders decide by the situation
+  for(const u of U){if(u.cont.length&&(u.st==='incover'||u.st==='cover'))u.threats=[...new Set([...(u.threats||[]),...u.cont])];u.sup=Math.max(0,(u.sup||0)-dt*(u.cont.length?(u.st==='incover'?1.5:.5):4));
+    if(u.st==='incover'&&u.men>0&&S.t>=(u.decT||0)){u.decT=S.t+15;leaderDecide(u);}
+    if(!u.cont.length&&u.wounded>0&&!u.tccc&&S.t-(u.contT||0)>20&&u.contT){u.tccc=true;say(u,`צפע, כאן ${u.call}. תחת אש שמו לפצועים חוסמי עורקים, עכשיו החובש מטפל. ${u.wounded>1?'פצועים: '+u.wounded+', צריך פינוי.':'צריך פינוי.'}`,[],{known:'full'});}}
+  for(const e of alive())e.sup=Math.max(0,(e.sup||0)-dt*(e.cont.length?1:3));
   // breach
   for(const u of U){if(u.surpT>0)u.surpT-=dt;if(u.st!=='breach'||u.men<=0)continue;u.breachT-=dt;
     if(u.method==='dog'&&!u.dogDone&&u.breachT<=15){u.dogDone=true;u.dogBonus=true;const en=alive().filter(e=>e.bld===u.tb&&e.mode!=='move');const ppl=S.civ[u.tb]+en.reduce((s,e)=>s+e.men,0);
@@ -603,7 +661,7 @@ function tick(dt){
       if(n===S.Wk&&S.lab==='intact'){t+=' אותרה מעבדת נפצים: חומר נפץ, רכיבי מטענים. מוכנים להשמיד.';ko=['lab','אותרה'];S.labFound=true;}
       if(n===S.T)t+=S.leader==='escaped'?' נמצא פיר מנהרה. עקבות טריים, ברחו לא מזמן.':' נמצא פיר מנהרה, ריק.';
       if(n===S.L&&S.leader==='free'&&!alive().some(e=>e.leader&&e.bld===n))t+=' «המהנדס» לא כאן. יש סימנים שהיה: מסמכים, ציוד קשר.';
-      const ch=civ?[posChip(u),bChip(n,'civ')]:[posChip(u)];say(u,t+' עבור.',ch,{known:'full',kobj:ko,act:{k:'cleared',b:n,civ:civ>0}});}}
+      const ch=civ?[posChip(u),bChip(n,'civ')]:[posChip(u)];say(u,t+' עבור.',ch,{known:'full',kobj:ko,act:{k:'cleared',b:n,civ:civ>0}});if(u.autoAs){u.autoAs=false;if(u.resume){resumeOrder(u);u.inB=0;}}}}
   // demolition
   for(const u of U){if(u.demo>0){u.demo-=dt;if(u.demo<=0){u.demo=0;if(u.inB===S.Wk&&u.men>0&&!u.sap&&Math.random()<.15){S.lab='destroyed';raiseAlarm();const k=1+(Math.random()<.5?1:0);for(let i=0;i<k&&u.men>0;i++)casualty(u);say(u,`צפע, כאן ${u.call}! המטען התפוצץ מוקדם מדי! יש נפגעים. המעבדה הושמדה.`,[],{urgent:true,known:'st',kobj:['lab','הושמדה']});continue;}if(u.inB===S.Wk&&u.men>0){S.lab='destroyed';say(u,`צפע, כאן ${u.call}. בוצע פיצוץ. המעבדה הושמדה.`,[],{known:'st',kobj:['lab','הושמדה'],front:true});}}}}
   // enemy movement
@@ -615,7 +673,7 @@ function tick(dt){
       else if(S.t-e.tT>720&&!S.tunnelBlown){e.gone=true;if(e.leader&&S.leader==='free')S.leader='escaped';}}
     e.mv=e.x!==px||e.y!==py;if(e.leader&&e.mv&&S.lpath){const l=S.lpath[S.lpath.length-1];if(Math.hypot(l[0]-e.x,l[1]-e.y)>12)S.lpath.push([e.x,e.y]);}}
   // our observation (stealthy phase and after)
-  for(const u of U){if(u.men<=0)continue;for(const e of alive()){if(u.cont.includes(e.id))continue;const d=hyp(e,u);const vis=outside(e);if(!vis||d>260)continue;
+  for(const u of U){if(u.men<=0)continue;for(const e of alive()){if(u.cont.includes(e.id))continue;const d=hyp(e,u);const vis=outside(e);if(!vis||d>260)continue;if(!e.roof&&!losUE(u,e))continue;
     const p=(e.roof?.02:.06)*dt;if((!u.seen[e.id]||S.t-u.seen[e.id]>480)&&Math.random()<p){u.seen[e.id]=S.t;const fixed=e.bld&&!e.mv&&e.mode!=='patrol';
       say(u,`צפע, כאן ${u.call}. ${salute(e,e.roof?'מתצפתים מהגג על הרחוב':e.mv?`נעים לכיוון ${DIRS_TO[dirIdx((e.tx||e.x)-e.x,(e.ty||e.y)-e.y)]}`:'עומדים ליד הכניסה')} ${S.alarm?'':'לא זיהו אותנו, לא פותחים באש.'} עבור.`,[fixed?bChip(e.bld,'hos'):ptChip(e)],{known:'st',pid:fixed?e.bld:0});}}}
   // insurgent behaviour after the alarm: mobilisation, shoot-and-scoot, blending in
@@ -626,7 +684,7 @@ function tick(dt){
       if(made)say(U_('ya'),`צפע, כאן זיק. ברמקולים בכל העיר מכריזים על כוננות. תושבים עוזבים, ברחובות מופיעים חמושים: ${made} חוליות של שניים-שלושה, בדרך לאזור שלנו. עבור.`,[],{urgent:true});}
     for(const e of alive()){if(e.kind==='look'||e.leader||e.kind==='lab'||e.mode==='tunnel'||e.mode==='flee')continue;if(!e.cont.length)continue;e.fT=(e.fT||0)+dt;
       if(e.men===1&&Math.random()<.005*dt){e.gone=true;S.fled=(S.fled||0)+1;const u=U_(e.cont[0]);if(u)say(u,`צפע, כאן ${u.call}. האחרון בחוליה זרק את הנשק ונעלם בבית מגורים, ${placeTxt(e.x,e.y)}.`,[],{known:'st'});continue;}
-      if(!e.scoot&&e.fT>60+(e.id.charCodeAt(e.id.length-1)%40)){const cands=BL.filter(b=>b.n!==e.bld&&!S.destroyed[b.n]&&!U.some(u=>u.inB===b.n)&&Math.hypot(b.cx-e.x,b.cy-e.y)>80&&Math.hypot(b.cx-e.x,b.cy-e.y)<220);
+      if(!e.scoot&&e.fT>((e.sup||0)>60?25:60)+(e.id.charCodeAt(e.id.length-1)%40)){const cands=BL.filter(b=>b.n!==e.bld&&!S.destroyed[b.n]&&!U.some(u=>u.inB===b.n)&&Math.hypot(b.cx-e.x,b.cy-e.y)>80&&Math.hypot(b.cx-e.x,b.cy-e.y)<220);
         if(cands.length){let tot=0;const w=cands.map(b=>{const v=(S.civ[b.n]>0?3:1)*(b.prot&&S.civ[b.n]>0?2:1);tot+=v;return v;});let r=Math.random()*tot,ch=cands[0];for(let i=0;i<cands.length;i++){r-=w[i];if(r<=0){ch=cands[i];break;}}
           const u=U_(e.cont[0]);e.scoot=true;e.mode='move';e.bld=0;e.dest=ch.n;e.tx=ch.cx;e.ty=ch.cy;e.fT=0;if(u&&S.t-(u.lastScoot||-999)>120&&(u.lastScoot=S.t))say(u,`צפע, כאן ${u.call}. האויב הפסיק לירות ונע לכיוון ${DIRS_TO[dirIdx(ch.cx-e.x,ch.cy-e.y)]} — נראה שהוא מחליף עמדה.`,[],{known:'st'});}}}}
   // roadside IEDs
@@ -658,7 +716,7 @@ function tick(dt){
       u.morale=Math.min(90,u.morale+dt*.03);}
     if(u.men>1&&u.morale<25&&u.st!=='retreat'&&u.st!=='broken'){u.st='retreat';u.inB=0;u.tx=u.x;u.ty=u.y+300;delete S.marks.ord[u.id];say(u,`צפע, כאן ${u.call}! נפגעים כבדים, נסוגים דרומה!`,[],{urgent:true,known:'full'});}
     if(u.men<=1&&u.st!=='broken'){u.st='broken';u.tx=u.x;u.ty=u.y;say(u,`צפע… כאן ${u.call}. כשירים: ${u.men}, פצועים: ${u.wounded}. לא כשירים ללחימה. צריך ינשוף.`,[posChip(u)],{urgent:true,known:'full'});}
-    if(u.wounded>0){u.wT+=dt;if(u.wT>900){u.wT=0;if(Math.random()<.25){u.wounded--;S.stats.kia++;S.stats.died++;say(u,`צפע, כאן ${u.call}. פצוע נפטר. צריך פינוי דחוף!`,[],{urgent:true,known:'full'});}}}
+    if(u.wounded>0){u.wT+=dt*(u.cont.length?1.5:(u.tccc?.5:1));if(u.wT>900){u.wT=0;if(Math.random()<.25){u.wounded--;S.stats.kia++;S.stats.died++;say(u,`צפע, כאן ${u.call}. פצוע נפטר. צריך פינוי דחוף!`,[],{urgent:true,known:'full'});}}}
   }
   // strikes
   for(const p of S.strike.pend){if(!p.warnT||p.warned||S.t<p.warnT)continue;p.warned=true;raiseAlarm();const n=p.b;let out=0,fl=0;
@@ -748,7 +806,7 @@ function labBlast(b){const B=BN(b);S.lab='destroyed';S.destroyed[b]=true;raiseAl
   S.civHarm+=S.civ[b];S.civDead+=S.civ[b];S.civ[b]=0;killCivIn(b);
   for(const u of infs()){const d=Math.hypot(u.x-B.cx,u.y-B.cy);if(d<45&&u.men>0){const n=u.men;for(let i=0;i<n;i++)if(Math.random()<(u.inB===b?.35:.15))casualty(u);}}
   for(const o of BL){if(o.n===b)continue;if(Math.hypot(o.cx-B.cx,o.cy-B.cy)<45)for(let i=S.civ[o.n];i>0;i--)if(Math.random()<.4)addCivW(o.n);}}
-function casualty(u){u.men--;if(Math.random()<.7){u.wounded++;u.newW++;S.stats.wia++;}else{S.stats.kia++;u.newK++;}u.morale-=9;}
+function casualty(u){u.tccc=false;u.men--;if(Math.random()<.7){u.wounded++;u.newW++;S.stats.wia++;}else{S.stats.kia++;u.newK++;}u.morale-=9;}
 
 /* ---------- end ---------- */
 function endGame(why){if(S.over)return;S.over=true;clearSave();S.speed=0;S.radio.q=[];setSpeedUI();S.endWhy=why;UI.target=null;updTarget();closeSheet();
@@ -805,7 +863,7 @@ const unitsEl=$('#units');let selId=null;
 function updUnits(){
   if(!unitsEl.children.length){S.units.forEach(u=>{const b=document.createElement('button');b.className='uc';b.dataset.id=u.id;b.innerHTML='<span class="n"><i></i>'+unitIco(u)+'<span></span></span><small></small>';b.onclick=()=>selectUnit(u.id,true);unitsEl.appendChild(b);});}
   for(const b of unitsEl.children){const u=U_(b.dataset.id),k=S.known[u.id];b.querySelector('.n span').textContent=u.call;b.setAttribute('aria-pressed',String(selId===u.id));const dot=b.querySelector('.n i');let line;
-    if(u.type==='inf'){line=`${k.st} · ${fmt(k.t)}: ${k.men}${k.wounded?'+'+k.wounded+'פ':''} לוחמים, תחמושת ${k.ammo}%`;dot.className={'בקרב':'boy','בתנועה':'mar','הסתערות':'boy','פריצה':'boy','טיהור':'boy','נסיגה':'mar','כיתור':'obo','פינוי':'mar','חיפוש':'obo','ברכב':'mar','סיור':'mar','בתצפית':'obo','יציאה לעמדה':'mar','צלף בפעולה':'boy','בעמדה':'obo','לא כשיר':'off'}[k.st]||'';}
+    if(u.type==='inf'){line=`${k.st} · ${fmt(k.t)}: ${k.men}${k.wounded?'+'+k.wounded+'פ':''} לוחמים, תחמושת ${k.ammo}%`;dot.className={'בקרב':'boy','בתנועה':'mar','הסתערות':'boy','פריצה':'boy','טיהור':'boy','נסיגה':'mar','כיתור':'obo','למחסה':'boy','במחסה':'boy','פינוי':'mar','חיפוש':'obo','ברכב':'mar','סיור':'mar','בתצפית':'obo','יציאה לעמדה':'mar','צלף בפעולה':'boy','בעמדה':'obo','לא כשיר':'off'}[k.st]||'';}
     else if(u.type==='uav'){line=`בשהייה · ${cell(S.uav.tx,S.uav.ty)}`;dot.className='obo';}
     else if(u.type==='strike'){const M=S.mol;line=M.st==='station'?`${M.cover?'חיפוי':'בגזרה'} · טילים ${M.ammo} · תותח ${M.gun??10} · ${Math.round(M.fuel/60)} דק׳`:`בבסיס · עד ${fmt(M.tA)}`;dot.className=M.st==='station'?(M.ammo?'obo':'off'):'mar';}
     else{const h=S.med;line=`פנויים ${h.free} · במשימה ${h.trips.length}`;dot.className=h.free?'obo':'mar';}
