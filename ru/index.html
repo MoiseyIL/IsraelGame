@@ -193,6 +193,8 @@ button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
     <p>Коснитесь здания на карте, чтобы отметить его или запросить удар. Коснитесь метки отделения, чтобы отдать приказ. Где сейчас отделения, вы знаете только из их докладов.</p>
     <button class="go" id="bGo">Начать операцию</button>
     <button class="go alt" id="bEnd" hidden>Завершить операцию</button>
+    <button class="go alt" id="bNew" hidden>Начать заново</button>
+    <p class="meta" style="margin:12px 0 0;text-align:center">Игра сохраняется автоматически на этом устройстве.</p>
   </div>
 </div>
 
@@ -681,7 +683,7 @@ function droneExec(u,a){const B=BN(a.b);if(u.droneT>0){say(u,`Кобра-6, я $
 function casualty(u){u.men--;if(Math.random()<.7){u.wounded++;u.newW++;S.stats.wia++;}else{S.stats.kia++;u.newK++;}u.morale-=9;}
 
 /* ---------- end ---------- */
-function endGame(why){if(S.over)return;S.over=true;S.speed=0;S.radio.q=[];setSpeedUI();S.endWhy=why;UI.target=null;updTarget();closeSheet();
+function endGame(why){if(S.over)return;S.over=true;clearSave();S.speed=0;S.radio.q=[];setSpeedUI();S.endWhy=why;UI.target=null;updTarget();closeSheet();
   if(S.leader==='free'&&!alive().some(e=>e.leader))S.leader='escaped';
   const ok=S.leader==='killed'||S.leader==='captured';
   S.result=!ok?'Задача не выполнена':S.civHarm?'Цель нейтрализована, есть пострадавшие среди мирных':S.lab!=='destroyed'?'Задача выполнена частично: мастерская цела':S.leader==='captured'?'Задача выполнена образцово: «Инженер» задержан':'Задача выполнена';
@@ -909,9 +911,10 @@ $('#bExpand').onclick=()=>{const a=$('#app');a.classList.toggle('big');$('#bExpa
 function setSpeedUI(){document.querySelectorAll('#speed button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.s===S.speed)));}
 document.querySelectorAll('#speed button').forEach(b=>b.onclick=()=>{if(!S.started||S.over)return;S.speed=+b.dataset.s;setSpeedUI();if(AC&&AC.state==='suspended')AC.resume();});
 $('#bSound').onclick=()=>{soundOn=!soundOn;$('#sndWave').style.opacity=soundOn?1:.15;initAudio();if(!soundOn)setHiss(false);};
-$('#bHelp').onclick=()=>{if(S.started&&!S.over){S.speed=0;setSpeedUI();}$('#bGo').textContent=S.started?'Вернуться к операции':'Начать операцию';$('#bEnd').hidden=!S.started||S.over;$('#brief').hidden=false;};
+$('#bHelp').onclick=()=>{if(S.started&&!S.over){S.speed=0;setSpeedUI();}$('#bGo').textContent=S.started?'Вернуться к операции':'Начать операцию';$('#bEnd').hidden=!S.started||S.over;$('#bNew').hidden=!S.started||S.over;$('#brief').hidden=false;};
+$('#bNew').onclick=()=>{$('#bNew').hidden=true;$('#bAgain').onclick();};
 $('#bEnd').onclick=()=>{$('#brief').hidden=true;endGame('manual');};
-$('#bGo').onclick=()=>{$('#brief').hidden=true;initAudio();if(AC&&AC.state==='suspended')AC.resume();try{navigator.wakeLock&&navigator.wakeLock.request('screen').catch(()=>{});}catch(e){}
+$('#bGo').onclick=()=>{$('#brief').hidden=true;$('#bNew').hidden=true;initAudio();if(AC&&AC.state==='suspended')AC.resume();try{navigator.wakeLock&&navigator.wakeLock.request('screen').catch(()=>{});}catch(e){}
   if(!S.started){S.started=true;S.speed=1;
     hq('Всем станциям сети «Кобра», я Кобра-6. Операция «Решет» — начало. Соблюдать тишину в эфире. Доложить готовность. Приём.');
     infs().forEach(u=>say(u,`Кобра-6, я ${u.call}. На ТС «Кедр», к выдвижению готов. Приём.`,[posChip(u)],{known:'full'}));
@@ -920,23 +923,29 @@ $('#bGo').onclick=()=>{$('#brief').hidden=true;initAudio();if(AC&&AC.state==='su
   else if(!S.over)S.speed=1;setSpeedUI();};
 $('#bTruth').onclick=()=>{S.truth=true;$('#debrief').hidden=true;$('#truthPill').hidden=false;const L=BN(S.L);centerOn(L.cx,L.cy,clamp(cw/W*2.4,minS(),maxS()));};
 $('#truthPill').onclick=()=>{$('#debrief').hidden=false;};
-$('#bAgain').onclick=()=>{S=newState();$('#debrief').hidden=true;$('#truthPill').hidden=true;UI.target=null;selId=null;updTarget();rebuildLog();updUnits();updObj();setSpeedUI();dirty=true;$('#bGo').textContent='Начать операцию';$('#bEnd').hidden=true;$('#brief').hidden=false;};
+$('#bAgain').onclick=()=>{clearSave();S=newState();$('#debrief').hidden=true;$('#truthPill').hidden=true;UI.target=null;selId=null;updTarget();rebuildLog();updUnits();updObj();setSpeedUI();dirty=true;$('#bGo').textContent='Начать операцию';$('#bEnd').hidden=true;$('#brief').hidden=false;};
 
 /* ---------- loop ---------- */
 let last=performance.now(),lastSec=-1;
 function frame(now){const rdt=Math.min(.1,(now-last)/1000);last=now;
   if(S.started&&!S.over&&S.speed>0){S.acc+=rdt*RATE*S.speed;let n=0;while(S.acc>=1&&n<240&&!S.over){tick(1);S.acc-=1;n++;}}
   radioStep(rdt);
+  if(now-lastSave>10000){lastSave=now;saveGame();}
   if(S.alarm&&!S.alarmKnown&&S.log.some(m=>m.urgent)){S.alarmKnown=true;updObj();}
   const sec=Math.floor(S.t/15);if(sec!==lastSec){lastSec=sec;$('#clock').textContent=fmt(S.t);updUnits();dirty=true;}
   render();requestAnimationFrame(frame);}
+const SAVE_KEY='reshet-save-ru';let lastSave=0;
+function saveGame(){if(!S||!S.started||S.over)return;try{localStorage.setItem(SAVE_KEY,JSON.stringify({v:1,at:Date.now(),S}));}catch(e){}}
+function loadGame(){try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(d&&d.S&&d.S.started&&!d.S.over)return d.S;}catch(e){}return null;}
+function clearSave(){try{localStorage.removeItem(SAVE_KEY);}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)saveGame();});window.addEventListener('pagehide',saveGame);
 async function start(data){
-  genCity();buildNav();S=(data&&data.S)||newState();
+  genCity();buildNav();const saved=(data&&data.S)?null:loadGame();S=(data&&data.S)||saved||newState();
   if(!S.civW){S.civW=[];S.civDead=0;S.civAid=0;S.civEvac=0;S.amb=[];infs().forEach(u=>{for(let i=0;i<(u.civHit||0)&&u.inB;i++)S.civW.push(newCivW(u.inB));});}
   try{await Promise.race([Promise.all(['700 16px "Roboto Condensed"','16px "PT Mono"'].map(f=>document.fonts.load(f,'Дейр 214'))),new Promise(r=>setTimeout(r,2500))]);}catch(e){}
   mapCv=drawMap();$('#loading').hidden=true;
   rebuildLog();updUnits();updObj();setSpeedUI();
-  if(S.over)showDebrief();else if(!S.started)$('#brief').hidden=false;else{S.speed=0;setSpeedUI();}
+  if(S.over)showDebrief();else if(!S.started)$('#brief').hidden=false;else if(saved){S.speed=0;setSpeedUI();$('#bGo').textContent='Продолжить операцию · '+fmt(S.t);$('#bNew').hidden=false;$('#bEnd').hidden=false;$('#brief').hidden=false;}else{S.speed=0;setSpeedUI();}
   if(S.truth)$('#truthPill').hidden=false;
   resize();dirty=true;requestAnimationFrame(frame);}
 window.claude?.hot?.snapshot?.(()=>({S}));
