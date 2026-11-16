@@ -818,11 +818,12 @@ function onTap(x,y,mark){const [mx,my]=toM(x,y);if(mx<0||my<0||mx>MWm||my>MHm)re
   if(selId){selId=null;updUnits();dirty=true;}}
 
 /* ---------- sheets ---------- */
-function openSheet(title,sub,btns){$('#sTitle').textContent=title;$('#sSub').textContent=sub;const box=$('#sBtns');box.innerHTML='';
-  btns.forEach(b=>{const el=document.createElement('button');el.className='sb'+(b.wide?' wide':'')+(b.danger?' danger':'');el.disabled=!!b.dis;el.innerHTML='<b></b><small></small>';el.querySelector('b').textContent=b.t;el.querySelector('small').textContent=b.d||'';el.onclick=()=>{closeSheet();b.on();};box.appendChild(el);});
+let sheetAt=0;
+function openSheet(title,sub,btns){sheetAt=performance.now();$('#sTitle').textContent=title;$('#sSub').textContent=sub;const box=$('#sBtns');box.innerHTML='';
+  btns.forEach(b=>{const el=document.createElement('button');el.className='sb'+(b.wide?' wide':'')+(b.danger?' danger':'');el.disabled=!!b.dis;el.innerHTML='<b></b><small></small>';el.querySelector('b').textContent=b.t;el.querySelector('small').textContent=b.d||'';el.onclick=()=>{if(performance.now()-sheetAt<450)return;closeSheet();b.on();};box.appendChild(el);});
   $('#sheet').hidden=false;}
 function closeSheet(){$('#sheet').hidden=true;}
-$('#sbg').onclick=closeSheet;
+$('#sbg').onclick=()=>{if(performance.now()-sheetAt<450)return;closeSheet();};
 function selectUnit(id,center){selId=id;updUnits();dirty=true;const u=U_(id),k=S.known[id],m=S.marks.own[id];if(center)ensureVisible(m.x,m.y);if(S.over||!S.started)return;
   if(u.type==='inf'){const h=S.med;const btns=[
       {t:u.veh?'Ехать к точке высадки':'Выдвигаться',d:u.veh?'на машине, ~25 км/ч':'указать точку',on:()=>startTarget('move',id)},
@@ -927,7 +928,7 @@ async function start(data){
   if(S.truth)$('#truthPill').hidden=false;
   resize();dirty=true;requestAnimationFrame(frame);}
 window.claude?.hot?.snapshot?.(()=>({S}));
-window.__kp={get S(){return S;},tick:dt=>tick(dt),radioStep,BL:()=>BL};
+window.__kp={get S(){return S;},tick:dt=>tick(dt),radioStep,BL:()=>BL,toS:(x,y)=>toS(x,y)};
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
 })();
 </script>
