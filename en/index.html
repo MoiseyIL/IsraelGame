@@ -2031,7 +2031,7 @@ $('#bHelp').onclick=()=>{if(S.started&&!S.over){S.speed=0;setSpeedUI();}$('#bGo'
 $('#bNew').onclick=()=>{$('#bNew').hidden=true;$('#bAgain').onclick();};
 $('#bEnd').onclick=()=>{$('#brief').hidden=true;endGame('manual');};
 $('#bGo').onclick=()=>{$('#brief').hidden=true;$('#bNew').hidden=true;initAudio();if(AC&&AC.state==='suspended')AC.resume();try{navigator.wakeLock&&navigator.wakeLock.request('screen').catch(()=>{});}catch(e){}
-  if(!S.started){S.started=true;S.speed=1;if(S.mission){missionStartRadio();setSpeedUI();return;}
+  if(!S.started){S.started=true;S.speed=1;if(S.mission){S.speed=0;missionStartRadio();setSpeedUI();return;}
     hq((HE?(`כל התחנות ברשת «צפע», כאן צפע. מבצע «${L2(S.opName)}» — מתחילים. שקט ברשת. דווחו מוכנות. עבור.`):((EN?(`All stations on the Cobra net, this is Cobra-6. Operation ${L2(S.opName)} — commence. Maintain radio silence. Report ready. Over.`):(`Всем станциям сети «Кобра», я Кобра-6. Операция «${L2(S.opName)}» — начало. Соблюдать тишину в эфире. Доложить готовность. Приём.`)))));
     infs().forEach(u=>say(u,(HE?(`צפע, כאן ${u.call}. בנק״כ «ארז», מוכן לתנועה. עבור.`):((EN?(`Cobra-6, this is ${u.call}. At staging area "Cedar", ready to move. Over.`):(`Кобра-6, я ${u.call}. На ТС «Кедр», к выдвижению готов. Приём.`)))),[posChip(u)],{known:'full'}));
     say(U_('ya'),(HE?('צפע, כאן זיק. באוויר, שוהה דרומית לעיר. עבור.'):((EN?("Cobra-6, this is Hawk. Airborne, orbiting south of the town. Over."):('Кобра-6, я Ястреб. В воздухе, барражирую южнее города. Приём.')))));
