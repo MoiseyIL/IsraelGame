@@ -142,7 +142,7 @@ button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 #campDoc .tabs{display:flex;gap:0;margin:-6px 0 12px;border:2px solid #2c3a48;border-radius:6px;overflow:hidden;width:100%;box-sizing:border-box}
 .doc .stamp{position:static!important;display:inline-block;margin:0 0 8px;transform:rotate(-2deg)!important}
 .doc h1{padding-left:0!important;padding-right:0!important}
-#campDoc .tabs button{flex:1 1 0;min-width:0;background:transparent;border:0;padding:8px 6px;font-family:var(--f-head);font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:#2c3a48;font-size:13px;overflow-wrap:anywhere}
+#campDoc .tabs button{flex:1 1 auto;min-width:0;background:transparent;border:0;padding:8px 4px;font-family:var(--f-head);font-weight:700;letter-spacing:0;text-transform:uppercase;color:#2c3a48;font-size:clamp(10px,3.3vw,13px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #campDoc h1{padding-inline-end:0}
 #campDoc .tabs button.on{background:#2c3a48;color:var(--paper)}
 #campDoc h3{font-family:var(--f-head);font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin:14px 0 6px;color:#5d646c}
