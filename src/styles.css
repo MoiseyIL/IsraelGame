@@ -158,6 +158,11 @@ button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 .tprev{display:flex;gap:12px;align-items:flex-start;margin:10px 0}
 .tprev img{width:120px;height:auto;border:1px solid #9aa3ab;border-radius:4px;flex:0 0 auto;background:#ccc}
 .tprev div{font-size:13px}
+.mcount{display:flex;align-items:center;justify-content:center;gap:14px;margin:10px 0 4px;text-align:center}
+.mcount span{display:flex;flex-direction:column;align-items:center;min-width:90px}
+.mcount small{font-size:11px;color:#5d646c}
+.mcount b{font-family:var(--f-head);font-size:30px;line-height:1.1;color:#2c3a48}
+.mcount .vs{min-width:0;font-family:var(--f-head);font-weight:700;color:#8a1f17;text-transform:uppercase;font-size:13px}
 .ucard{border:1px solid #c9c3b4;border-radius:6px;padding:8px 10px;margin:6px 0;background:rgba(255,255,255,.35)}
 .ucard.off{opacity:.7}
 .uh{display:flex;justify-content:space-between;align-items:center;gap:8px}
