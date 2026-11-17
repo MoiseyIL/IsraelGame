@@ -10,8 +10,8 @@ from pathlib import Path
 ROOT = Path(__file__).parent
 SRC = ROOT / "src" / "game.html"
 EDITIONS = {
-    "ru": {"title": "Операция Решет", "dir": ""},
-    "he": {"title": "מבצע רשת", "dir": ' dir="rtl"'},
+    "ru": {"title": "Project: End of Terror · Операция Решет", "dir": ""},
+    "he": {"title": "Project: End of Terror · מבצע רשת", "dir": ' dir="rtl"'},
 }
 
 
