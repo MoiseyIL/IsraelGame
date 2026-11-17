@@ -1,6 +1,7 @@
 /* ---------- loop ---------- */
 let last=performance.now(),lastSec=-1;
 function frame(now){const rdt=Math.min(.1,(now-last)/1000);last=now;
+  if(S.started&&!S.over&&S.speed===0&&S.mission)pauseThink(rdt);else pauseReset();
   if(S.started&&!S.over&&S.speed>0){S.acc+=rdt*RATE*S.speed;let n=0;while(S.acc>=1&&n<240&&!S.over){tick(1);S.acc-=1;n++;}}
   radioStep(rdt);
   if(now-lastSave>10000){lastSave=now;saveGame();}

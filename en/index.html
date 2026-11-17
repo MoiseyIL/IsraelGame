@@ -1108,6 +1108,9 @@ function armyCommand(){const O=S.obj,A=alive().filter(e=>e.kind==='army'&&e.mode
     const helper=A.filter(o=>o!==e&&free(o)&&o.role!=='carrier'&&Math.hypot(o.x-e.x,o.y-e.y)<450).sort((a,b)=>Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(b.x-e.x,b.y-e.y))[0];
     if(helper){const dx=u.x-e.x,dy=u.y-e.y,l=Math.hypot(dx,dy)||1,s=helper.id.charCodeAt(1)%2?1:-1;armyGoTo(helper,u.x-dy/l*110*s,u.y+dx/l*110*s,'flank');helper.flankT=S.t;e.flankCalled=S.t;}}
   for(const e of A)if(e.role==='flank'&&e.mode==='hold'&&S.t-(e.flankT||0)>150)e.role='overwatch';}
+// while the game is paused the enemy commander still makes one or two decisions (no movement): after 1 s and after 4 s of pause
+let PT=0,PTn=0;function pauseThink(rdt){PT+=rdt;if(PTn<2&&PT>=(PTn?4:1)){PTn++;armyCommand();}}
+function pauseReset(){PT=0;PTn=0;}
 function armyTick(dt){const O=S.obj,U=infs();
   for(const e of alive()){if(e.kind!=='army')continue;
     if(e.mode!=='withdraw'&&e.men<=Math.ceil(e.max*.35)){e.mode='withdraw';e.bld=0;const p=nearFree(S.enBase.x,S.enBase.y);e.tx=p[0]*NG;e.ty=p[1]*NG;e.pkey=null;if(e.role==='carrier')e.role='';}
@@ -2045,6 +2048,7 @@ $('#bAgain').onclick=()=>{clearSave();if(S.mission){setCity(MS.seed,MS.dens,true
 /* ---------- loop ---------- */
 let last=performance.now(),lastSec=-1;
 function frame(now){const rdt=Math.min(.1,(now-last)/1000);last=now;
+  if(S.started&&!S.over&&S.speed===0&&S.mission)pauseThink(rdt);else pauseReset();
   if(S.started&&!S.over&&S.speed>0){S.acc+=rdt*RATE*S.speed;let n=0;while(S.acc>=1&&n<240&&!S.over){tick(1);S.acc-=1;n++;}}
   radioStep(rdt);
   if(now-lastSave>10000){lastSave=now;saveGame();}
