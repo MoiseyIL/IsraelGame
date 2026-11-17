@@ -82,7 +82,7 @@ function curCmd(u){const a=u.crew.map(MAN).filter(m=>m&&!u.cs[m.id]);return a.fi
 function crewLine(u){if(!u.crew||!C)return'';const cm=curCmd(u);if(!cm)return'';
   return(HE?`מפקד: ${manName(cm)} · רמה ${C.groups[u.id].lvl}`:(EN?(`Team leader: ${manName(cm)} · level ${C.groups[u.id].lvl}`):(`Командир: ${manName(cm)} · уровень ${C.groups[u.id].lvl}`)))+'\n';}
 function nextOpName(){const free=OPNAMES.map((_,i)=>i).filter(i=>!C.used.includes(i));const i=free.length?pick(free):rnd(OPNAMES.length);C.used.push(i);return OPNAMES[i];}
-function campAfter(){if(!C||S.campDone||S.train)return;S.campDone=true;
+function campAfter(){if(!C||S.campDone||S.train||S.mission)return;S.campDone=true;
   const ok=S.leader==='killed'||S.leader==='captured';const best=S.leader==='captured'&&S.lab==='destroyed'&&!S.civHarm;
   const r={op:S.op||C.op,name:S.opName||C.opName,day:S.day||0,result:S.result,ok,fallen:[],wounded:[],promoted:[],returned:[],recruits:[],lvlUp:[],cmdNew:[]};
   for(const m of C.men)if(m.st==='wia'){m.out--;if(m.out<=0){m.st='ok';m.out=0;r.returned.push(m.id);}}

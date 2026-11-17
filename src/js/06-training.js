@@ -89,9 +89,9 @@ function checks(I,sel){const has=f=>sel.some(t=>f(TU[t],t));const out=[];
 const ratioOf=(I,sel)=>sel.reduce((s,t)=>s+powerOf(t),0)/Math.max(1,(I.lo+I.hi)/2);
 const codeTxt=s=>'R-'+s;
 function trainParamsChanged(cityToo){if(cityToo)setCity(TR.seed,TR.dens,true);S=newState(TR);resetView();saveTR();showTrain();}
-function tabs(){return`<div class="tabs"><button data-m="camp"${MODE==='camp'?' class="on"':''}>${HE?'מערכה':(EN?("Campaign"):('Кампания'))}</button><button data-m="train"${MODE==='train'?' class="on"':''}>${HE?'אימון':(EN?("Training"):('Тренировка'))}</button></div>`;}
+function tabs(){return`<div class="tabs"><button data-m="camp"${MODE==='camp'?' class="on"':''}>${HE?'מערכה':(EN?("Campaign"):('Кампания'))}</button><button data-m="train"${MODE==='train'?' class="on"':''}>${HE?'אימון':(EN?("Training"):('Тренировка'))}</button><button data-m="mission"${MODE==='mission'?' class="on"':''}>${T3('Миссии','משימות','Missions')}</button></div>`;}
 function bindTabs(){document.querySelectorAll('#campDoc .tabs button').forEach(b=>b.onclick=()=>{const m=b.dataset.m;if(m===MODE)return;MODE=m;saveTR();
-  if(m==='train'){setCity(TR.seed,TR.dens,true);S=newState(TR);resetView();showTrain();}else{setCity(SEED,'normal');S=newState();resetView();showCamp();}});}
+  if(m==='train'){setCity(TR.seed,TR.dens,true);S=newState(TR);resetView();showTrain();}else if(m==='mission'){setCity(MS.seed,MS.dens,true);S=newMissionState(MS);resetView();showMission();}else{setCity(SEED,'normal');S=newState();resetView();showCamp();}});}
 function showTrain(){const I=S.intel,sel=TR.sel,h=[];const rec=recommend(I);const lim=TR.limit?rec.length:MAXG;const over=sel.length>lim;
   h.push(tabs()+langBar()+`<div class="stamp">${HE?'אימון':(EN?("TRAINING"):('ТРЕНИРОВКА'))}</div><h1>${HE?'מבצע אימון':(EN?("Training operation"):('Тренировочная операция'))}</h1>`);
   h.push(`<p class="meta">${HE?'בלי התקדמות: התוצאה לא משפיעה על המערכה. אותו קוד — אותה עיר ואותו אויב, אפשר לשחק אותו שוב או לתת לחבר.':(EN?("No progression: the result does not affect the campaign. One code means the same town and the same enemy: replay it or give the code to someone else."):('Без прокачки: результат не влияет на кампанию. Один код — один и тот же город и противник: можно переиграть или дать код другому.'))}</p>`);

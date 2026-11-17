@@ -1,11 +1,11 @@
 /* ---------- end ---------- */
-function endGame(why){if(S.over)return;S.over=true;clearSave();S.speed=0;S.radio.q=[];setSpeedUI();S.endWhy=why;UI.target=null;updTarget();closeSheet();
+function endGame(why){if(S.over)return;if(S.mission){missionEnd(why);return;}S.over=true;clearSave();S.speed=0;S.radio.q=[];setSpeedUI();S.endWhy=why;UI.target=null;updTarget();closeSheet();
   if(S.leader==='free'&&!alive().some(e=>e.leader))S.leader='escaped';
   const ok=S.leader==='killed'||S.leader==='captured';
   S.result=!ok?(HE?('המשימה לא בוצעה'):((EN?("Mission failed"):('Задача не выполнена')))):S.civHarm?(HE?('המטרה נוטרלה, אבל נפגעו אזרחים'):((EN?("Target neutralized, civilians harmed"):('Цель нейтрализована, есть пострадавшие среди мирных')))):S.lab!=='destroyed'?(HE?('המשימה בוצעה חלקית: המעבדה שלמה'):((EN?("Mission partly complete: the workshop is intact"):('Задача выполнена частично: мастерская цела')))):S.leader==='captured'?(HE?('המשימה בוצעה בהצטיינות: «המהנדס» נעצר'):((EN?("Mission accomplished with distinction: \"the Engineer\" detained"):('Задача выполнена образцово: «Инженер» задержан')))):(HE?('המשימה בוצעה'):((EN?("Mission accomplished"):('Задача выполнена'))));
   if(resonance()>=7)S.result+=(HE?(' · סערה בינלאומית'):((EN?(" · international scandal"):(' · международный скандал'))));else if(resonance()>=3)S.result+=(HE?(' · ביקורת בתקשורת'):((EN?(" · media criticism"):(' · критика в СМИ'))));
   campAfter();showDebrief();}
-function showDebrief(){
+function showDebrief(){if(S.mission){missionDebrief();return;}
   const U=infs();let err=0;U.forEach(u=>{const m=S.marks.own[u.id];err+=Math.hypot(m.x-u.x,m.y-u.y);});err=Math.round(err/U.length/10)*10;
   const left=U.reduce((s,u)=>s+u.wounded,0);
   $('#dMeta').textContent=(HE?(`${fmt(S.t)} · ${S.endWhy==='wiped'?'הצוותים איבדו כשירות':S.endWhy==='done'?'המשימות בוצעו, יציאה':S.endWhy==='manual'?'המבצע הסתיים בהחלטת המפקד':'06:30, פקודת יציאה'}`):((EN?(`${fmt(S.t)} · ${S.endWhy==='wiped'?'teams combat ineffective':S.endWhy==='done'?'objectives complete, withdrawal':S.endWhy==='manual'?'operation ended by the commander':'06:30, withdrawal ordered'}`):(`${fmt(S.t)} · ${S.endWhy==='wiped'?'отделения потеряли боеспособность':S.endWhy==='done'?'задачи выполнены, отход':S.endWhy==='manual'?'операция завершена по решению командира':'06:30, приказ на отход'}`))));

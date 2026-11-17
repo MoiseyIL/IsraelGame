@@ -2,6 +2,7 @@
 function doAct(a){const u=a.uid?U_(a.uid):null;
   if(a.k==='order')orderExec(u,a);else if(a.k==='rep')sayReport(u);else if(a.k==='strike')strikeExec(a);else if(a.k==='med')medExec(a);
   else if(a.k==='atgm')atgmExec(u,a.b);
+  else if(a.k==='mplant'||a.k==='mdefuse')missionAct(u,a);
   else if(a.k==='uav'){S.uav.tx=a.x;S.uav.ty=a.y;say(U_('ya'),(HE?('צפע, כאן זיק. רות, עובר לגזרה החדשה, אהיה שם בעוד דקה.'):((EN?("Cobra-6, this is Hawk. Roger, moving to the new area, on station in one minute."):('Кобра-6, я Ястреб. Принял, перехожу в новый район, буду через минуту.')))),[],{front:true});}
   else if(a.k==='cleared'){if(S.marks.bied)delete S.marks.bied[a.b];if(a.b===S.T)S.marks.b[a.b]='tun';else if(a.civ)S.marks.b[a.b]='civ';else delete S.marks.b[a.b];}
   else if(a.k==='clrOrd')delete S.marks.ord[a.uid];else if(a.k==='clrLz')S.marks.lz=S.marks.lz.filter(z=>z.id!==a.id);
