@@ -167,6 +167,9 @@ button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 .selc{display:flex;flex-wrap:wrap;gap:6px}
 .warn{color:#8a1f17;font-weight:700}
 #tGo:disabled{opacity:.45}
+.tprev{display:flex;gap:12px;align-items:flex-start;margin:10px 0}
+.tprev img{width:120px;height:auto;border:1px solid #9aa3ab;border-radius:4px;flex:0 0 auto;background:#ccc}
+.tprev div{font-size:13px}
 .ucard{border:1px solid #c9c3b4;border-radius:6px;padding:8px 10px;margin:6px 0;background:rgba(255,255,255,.35)}
 .ucard.off{opacity:.7}
 .uh{display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -424,7 +427,7 @@ function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1
 /* ---------- city ---------- */
 let BL=[],BLOCKS=[];
 const BN=n=>BL[n-1];
-function genCity(seed,dens){seed=seed||SEED;const LOT=dens==='sparse'?.17:dens==='dense'?.03:.07,SPL=dens==='dense'?.35:dens==='sparse'?.75:.55;
+function genCity(seed,dens,g2){if(g2){genCity2(seed,dens);return;}M=M_CLASSIC;seed=seed||SEED;const LOT=dens==='sparse'?.17:dens==='dense'?.03:.07,SPL=dens==='dense'?.35:dens==='sparse'?.75:.55;
   const r=mulberry(seed);BL=[];BLOCKS=[];
   const xs=[700];for(let x=700;x>260;){x-=125+r()*45;xs.unshift(Math.max(240,x));}for(let x=700;x<1140;){x+=125+r()*45;xs.push(Math.min(1160,x));}
   const ys=[860];for(let y=860;y>270;){y-=110+r()*40;ys.unshift(Math.max(250,y));}for(let y=860;y<1440;){y+=110+r()*40;ys.push(Math.min(1460,y));}
@@ -449,14 +452,112 @@ function genCity(seed,dens){seed=seed||SEED;const LOT=dens==='sparse'?.17:dens==
   const big=[...BL].sort((a,b)=>b.area-a.area).slice(0,14);const sch=big.reduce((a,b)=>Math.hypot(b.cx-420,b.cy-1150)<Math.hypot(a.cx-420,a.cy-1150)?b:a,big[0]);sch.prot=(HE?('בית ספר'):('школа'));
   const cl=big.filter(b=>b!==sch).reduce((a,b)=>Math.hypot(b.cx-980,b.cy-620)<Math.hypot(a.cx-980,a.cy-620)?b:a);cl.prot=(HE?('מרפאה'):('поликлиника'));
 }
+/* ---------- generated maps for training: town type and shape, roads, terrain ---------- */
+const M_CLASSIC={classic:true,type:'classic',cx:700,cy:860,rx:500,ry:640,minA:500};
+let M=M_CLASSIC;
+const TOWN={grid:['Город','העיר'],old:['Старый город','העיר העתיקה'],camp:['Лагерь беженцев','מחנה הפליטים'],village:['Деревня','הכפר'],mixed:['Город со старым центром','העיר עם הגרעין העתיק']};
+const TOWNL={grid:['город с прямыми улицами','עיר עם רחובות ישרים'],old:['старый город, узкие переулки','עיר עתיקה, סמטאות צרות'],camp:['лагерь беженцев, очень плотная застройка','מחנה פליטים, בנייה צפופה מאוד'],village:['деревня, дома с дворами','כפר, בתים עם חצרות'],mixed:['город со старым центром','עיר עם גרעין עתיק']};
+function segDist(px,py,ax,ay,bx,by){const dx=bx-ax,dy=by-ay,l=dx*dx+dy*dy||1;const t=clamp(((px-ax)*dx+(py-ay)*dy)/l,0,1);return Math.hypot(px-ax-t*dx,py-ay-t*dy);}
+function lineDist(x,y,pts){let d=1e9;for(let i=1;i<pts.length;i++)d=Math.min(d,segDist(x,y,pts[i-1][0],pts[i-1][1],pts[i][0],pts[i][1]));return d;}
+// our groups outside the town are harder to spot in orchards and in the wadi bed
+function coverAt(x,y){if(M.classic||inTown(x,y))return false;if(M.orch.some(o=>x>o.x0&&x<o.x1&&y>o.y0&&y<o.y1))return true;return!!(M.wadi&&lineDist(x,y,M.wadi)<16);}
+function genCity2(seed,dens){const r=mulberry(seed*31+7);BL=[];BLOCKS=[];
+  const type=['grid','old','camp','village','mixed'][Math.floor(r()*5)];const dn=dens==='dense'?1:dens==='sparse'?-1:0;
+  let rx,ry;if(type==='camp'){rx=250+r()*120;ry=290+r()*150;}else if(type==='village'){rx=400+r()*150;ry=430+r()*190;}else{rx=340+r()*210;ry=400+r()*240;}
+  if(r()<.35){if(r()<.5)rx*=.75;else ry*=.8;}ry=Math.min(ry,630);rx=Math.min(rx,540);
+  const cy=230+ry+r()*Math.max(0,1540-2*ry-230),cx=150+rx+r()*Math.max(0,1100-2*rx);
+  const ph=[r()*6.28,r()*6.28,r()*6.28],am=[.07+r()*.1,.04+r()*.07,.03];
+  const edge=(x,y)=>{const a=Math.atan2((y-cy)/ry,(x-cx)/rx);return 1+am[0]*Math.sin(2*a+ph[0])+am[1]*Math.sin(3*a+ph[1])+am[2]*Math.sin(5*a+ph[2]);};
+  const P={grid:{sx:[120,170],sy:[105,150],g:7,ga:13,jit:2,split:0,lot:.07,ins:[3,8],shr:.5,n:[.15,.55,.85],minA:500,fl:[1,2]},
+    old:{sx:[70,110],sy:[62,96],g:4,ga:10,jit:6,split:.4,lot:.04,ins:[1,3],shr:.25,n:[.05,.35,.75],minA:330,fl:[2,3]},
+    camp:{sx:[48,72],sy:[44,66],g:3,ga:8,jit:3,split:.25,lot:.02,ins:[.5,1.5],shr:.12,n:[.05,.4,.8],minA:300,fl:[2,4]},
+    village:{sx:[105,150],sy:[100,140],g:8,ga:12,jit:8,split:0,lot:.14,ins:[4,10],shr:.6,n:[.5,.9,1],minA:300,fl:[1,2]},
+    mixed:{sx:[120,165],sy:[105,145],g:7,ga:13,jit:2,split:0,lot:.06,ins:[3,8],shr:.5,n:[.15,.55,.85],minA:450,fl:[1,2]}}[type];
+  const lotP=Math.max(.01,P.lot+(dn<0?.1:dn>0?-.03:0));
+  const ax=cx+(r()-.5)*rx*.5,ay=cy+(r()-.5)*ry*.5;
+  const steps=(c0,lo,hi,a,b)=>{const out=[c0];for(let v=c0;v>lo;){v-=a+r()*(b-a);out.unshift(v);}for(let v=c0;v<hi;){v+=a+r()*(b-a);out.push(v);}return out;};
+  const xs=steps(ax,cx-rx*1.2,cx+rx*1.2,P.sx[0],P.sx[1]),ys=steps(ay,cy-ry*1.2,cy+ry*1.2,P.sy[0],P.sy[1]);
+  const avy=[ay];if(type!=='camp'&&ys.length>7&&r()<.6){const i=ys.indexOf(ay);const j=clamp(i+(r()<.5?-3:3),1,ys.length-2);if(Math.abs(ys[j]-ay)>150)avy.push(ys[j]);}
+  const isAv=(v,arr)=>arr.some(a=>Math.abs(a-v)<.01);
+  const cells=[];
+  for(let i=0;i<xs.length-1;i++)for(let j=0;j<ys.length-1;j++){
+    const gl=isAv(xs[i],[ax])?P.ga:P.g,gr=isAv(xs[i+1],[ax])?P.ga:P.g,gt=isAv(ys[j],avy)?P.ga:P.g,gb=isAv(ys[j+1],avy)?P.ga:P.g;
+    const b={x0:xs[i]+gl+r()*P.jit,x1:xs[i+1]-gr-r()*P.jit,y0:ys[j]+gt+r()*P.jit,y1:ys[j+1]-gb-r()*P.jit};
+    const bx=(b.x0+b.x1)/2,by=(b.y0+b.y1)/2;const e=Math.sqrt(((bx-cx)/rx)**2+((by-cy)/ry)**2)/edge(bx,by);
+    if(e>.88+r()*.22)continue;if(type==='village'&&e>.35&&r()<.15)continue;
+    const core=type==='mixed'&&e<.5;const split=core?.9:P.split;
+    if(r()<split&&!isAv(xs[i],[ax])){const w=b.x1-b.x0,h=b.y1-b.y0,f=.35+r()*.3,al=core?4:P.g;
+      if(w>h){const m=b.x0+w*f;cells.push({...b,x1:m-al/2,core},{...b,x0:m+al/2,core});}else{const m=b.y0+h*f;cells.push({...b,y1:m-al/2,core},{...b,y0:m+al/2,core});}}
+    else cells.push({...b,core});}
+  // a diagonal main road cuts through some towns
+  let diag=null;if(type!=='camp'&&type!=='old'&&r()<.45){const d=ry*(.5+r()*.6)*(r()<.5?-1:1);diag=[[cx-rx*1.25,cy-d/2],[cx+rx*1.25,cy+d/2]];}
+  const raw=[];const minW=type==='camp'?26:34;
+  for(const b of cells){if(b.x1-b.x0<minW||b.y1-b.y0<minW)continue;
+    if(diag){let hit=false;for(let t=0;t<=1&&!hit;t+=.004){const x=diag[0][0]+(diag[1][0]-diag[0][0])*t,y=diag[0][1]+(diag[1][1]-diag[0][1])*t;if(x>b.x0-12&&x<b.x1+12&&y>b.y0-12&&y<b.y1+12)hit=true;}if(hit){b.lot=true;b.road=true;BLOCKS.push(b);continue;}}
+    BLOCKS.push(b);if(r()<lotP){b.lot=true;continue;}
+    const pp=b.core?{n:[.05,.35,.75],ins:[1,3],shr:.25}:P;
+    if(type==='village'){const k=1+(r()<.6?1:0)+(r()<.3?1:0);const placed=[];for(let q=0;q<k*5&&placed.length<k;q++){const w=16+r()*18,h=15+r()*16;if(w>b.x1-b.x0-8||h>b.y1-b.y0-8)continue;const x0=b.x0+4+r()*(b.x1-b.x0-8-w),y0=b.y0+4+r()*(b.y1-b.y0-8-h);
+        if(placed.some(o=>x0<o.x1+6&&x0+w>o.x0-6&&y0<o.y1+6&&y0+h>o.y0-6))continue;const o={x0,x1:x0+w,y0,y1:y0+h};placed.push(o);raw.push(o);}continue;}
+    const n=r()<pp.n[0]?1:r()<pp.n[1]?2:r()<pp.n[2]?3:4+(type==='camp'&&r()<.5?1:0);const horiz=(b.x1-b.x0)>(b.y1-b.y0);
+    let cuts=[0];for(let k=1;k<n;k++)cuts.push(k/n+(r()-.5)*.12);cuts.push(1);
+    for(let k=0;k<n;k++){let x0,x1,y0,y1;
+      if(horiz){x0=b.x0+(b.x1-b.x0)*cuts[k];x1=b.x0+(b.x1-b.x0)*cuts[k+1];y0=b.y0;y1=b.y1;}else{y0=b.y0+(b.y1-b.y0)*cuts[k];y1=b.y0+(b.y1-b.y0)*cuts[k+1];x0=b.x0;x1=b.x1;}
+      const ins=()=>pp.ins[0]+r()*(pp.ins[1]-pp.ins[0]);x0+=ins();x1-=ins();y0+=ins();y1-=ins();
+      const sw=x1-x0,sh=y1-y0;if(r()<pp.shr){const f=.65+r()*.3;if(r()<.5)x1=x0+sw*f;else x0=x1-sw*f;}if(r()<pp.shr){const f=.65+r()*.3;if(r()<.5)y1=y0+sh*f;else y0=y1-sh*f;}
+      if(x1-x0<12||y1-y0<12)continue;raw.push({x0,x1,y0,y1});}}
+  raw.sort((a,b)=>Math.floor(a.y0/90)-Math.floor(b.y0/90)||a.x0-b.x0);
+  raw.forEach((b,i)=>{b.n=i+1;b.cx=(b.x0+b.x1)/2;b.cy=(b.y0+b.y1)/2;b.area=(b.x1-b.x0)*(b.y1-b.y0);b.prot=null;b.fl=P.fl[0]+Math.floor(r()*(P.fl[1]-P.fl[0]+1));if(b.area>1500&&b.fl<2)b.fl=2;BL.push(b);});
+  const big=[...BL].sort((a,b)=>b.area-a.area).slice(0,Math.max(6,Math.round(BL.length*.12)));const used=new Set();
+  const protAt=(tx,ty,label)=>{const c=big.filter(b=>!used.has(b));if(!c.length)return;const b=c.reduce((a,o)=>Math.hypot(o.cx-tx,o.cy-ty)<Math.hypot(a.cx-tx,a.cy-ty)?o:a);b.prot=label;used.add(b);};
+  protAt(cx+(r()-.5)*rx*1.2,cy+ry*.35,HE?'בית ספר':'школа');protAt(cx+(r()-.5)*rx*1.2,cy-ry*.35,HE?'מרפאה':'поликлиника');
+  if(type!=='grid')protAt(cx+(r()-.5)*rx*.5,cy+(r()-.5)*ry*.5,HE?'מסגד':'мечеть');
+  // terrain and roads
+  const pal=['#d9d6c4','#d6d1b8','#d3d6c0','#ddd3bb','#d8d8c6'];
+  const T={classic:false,type,cx,cy,rx,ry,edge,minA:P.minA,avx:[ax],avy,diag,bg:pal[Math.floor(r()*pal.length)],roads:[],tracks:[],orch:[],hills:[],fields:[],wadi:null,cem:null,ga:P.ga};
+  const outT=(x,y,m)=>Math.sqrt(((x-cx)/rx)**2+((y-cy)/ry)**2)>(m||1.15);
+  const nearBase=(x,y,d)=>Math.hypot(x-700,y-2090)<d;
+  const top=cy-ry*1.05,bot=cy+ry*1.05,left=cx-rx*1.1,right=cx+rx*1.1;const wAv=P.ga*2-6;
+  T.roads.push({w:wAv,pts:[[ax+(r()-.5)*300,0],[ax+(r()-.5)*60,top*.5],[ax,top],[ax,bot],[(ax+700)/2+(r()-.5)*160,(bot+2090)/2],[700,2090],[700+(r()-.5)*300,MHm]]});
+  avy.forEach((y,i)=>T.roads.push({w:i?wAv-4:wAv,pts:[[0,y+(r()-.5)*240],[left*.5,y+(r()-.5)*60],[left,y],[right,y],[(right+MWm)/2,y+(r()-.5)*60],[MWm,y+(r()-.5)*240]]}));
+  if(diag)T.roads.push({w:12,pts:diag});
+  for(let i=0;i<5;i++){const hx=r()*MWm,hy=r()*1900;if(!outT(hx,hy,1.35)||nearBase(hx,hy,320))continue;T.hills.push({x:hx,y:hy,r:110+r()*150,h:280+Math.floor(r()*350),k:3+Math.floor(r()*3)});}
+  if(r()<.85){const pts=[];const fromW=r()<.5;let x=fromW?0:MWm,y=200+r()*1500;const dx=fromW?1:-1;for(let k=0;k<12;k++){pts.push([x,y]);x+=dx*(MWm/11);y+=(r()-.5)*260;
+      let g=0;while(!outT(x,y,1.1)&&g++<20)y+=y<cy?-30:30;y=clamp(y,40,1950);}T.wadi=pts;}
+  for(let i=0;i<14&&T.orch.length<7;i++){const w=110+r()*170,h=80+r()*150,x0=r()*(MWm-w),y0=r()*(1950-h);const cxo=x0+w/2,cyo=y0+h/2;
+    if(!outT(cxo,cyo,1.25)||nearBase(cxo,cyo,260)||T.orch.some(o=>x0<o.x1+20&&x0+w>o.x0-20&&y0<o.y1+20&&y0+h>o.y0-20))continue;T.orch.push({x0,y0,x1:x0+w,y1:y0+h,olive:r()<.6});}
+  for(let i=0;i<10&&T.fields.length<5;i++){const w=120+r()*200,h=90+r()*160,x0=r()*(MWm-w),y0=r()*(2000-h);const cxo=x0+w/2,cyo=y0+h/2;
+    if(!outT(cxo,cyo,1.2)||nearBase(cxo,cyo,240)||T.orch.some(o=>x0<o.x1&&x0+w>o.x0&&y0<o.y1&&y0+h>o.y0))continue;T.fields.push({x0,y0,x1:x0+w,y1:y0+h,a:r()<.5});}
+  for(let i=0;i<3;i++){const a=r()*6.28;const sx=cx+Math.cos(a)*rx*1.1,sy=cy+Math.sin(a)*ry*1.1;const ex=clamp(sx+Math.cos(a)*(250+r()*350),0,MWm),ey=clamp(sy+Math.sin(a)*(250+r()*350),0,2000);T.tracks.push([[sx,sy],[(sx+ex)/2+(r()-.5)*120,(sy+ey)/2+(r()-.5)*120],[ex,ey]]);}
+  const lots=BLOCKS.filter(b=>b.lot&&!b.road);if(lots.length&&r()<.7){const dc=b=>Math.hypot((b.x0+b.x1)/2-cx,(b.y0+b.y1)/2-cy);const c=lots.reduce((a,b)=>dc(b)>dc(a)?b:a);c.cem=true;T.cem=c;}
+  {const ar=BL.filter(b=>!b.prot).map(b=>b.area).sort((a,b)=>b-a);T.minA=Math.min(P.minA,(ar[Math.min(ar.length-1,24)]||200)-1);}
+  M=T;}
+function drawTerrain2(g){const r=mulberry(M.cx*7+M.cy);
+  g.fillStyle=M.bg;g.fillRect(0,0,MWm,MHm);
+  for(let i=0;i<2600;i++){const x=r()*MWm,y=r()*MHm;if(inTown(x,y))continue;g.fillStyle='rgba(140,130,100,.28)';g.beginPath();g.arc(x,y,1.5,0,7);g.fill();}
+  for(const f of M.fields){g.fillStyle='rgba(190,178,130,.35)';g.fillRect(f.x0,f.y0,f.x1-f.x0,f.y1-f.y0);g.strokeStyle='rgba(150,130,90,.35)';g.lineWidth=1.2;g.beginPath();
+    if(f.a)for(let x=f.x0+6;x<f.x1;x+=9){g.moveTo(x,f.y0);g.lineTo(x,f.y1);}else for(let y=f.y0+6;y<f.y1;y+=9){g.moveTo(f.x0,y);g.lineTo(f.x1,y);}g.stroke();}
+  for(const h of M.hills){for(let k=1;k<=h.k;k++){const rr=h.r*(1-(k-1)/(h.k+.5));g.strokeStyle=`rgba(140,105,60,${.25+k*.08})`;g.lineWidth=1.4;g.beginPath();g.ellipse(h.x,h.y,rr*1.15,rr*.85,(h.x%3)*.3,0,7);g.stroke();}}
+  for(const o of M.orch){g.fillStyle='rgba(120,140,90,.16)';g.fillRect(o.x0,o.y0,o.x1-o.x0,o.y1-o.y0);g.fillStyle=o.olive?'rgba(96,116,70,.6)':'rgba(80,120,60,.55)';
+    for(let y=o.y0+8;y<o.y1-4;y+=14)for(let x=o.x0+8+((y/14)%2)*5;x<o.x1-4;x+=14){g.beginPath();g.arc(x,y,3.2,0,7);g.fill();}}
+  if(M.wadi){const w=M.wadi;const path=()=>{g.beginPath();w.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));};g.lineCap='round';g.lineJoin='round';
+    path();g.strokeStyle='rgba(200,180,140,.8)';g.lineWidth=26;g.stroke();path();g.strokeStyle='rgba(150,120,80,.75)';g.lineWidth=5;g.setLineDash([14,9]);g.stroke();g.setLineDash([]);}
+  g.strokeStyle='rgba(150,120,80,.7)';g.lineWidth=5;g.setLineDash([12,9]);for(const t of M.tracks){g.beginPath();g.moveTo(t[0][0],t[0][1]);g.quadraticCurveTo(t[1][0],t[1][1],t[2][0],t[2][1]);g.stroke();}g.setLineDash([]);}
+function drawRoads2(g,inner){for(const rd of M.roads){g.lineCap='round';g.lineJoin='round';g.beginPath();rd.pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));
+  if(!inner){g.strokeStyle='#9d9785';g.lineWidth=rd.w+4;g.stroke();}g.strokeStyle='#f4f2ec';g.lineWidth=rd.w;g.stroke();}}
+function drawLabels2(g){g.font=(HE?'20px "Rubik", Arial, sans-serif':'italic 20px "Roboto Condensed", sans-serif');g.fillStyle='#6a5a3c';g.textAlign='center';g.textBaseline='middle';
+  for(const h of M.hills)g.fillText(HE?`▲ ${h.h}`:`▲ ${h.h}`,h.x,h.y);
+  if(M.wadi){const p=M.wadi[Math.floor(M.wadi.length/2)];g.fillText(HE?'ואדי':'вади',p[0],p[1]-24);}
+  M.orch.forEach((o,i)=>{if(i<3)g.fillText(o.olive?(HE?'זיתים':'оливы'):(HE?'מטעים':'сады'),(o.x0+o.x1)/2,o.y0-12);});
+  if(M.cem){const c=M.cem;g.fillStyle='rgba(90,90,80,.5)';for(let y=c.y0+8;y<c.y1-6;y+=10)for(let x=c.x0+8;x<c.x1-6;x+=12)g.fillRect(x,y,4,7);g.fillStyle='#6a5a3c';g.font=(HE?'15px "Rubik", Arial, sans-serif':'italic 15px "Roboto Condensed", sans-serif');g.fillText(HE?'בית קברות':'кладбище',(c.x0+c.x1)/2,c.y1+12);}}
 function bldAt(x,y,tol){for(const b of BL)if(x>=b.x0-2&&x<=b.x1+2&&y>=b.y0-2&&y<=b.y1+2)return b;if(!tol)return null;let best=null,bd=tol;for(const b of BL){const dx=Math.max(b.x0-x,0,x-b.x1),dy=Math.max(b.y0-y,0,y-b.y1),d=Math.hypot(dx,dy);if(d<bd){bd=d;best=b;}}return best;}
 const cell=(x,y)=>COLS[clamp(Math.floor(x/CELL),0,6)]+(clamp(Math.floor(y/CELL),0,10)+1);
 function placeTxt(x,y){const b=bldAt(x,y,45);return b?(HE?(`ליד מבנה ${b.n}, משבצת ${cell(x,y)}`):(`у здания ${b.n}, квадрат ${cell(x,y)}`)):(HE?(`משבצת ${cell(x,y)}`):(`квадрат ${cell(x,y)}`));}
-const inTown=(x,y)=>((x-700)/500)**2+((y-860)/640)**2<1;
+const inTown=(x,y)=>M.classic?((x-700)/500)**2+((y-860)/640)**2<1:((x-M.cx)/M.rx)**2+((y-M.cy)/M.ry)**2<M.edge(x,y)**2;
 
 function drawMap(){
   const cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');g.scale(K,K);
   const r=mulberry(77);
+  if(M.classic){
   g.fillStyle='#d9d6c4';g.fillRect(0,0,MWm,MHm);
   for(let i=0;i<5200;i++){const x=r()*MWm,y=r()*MHm;if(inTown(x,y))continue;const orch=Math.sin(x*.004+1.3)*Math.cos(y*.003)>.15;if(!orch&&r()<.85)continue;g.fillStyle=orch?'rgba(96,116,70,.55)':'rgba(140,130,100,.3)';g.beginPath();g.arc(x,y,orch?3.2:1.6,0,7);g.fill();}
   g.strokeStyle='rgba(150,120,80,.7)';g.lineWidth=7;g.setLineDash([16,10]);g.beginPath();g.moveTo(1400,1300);g.bezierCurveTo(1200,1500,1300,1750,1050,1900);g.bezierCurveTo(900,2000,950,2150,880,2200);g.stroke();g.setLineDash([]);
@@ -464,14 +565,15 @@ function drawMap(){
   road([[700,0],[700,MHm]],22);road([[0,860],[MWm,860]],20);road([[700,1700],[420,1900],[300,2200]],10);road([[1150,860],[1300,700],[1400,650]],10);
   for(const b of BLOCKS){g.fillStyle='#f1efe8';g.fillRect(b.x0-8,b.y0-8,b.x1-b.x0+16,b.y1-b.y0+16);}
   g.fillStyle='#f4f2ec';g.fillRect(689,0,22,MHm);g.fillRect(0,850,MWm,20);
-  for(const b of BLOCKS){g.fillStyle=b.lot?'#d8d5c2':'#e3dfd2';g.fillRect(b.x0,b.y0,b.x1-b.x0,b.y1-b.y0);g.strokeStyle='rgba(120,112,95,.5)';g.lineWidth=1;g.strokeRect(b.x0,b.y0,b.x1-b.x0,b.y1-b.y0);}
+  }else{drawTerrain2(g);drawRoads2(g);for(const b of BLOCKS){if(b.road)continue;g.fillStyle='#f1efe8';g.fillRect(b.x0-5,b.y0-5,b.x1-b.x0+10,b.y1-b.y0+10);}drawRoads2(g,true);}
+  for(const b of BLOCKS){if(b.road)continue;g.fillStyle=b.lot?'#d8d5c2':'#e3dfd2';g.fillRect(b.x0,b.y0,b.x1-b.x0,b.y1-b.y0);g.strokeStyle='rgba(120,112,95,.5)';g.lineWidth=1;g.strokeRect(b.x0,b.y0,b.x1-b.x0,b.y1-b.y0);}
   for(const b of BL){g.fillStyle=b.prot?'#c9d3df':'#bdb6a6';g.fillRect(b.x0,b.y0,b.x1-b.x0,b.y1-b.y0);g.strokeStyle='#3f3b33';g.lineWidth=1.6;g.strokeRect(b.x0,b.y0,b.x1-b.x0,b.y1-b.y0);
     g.fillStyle='rgba(63,59,51,.18)';g.fillRect(b.x0+2,b.y1-4,b.x1-b.x0-2,4);}
   g.textAlign='center';g.textBaseline='middle';
   for(const b of BL){const fs=clamp(Math.min(b.x1-b.x0,b.y1-b.y0)*.55,13,20);g.font=(HE?(`700 ${fs}px "Rubik", Arial, sans-serif`):(`700 ${fs}px "Roboto Condensed", "Arial Narrow", sans-serif`));g.lineWidth=3.5;g.strokeStyle='rgba(244,242,236,.9)';g.strokeText(b.n,b.cx,b.cy);g.fillStyle='#14171b';g.fillText(b.n,b.cx,b.cy);
     if(b.prot){g.font=(HE?('700 14px "Rubik", sans-serif'):('700 14px "Roboto Condensed", sans-serif'));g.strokeText(b.prot.toUpperCase(),b.cx,b.y1+12);g.fillStyle='#24467a';g.fillText(b.prot.toUpperCase(),b.cx,b.y1+12);}}
-  g.font=(HE?('700 34px "Rubik", Arial, sans-serif'):('700 30px "Roboto Condensed", sans-serif'));g.lineWidth=5;g.strokeStyle='rgba(217,214,196,.9)';g.fillStyle='#2b2e33';g.letterSpacing=(HE?('2px'):('6px'));g.strokeText((HE?('דיר נביל'):('ДЕЙР-НАБИЛЬ')),700,170);g.fillText((HE?('דיר נביל'):('ДЕЙР-НАБИЛЬ')),700,170);g.letterSpacing='0px';
-  g.font=(HE?('20px "Rubik", Arial, sans-serif'):('italic 20px "Roboto Condensed", sans-serif'));g.fillStyle='#6a5a3c';g.fillText((HE?('ואדי'):('вади')),1210,1640);g.fillText((HE?('מטעים'):('сады')),280,1700);g.fillText((HE?('מטעים'):('сады')),1100,1150);
+  g.font=(HE?('700 34px "Rubik", Arial, sans-serif'):('700 30px "Roboto Condensed", sans-serif'));g.lineWidth=5;g.strokeStyle='rgba(217,214,196,.9)';g.fillStyle='#2b2e33';g.letterSpacing=(HE?('2px'):('6px'));const TX=M.classic?700:M.cx,TY=M.classic?170:Math.max(50,M.cy-M.ry-50);g.strokeText((HE?('דיר נביל'):('ДЕЙР-НАБИЛЬ')),TX,TY);g.fillText((HE?('דיר נביל'):('ДЕЙР-НАБИЛЬ')),TX,TY);g.letterSpacing='0px';
+  g.font=(HE?('20px "Rubik", Arial, sans-serif'):('italic 20px "Roboto Condensed", sans-serif'));g.fillStyle='#6a5a3c';if(M.classic){g.fillText((HE?('ואדי'):('вади')),1210,1640);g.fillText((HE?('מטעים'):('сады')),280,1700);g.fillText((HE?('מטעים'):('сады')),1100,1150);}else drawLabels2(g);
   g.font=(HE?('17px "Heebo", Arial, sans-serif'):('16px "PT Mono", monospace'));g.textAlign='right';g.textBaseline='bottom';g.fillStyle='rgba(34,37,42,.75)';g.fillText((HE?('תצ״א מקודד «דיר נביל» · גיליון 1 · רשת 200 מ׳'):('GRG «ДЕЙР-НАБИЛЬ» · лист 1 · сетка 200 м')),MWm-14,MHm-12);
   return cv;
 }
@@ -491,37 +593,37 @@ let S;
 function squad(id,call,sh,x,y,men,uc){return{id,call,sh,type:'inf',x,y,men:men||8,uc:!!uc,elite:!!uc,drones:3,droneT:0,droneB:0,method:'door',breachT:0,surpT:0,dogBonus:false,dogDone:false,cordon:0,trapNote:'',wounded:0,ammo:100,morale:85,st:'hold',tx:x,ty:y,tb:0,inB:0,clearT:0,acc:0,cont:[],seen:{},newW:0,newK:0,lastCas:0,inFight:false,lowAmmo:false,wT:0,demo:0};}
 function grp(id,kind,men,b,o){const B=BN(b);return Object.assign({id,kind,men,max:men,bld:b,x:B.cx,y:B.cy,roof:false,alert:false,leader:false,mode:'idle',wp:null,wi:0,acc:0,cont:[],gone:false,mv:false,tT:0},o||{});}
 function newState(TRN){TRN=TRN||null;
-  const r=TRN?mulberry(TRN.seed*13+TRN.diff*7+1):Math.random;const pick=a=>a[Math.floor(r()*a.length)];const okB=BL.filter(b=>!b.prot&&b.area>500);
-  const north=okB.filter(b=>b.cy<880&&b.cy>330&&Math.abs(b.cx-700)<380);const L=pick(north);
+  const r=TRN?mulberry(TRN.seed*13+TRN.diff*7+1):Math.random;const pick=a=>a[Math.floor(r()*a.length)];const MX=M.cx,MY=M.cy,RX=M.rx,RY=M.ry;const okB=BL.filter(b=>!b.prot&&b.area>(M.minA||500));
+  const nB=M.classic?[880,330,380,700]:[MY+20,MY-RY*.83,RX*.76,MX];let north=okB.filter(b=>b.cy<nB[0]&&b.cy>nB[1]&&Math.abs(b.cx-nB[3])<nB[2]);if(north.length<3)north=okB.filter(b=>b.cy<MY+RY*.2);if(!north.length)north=okB;const L=pick(north);
   const near=(b,a,lo,hi)=>{const d=Math.hypot(b.cx-a.cx,b.cy-a.cy);return d>lo&&d<hi;};
   const pk=(list,fb)=>list.length?pick(list):fb.find(b=>b);
   const T=pk(okB.filter(b=>b!==L&&near(b,L,90,220)),okB.filter(b=>b!==L&&near(b,L,40,400)));
   const Wk=pk(okB.filter(b=>b!==L&&b!==T&&near(b,L,180,420)),okB.filter(b=>b!==L&&b!==T));
   const R=pk(okB.filter(b=>![L,T,Wk].includes(b)&&near(b,L,120,350)),okB.filter(b=>![L,T,Wk].includes(b)));
-  const decoys=okB.filter(b=>![L,T,Wk,R].includes(b)&&near(b,L,70,280));const cand=[L,pick(decoys)];let d2=pick(decoys);while(d2===cand[1]&&decoys.length>1)d2=pick(decoys);cand.push(d2);cand.sort(()=>r()-.5);
-  const south=okB.filter(b=>b.cy>1180);const Lk1=south.reduce((a,b)=>Math.abs(b.cx-700)+Math.abs(b.cy-1380)*.5<Math.abs(a.cx-700)+Math.abs(a.cy-1380)*.5?b:a);
-  const Lk2=pk(south.filter(b=>b!==Lk1&&Math.abs(b.cx-Lk1.cx)>250),south.filter(b=>b!==Lk1));
+  let decoys=okB.filter(b=>![L,T,Wk,R].includes(b)&&near(b,L,70,280));if(decoys.length<2)decoys=okB.filter(b=>![L,T,Wk,R].includes(b)).sort((a,b)=>Math.hypot(a.cx-L.cx,a.cy-L.cy)-Math.hypot(b.cx-L.cx,b.cy-L.cy)).slice(0,6);const cand=[L,pick(decoys)];let d2=pick(decoys);while(d2===cand[1]&&decoys.length>1)d2=pick(decoys);cand.push(d2);cand.sort(()=>r()-.5);
+  const sT=M.classic?[1180,700,1380]:[MY+RY*.5,MX,MY+RY*.81];let south=okB.filter(b=>b.cy>sT[0]&&b!==L);if(south.length<2)south=[...okB].filter(b=>b!==L).sort((a,b)=>b.cy-a.cy).slice(0,8);const Lk1=south.reduce((a,b)=>Math.abs(b.cx-sT[1])+Math.abs(b.cy-sT[2])*.5<Math.abs(a.cx-sT[1])+Math.abs(a.cy-sT[2])*.5?b:a);
+  const Lk2=pk(south.filter(b=>b!==Lk1&&Math.abs(b.cx-Lk1.cx)>250),south.filter(b=>b!==Lk1).concat(okB.filter(b=>b!==Lk1&&b!==L)));
   const civ={};BL.forEach(b=>{civ[b.n]=b.prot===(HE?('מרפאה'):('поликлиника'))?7:b.prot?0:(r()<.68?1+Math.floor(r()*6):0);});
   civ[L.n]=r()<.55?3+Math.floor(r()*3):0;civ[Wk.n]=0;civ[R.n]=r()<.3?2:0;civ[Lk1.n]=Math.max(civ[Lk1.n],2);
   const TM=TRN?[.6,.9,1,1.15][TRN.diff]:1;const traps={};[[L,.6],[Wk,.8],[R,.5],[T,.4]].forEach(([b,p])=>{if(r()<p*TM)traps[b.n]=true;});
   const decoyB=cand.find(b=>b!==L);traps[decoyB.n]=true;
-  const ieds=[{x:700,y:950+r()*450},{x:r()<.5?300+r()*250:850+r()*250,y:860}];if(TRN){ieds.length=[1,2,2,3][TRN.diff];if(ieds.length>2)ieds[2]={x:700,y:380+r()*380};}
+  const ieds=M.classic?[{x:700,y:950+r()*450},{x:r()<.5?300+r()*250:850+r()*250,y:860}]:[{x:M.avx[0],y:MY+60+r()*RY*.6},{x:r()<.5?MX-RX*.8+r()*RX*.5:MX+RX*.3+r()*RX*.5,y:M.avy[0]}];if(TRN){ieds.length=[1,2,2,3][TRN.diff];if(ieds.length>2)ieds[2]=M.classic?{x:700,y:380+r()*380}:{x:M.avx[0],y:MY-RY*.75+r()*RY*.6};}
   civ[decoyB.n]=0;
-  const pw=[[700,700],[560,700],[560,1020],[840,1020],[840,700]];
+  const ps=Math.min(1,RY/600);const pw=M.classic?[[700,700],[560,700],[560,1020],[840,1020],[840,700]]:[[MX,MY-160*ps],[MX-140*ps,MY-160*ps],[MX-140*ps,MY+160*ps],[MX+140*ps,MY+160*ps],[MX+140*ps,MY-160*ps]];
   const units=[squad('k1',(HE?('צפע 1'):('Кобра-1')),(HE?('צ1'):('К1')),660,2040),squad('k2',(HE?('צפע 2'):('Кобра-2')),(HE?('צ2'):('К2')),700,2075),squad('k3',(HE?('יהלום'):('Алмаз')),(HE?('יה'):('Ал')),740,2040,6),squad('dv',(HE?('דובדבן'):('Вишня')),(HE?('ד'):('В')),610,2080,8,true),
-    {id:'ya',call:(HE?('זיק'):('Ястреб')),sh:(HE?('ז'):('Я')),type:'uav',x:700,y:1500},{id:'mo',call:(HE?('שרף'):('Молот')),sh:(HE?('ש'):('М')),type:'strike',x:610,y:2140},{id:'an',call:(HE?('ינשוף'):('Ангел')),sh:(HE?('י'):('А')),type:'medevac',x:790,y:2140}];
+    {id:'ya',call:(HE?('זיק'):('Ястреб')),sh:(HE?('ז'):('Я')),type:'uav',x:M.classic?700:MX,y:M.classic?1500:Math.min(1700,MY+RY)},{id:'mo',call:(HE?('שרף'):('Молот')),sh:(HE?('ש'):('М')),type:'strike',x:610,y:2140},{id:'an',call:(HE?('ינשוף'):('Ангел')),sh:(HE?('י'):('А')),type:'medevac',x:790,y:2140}];
   units[3].veh=true;units[3].carU=true;units[2].sap=true;
   if(TRN)units.splice(0,4,...mkTrainUnits(TRN.sel));else units.forEach(u=>{if(u.type==='inf')crewApply(u);});
   let ens=[grp('eL','leader',3,L.n,{leader:true}),grp('eW','lab',2,Wk.n),grp('eR','rest',3,R.n),grp('o1','look',1,Lk1.n,{roof:true}),grp('o2','look',1,Lk2.n,{roof:true}),Object.assign(grp('eP','patrol',2,L.n,{mode:'patrol',wp:pw,wi:1}),{bld:0,x:pw[0][0],y:pw[0][1]})];
   if(TRN){const D=TRN.diff;const used=[L,T,Wk,R,decoyB];ens=[grp('eL','leader',[2,3,3,4][D]+(r()<.5?1:0),L.n,{leader:true}),grp('eW','lab',[1,2,2,3][D],Wk.n),grp('eR','rest',[2,3,3,3][D],R.n)];
     for(let i=0;i<[0,0,1,2][D];i++){const b=pk(okB.filter(x=>!used.includes(x)&&near(x,L,150,450)),okB.filter(x=>!used.includes(x)));used.push(b);ens.push(grp('eR'+(i+2),'rest',2+(r()<.5?1:0),b.n));}
-    const lks=[];const lc=okB.filter(b=>!used.includes(b)&&(b.cy>1100||Math.abs(b.cx-700)>330));for(let i=0;i<[1,2,2,3][D]+(r()<.4?1:0)&&lc.length;i++){const far=lc.filter(b=>lks.every(o=>Math.hypot(o.cx-b.cx,o.cy-b.cy)>220));const b=far.length?pick(far):pick(lc);lks.push(b);lc.splice(lc.indexOf(b),1);civ[b.n]=Math.max(civ[b.n],2);ens.push(grp('o'+(i+1),'look',1,b.n,{roof:true}));}
-    const pw2=[[700,1020],[560,1020],[560,1300],[840,1300],[840,1020]];const pws=[pw,pw2];for(let i=0;i<[0,1,1,2][D];i++){const w=pws[i];ens.push(Object.assign(grp('eP'+(i||''),'patrol',2,L.n,{mode:'patrol',wp:w,wi:1}),{bld:0,x:w[0][0],y:w[0][1]}));}}
+    const lks=[];const lc=okB.filter(b=>!used.includes(b)&&(M.classic?(b.cy>1100||Math.abs(b.cx-700)>330):(b.cy>MY+RY*.375||Math.abs(b.cx-MX)>RX*.66)));for(let i=0;i<[1,2,2,3][D]+(r()<.4?1:0)&&lc.length;i++){const far=lc.filter(b=>lks.every(o=>Math.hypot(o.cx-b.cx,o.cy-b.cy)>220));const b=far.length?pick(far):pick(lc);lks.push(b);lc.splice(lc.indexOf(b),1);civ[b.n]=Math.max(civ[b.n],2);ens.push(grp('o'+(i+1),'look',1,b.n,{roof:true}));}
+    const pw2=M.classic?[[700,1020],[560,1020],[560,1300],[840,1300],[840,1020]]:[[MX,MY+160*ps],[MX-140*ps,MY+160*ps],[MX-140*ps,MY+Math.min(440,RY*.7)],[MX+140*ps,MY+Math.min(440,RY*.7)],[MX+140*ps,MY+160*ps]];const pws=[pw,pw2];for(let i=0;i<[0,1,1,2][D];i++){const w=pws[i];ens.push(Object.assign(grp('eP'+(i||''),'patrol',2,L.n,{mode:'patrol',wp:w,wi:1}),{bld:0,x:w[0][0],y:w[0][1]}));}}
   const intel=TRN?mkIntel(ens,TRN.diff,traps,ieds,r):null;
   const own={},known={};units.forEach(u=>{own[u.id]={x:u.x,y:u.y};known[u.id]={t:T0,men:u.men||0,wounded:0,ammo:100,st:(HE?('במקום'):('на месте'))};});
-  return{train:!!TRN,city:{seed:TRN?TRN.seed:SEED,dens:TRN?TRN.dens:'normal'},intel,mobK:TRN?[1,2,3,4][TRN.diff]:null,diff:TRN?TRN.diff:null,op:TRN?0:C?C.op:1,opName:TRN?['Тренировка','אימון']:C?C.opName:['Решет','רשת'],day:C&&!TRN?C.day:0,t:T0,speed:0,acc:0,started:false,over:false,result:null,truth:false,alarm:false,
+  return{train:!!TRN,city:{seed:TRN?TRN.seed:SEED,dens:TRN?TRN.dens:'normal',g:TRN?2:0},intel,mobK:TRN?[1,2,3,4][TRN.diff]:null,diff:TRN?TRN.diff:null,op:TRN?0:C?C.op:1,opName:TRN?['Тренировка','אימון']:C?C.opName:['Решет','רשת'],day:C&&!TRN?C.day:0,t:T0,speed:0,acc:0,started:false,over:false,result:null,truth:false,alarm:false,
     L:L.n,T:T.n,Wk:Wk.n,R:R.n,cand:cand.map(b=>b.n),civ,civHarm:0,leader:'free',lab:'intact',destroyed:{},
-    units,uav:{x:700,y:1500,tx:700,ty:1500},
+    units,uav:M.classic?{x:700,y:1500,tx:700,ty:1500}:{x:MX,y:Math.min(1700,MY+RY),tx:MX,ty:Math.min(1700,MY+RY)},
     enemies:ens,
     strike:{pend:[]},mol:{st:'station',ammo:4,fuel:5400,tA:0,relief:0,gun:10,cover:null},med:{free:1,trips:[]},dogs:2,pc:{},traps,civOut:0,fled:0,decoy:decoyB.n,ieds,civW:[],civDead:0,civAid:0,civEvac:0,amb:[],
     marks:{own,ord:{},b:{},m:[],strike:[],lz:[]},pidT:{},cleared:{},
@@ -696,7 +798,7 @@ const powerOf=t=>{const T=TU[t];return T.men*(T.q||1)*(T.uc?1.3:1)+(T.atgm?2:0);
 function loadTR(){let d=null;try{d=JSON.parse(localStorage.getItem(TRAIN_KEY)||'null');}catch(e){}
   if(!d||!d.seed)d={seed:1000+rnd(9000),diff:1,dens:'normal',sel:[],limit:false};d.sel=(d.sel||[]).filter(t=>TU[t]&&!TU[t].off);return d;}
 function saveTR(){try{localStorage.setItem(TRAIN_KEY,JSON.stringify(TR));localStorage.setItem(MODE_KEY,MODE);}catch(e){}}
-function setCity(seed,dens){genCity(seed,dens);buildNav();for(const k in AVC)delete AVC[k];if(mapCv)mapCv=drawMap();}
+function setCity(seed,dens,g2){genCity(seed,dens,g2);buildNav();for(const k in AVC)delete AVC[k];if(mapCv)mapCv=drawMap();}
 // units of a training operation, in the order they were chosen
 function mkTrainUnits(sel){const cnt={};return sel.map((t,i)=>{const T=TU[t];cnt[t]=(cnt[t]||0)+1;const multi=sel.filter(x=>x===t).length>1;
   const call=L2(T.n)+(multi?(HE?' ':'-')+cnt[t]:''),sh=L2(T.sh)+(multi?cnt[t]:'');
@@ -718,16 +820,18 @@ function checks(I,sel){const has=f=>sel.some(t=>f(TU[t],t));const out=[];
   return out;}
 const ratioOf=(I,sel)=>sel.reduce((s,t)=>s+powerOf(t),0)/Math.max(1,(I.lo+I.hi)/2);
 const codeTxt=s=>'R-'+s;
-function trainParamsChanged(cityToo){if(cityToo)setCity(TR.seed,TR.dens);S=newState(TR);resetView();saveTR();showTrain();}
+function trainParamsChanged(cityToo){if(cityToo)setCity(TR.seed,TR.dens,true);S=newState(TR);resetView();saveTR();showTrain();}
 function tabs(){return`<div class="tabs"><button data-m="camp"${MODE==='camp'?' class="on"':''}>${HE?'מערכה':'Кампания'}</button><button data-m="train"${MODE==='train'?' class="on"':''}>${HE?'אימון':'Тренировка'}</button></div>`;}
 function bindTabs(){document.querySelectorAll('#campDoc .tabs button').forEach(b=>b.onclick=()=>{const m=b.dataset.m;if(m===MODE)return;MODE=m;saveTR();
-  if(m==='train'){setCity(TR.seed,TR.dens);S=newState(TR);resetView();showTrain();}else{setCity(SEED,'normal');S=newState();resetView();showCamp();}});}
+  if(m==='train'){setCity(TR.seed,TR.dens,true);S=newState(TR);resetView();showTrain();}else{setCity(SEED,'normal');S=newState();resetView();showCamp();}});}
 function showTrain(){const I=S.intel,sel=TR.sel,h=[];const rec=recommend(I);const lim=TR.limit?rec.length:MAXG;const over=sel.length>lim;
   h.push(tabs()+`<div class="stamp">${HE?'אימון':'ТРЕНИРОВКА'}</div><h1>${HE?'מבצע אימון':'Тренировочная операция'}</h1>`);
   h.push(`<p class="meta">${HE?'בלי התקדמות: התוצאה לא משפיעה על המערכה. אותו קוד — אותה עיר ואותו אויב, אפשר לשחק אותו שוב או לתת לחבר.':'Без прокачки: результат не влияет на кампанию. Один код — один и тот же город и противник: можно переиграть или дать код другому.'}</p>`);
   h.push(`<h2>${HE?'פרמטרים':'Параметры'}</h2><div class="trow"><span>${HE?'קוד מבצע':'Код операции'}</span><span class="code"><input id="tSeed" inputmode="numeric" maxlength="4" value="${TR.seed}" aria-label="${HE?'קוד':'код'}"><button id="tNewSeed">${HE?'קוד חדש':'Новый код'}</button></span></div>`);
   h.push(`<div class="trow"><span>${HE?'קושי':'Сложность'}</span><span class="seg2">${DIFF.map((d,i)=>`<button data-d="${i}"${TR.diff===i?' class="on"':''}>${L2(d)}</button>`).join('')}</span></div>`);
   h.push(`<div class="trow"><span>${HE?'בנייה':'Застройка'}</span><span class="seg2">${Object.keys(DENS).map(k=>`<button data-dn="${k}"${TR.dens===k?' class="on"':''}>${L2(DENS[k])}</button>`).join('')}</span></div>`);
+  const feat=[M.hills.length?(HE?'גבעות':'холмы'):'',M.wadi?(HE?'ואדי':'вади'):'',M.orch.length?(HE?'מטעים':'сады'):'',M.fields.length?(HE?'שדות':'поля'):'',M.diag?(HE?'כביש אלכסוני':'диагональная трасса'):''].filter(Boolean).join(', ');
+  if(!M.classic)h.push(`<div class="tprev"><img id="tPrev" alt=""><div><b>${HE?'שטח':'Местность'}:</b> ${esc(L2(TOWNL[M.type]))}${feat?' · '+feat:''}<br><small>${HE?`מבנים: ${BL.length}`:`зданий: ${BL.length}`}</small></div></div>`);
   h.push(`<h2>${HE?'סיכום מודיעין':'Разведсводка'}</h2><ul>`+[
     HE?`חמושים: ${I.lo}–${I.hi} (הערכה)`:`Вооружённых: ${I.lo}–${I.hi} (оценка)`,
     HE?`תצפיתנים על גגות: ${rng(I.lk)}`:`Наблюдателей на крышах: ${rng(I.lk)}`,
@@ -753,6 +857,7 @@ function showTrain(){const I=S.intel,sel=TR.sel,h=[];const rec=recommend(I);cons
       if(!T.off)h.push(`<div class="us"><span>${HE?'אש':'Огонь'} ${stars(T.st[0])}</span><span>${HE?'חשאיות':'Скрытность'} ${stars(T.st[1])}</span><span>${HE?'הסתערות':'Штурм'} ${stars(T.st[2])}</span></div><div class="ug"><b>${HE?'במשחק:':'В игре:'}</b> ${esc(L2(T.gm))} <small>${ABIL(t)}</small></div>`);
       h.push(`<details><summary>${HE?'ממקורות פתוחים':'Из открытых источников'}</summary><p>${esc(L2(T.pub))} <a href="${T.src}" target="_blank" rel="noopener">${HE?'מקור':'источник'}</a></p></details></div>`);}}
   const d=$('#campDoc');d.innerHTML=h.join('');$('#camp').hidden=false;bindTabs();
+  const pv=$('#tPrev');if(pv&&mapCv){const c=document.createElement('canvas');c.width=220;c.height=Math.round(220*H/W);c.getContext('2d').drawImage(mapCv,0,0,c.width,c.height);pv.src=c.toDataURL('image/jpeg',.82);}
   const sv=$('#tSeed');sv.onchange=()=>{const v=parseInt(sv.value.replace(/\D/g,''),10);if(v>=1000&&v<=9999&&v!==TR.seed){TR.seed=v;trainParamsChanged(true);}else sv.value=TR.seed;};
   $('#tNewSeed').onclick=()=>{TR.seed=1000+rnd(9000);trainParamsChanged(true);};
   d.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{TR.diff=+b.dataset.d;trainParamsChanged(false);});
@@ -765,7 +870,7 @@ function showTrain(){const I=S.intel,sel=TR.sel,h=[];const rec=recommend(I);cons
 let BRIEF0=null;
 function setBriefBody(){const s=$('#bSit'),u=$('#bUnits');if(!s||!u)return;if(!BRIEF0)BRIEF0=[s.innerHTML,u.innerHTML];
   if(!S.train){s.innerHTML=BRIEF0[0];u.innerHTML=BRIEF0[1];return;}const I=S.intel;
-  s.textContent=HE?`העיר דיר נביל. חוליה של ארגון «חדיד», לפי הערכת המודיעין ${I.lo}–${I.hi} חמושים, מתכננת סדרת פיגועים. מפקד החוליה, המכונה «המהנדס», מנהל ייצור מטענים. בבניינים מסביב ישנים אזרחים. תצפיתנים על הגגות: ${rng(I.lk)}. סבירה מנהרה.`:`Город Дейр-Набиль. Ячейка группировки «Хадид», по оценке разведки ${I.lo}–${I.hi} вооружённых, готовит серию терактов. Командир ячейки, кличка «Инженер», руководит изготовлением взрывных устройств. В зданиях вокруг спят мирные жители. Наблюдателей на крышах: ${rng(I.lk)}. Вероятен подземный ход.`;
+  s.textContent=HE?`${L2(TOWN[M.type]||['Город','העיר'])} דיר נביל. חוליה של ארגון «חדיד», לפי הערכת המודיעין ${I.lo}–${I.hi} חמושים, מתכננת סדרת פיגועים. מפקד החוליה, המכונה «המהנדס», מנהל ייצור מטענים. בבניינים מסביב ישנים אזרחים. תצפיתנים על הגגות: ${rng(I.lk)}. סבירה מנהרה.`:`${L2(TOWN[M.type]||['Город','העיר'])} Дейр-Набиль. Ячейка группировки «Хадид», по оценке разведки ${I.lo}–${I.hi} вооружённых, готовит серию терактов. Командир ячейки, кличка «Инженер», руководит изготовлением взрывных устройств. В зданиях вокруг спят мирные жители. Наблюдателей на крышах: ${rng(I.lk)}. Вероятен подземный ход.`;
   const by={};infs().forEach(x=>{(by[x.tt]=by[x.tt]||[]).push(x.call);});
   u.innerHTML=Object.keys(by).map(t=>`<li><b>${esc(by[t].join(', '))}</b>: ${esc(L2(TU[t].gm))} <small>(${ABIL(t)})</small></li>`).join('')+`<li>${HE?'זיק, שרף, ינשוף, כלבי עוקץ — כמו בפקודה הרגילה.':'Ястреб, Молот, Ангел, собаки «Окец» — как в обычном приказе.'}</li>`;}
 // Maglan: guided missile at a firing point
@@ -1039,8 +1144,8 @@ function tick(dt){
   for(const e of A){for(const u of U){if(u.men<=0)continue;const d=hyp(e,u);const uOut=!u.inB,mov=['move','assault','cordon','retreat'].includes(u.st);
     if(!S.alarm&&uOut&&!e.gone&&e.kind==='patrol'&&!e.alert&&d<120&&losUE(u,e)&&!(u.amb&&u.amb[e.id])&&Math.random()<.05*dt){(u.amb||(u.amb={}))[e.id]=1;let k=0;const p=u.amb||(u.uc?.8:.65);for(let i=e.men;i>0;i--)if(Math.random()<p){e.men--;k++;}S.stats.ek+=k;u.kills=(u.kills||0)+k;if(e.men<=0)e.gone=true;else e.alert=true;say(u,(HE?(`צפע, כאן ${u.call}. מארב לסיור ${placeTxt(e.x,e.y)}: ${k?`נוטרלו ${k}`:'החטאה'}${e.men>0?', השאר יורים בחזרה!':'. בשקט, אין התרעה.'}`):(`Кобра-6, я ${u.call}. Засада на патруль ${placeTxt(e.x,e.y)}: ${k?`нейтрализовано ${k}`:'промах'}${e.men>0?', остальные отстреливаются!':'. Тихо, тревоги нет.'}`)),[ptChip(e)],{urgent:e.men>0,known:'st',ek:k});continue;}
     if(!S.alarm&&uOut){
-      if(e.kind==='look'&&d<220&&Math.random()<.004*(1-d/220)*(mov?1:.35)*(u.uc?.15:1)*(u.stl||1)*(sk(u,'stealth')?.6:1)*(u.veh?.3:1)*(u.pace==='fast'&&!u.veh?3:1)*(S.dawn?2:1)*dt){scheduleAlarm(e,30);say(u,(HE?(`צפע, כאן ${u.call}! זיהו אותנו מגג מבנה ${e.bld}! פתחו באש!`):(`Кобра-6, я ${u.call}! Нас заметили с крыши здания ${e.bld}! Открыли огонь!`)),[bChip(e.bld,'hos')],{urgent:true,pid:e.bld,known:'st'});}
-      if(e.kind==='patrol'&&d<110&&losUE(u,e)&&Math.random()<.03*(u.uc?.3:1)*(u.stl||1)*(sk(u,'stealth')?.6:1)*(u.veh?.3:1)*(u.pace==='fast'&&!u.veh?2:1)*(S.dawn?2:1)*dt){scheduleAlarm(e,45);say(u,(HE?(`צפע, כאן ${u.call}! מגע! נתקלנו בסיור של האויב, ${placeTxt(e.x,e.y)}!`):(`Кобра-6, я ${u.call}! Контакт! Столкнулись с патрулём противника, ${placeTxt(e.x,e.y)}!`)),[ptChip(e)],{urgent:true,known:'st'});}
+      if(e.kind==='look'&&d<220&&Math.random()<.004*(1-d/220)*(mov?1:.35)*(u.uc?.15:1)*(u.stl||1)*(sk(u,'stealth')?.6:1)*(coverAt(u.x,u.y)?.6:1)*(u.veh?.3:1)*(u.pace==='fast'&&!u.veh?3:1)*(S.dawn?2:1)*dt){scheduleAlarm(e,30);say(u,(HE?(`צפע, כאן ${u.call}! זיהו אותנו מגג מבנה ${e.bld}! פתחו באש!`):(`Кобра-6, я ${u.call}! Нас заметили с крыши здания ${e.bld}! Открыли огонь!`)),[bChip(e.bld,'hos')],{urgent:true,pid:e.bld,known:'st'});}
+      if(e.kind==='patrol'&&d<110&&losUE(u,e)&&Math.random()<.03*(u.uc?.3:1)*(u.stl||1)*(sk(u,'stealth')?.6:1)*(coverAt(u.x,u.y)?.6:1)*(u.veh?.3:1)*(u.pace==='fast'&&!u.veh?2:1)*(S.dawn?2:1)*dt){scheduleAlarm(e,45);say(u,(HE?(`צפע, כאן ${u.call}! מגע! נתקלנו בסיור של האויב, ${placeTxt(e.x,e.y)}!`):(`Кобра-6, я ${u.call}! Контакт! Столкнулись с патрулём противника, ${placeTxt(e.x,e.y)}!`)),[ptChip(e)],{urgent:true,known:'st'});}
     }}}
   // contacts
   for(const u of U){if(u.men<=0)continue;for(const e of alive()){const d=hyp(e,u);let mode=null;
@@ -1586,7 +1691,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)saveGame();
 async function start(data){
   C=loadCamp()||newCamp();saveCamp();TR=loadTR();try{MODE=localStorage.getItem(MODE_KEY)==='train'?'train':'camp';}catch(e){}
   const saved=(data&&data.S)?null:loadGame();const S0=(data&&data.S)||saved;if(S0)MODE=S0.train?'train':'camp';
-  const city=S0?(S0.city||{seed:SEED,dens:'normal'}):MODE==='train'?{seed:TR.seed,dens:TR.dens}:{seed:SEED,dens:'normal'};genCity(city.seed,city.dens);buildNav();
+  const city=S0?(S0.city||{seed:SEED,dens:'normal'}):MODE==='train'?{seed:TR.seed,dens:TR.dens,g:2}:{seed:SEED,dens:'normal'};genCity(city.seed,city.dens,city.g===2);buildNav();
   S=S0||(MODE==='train'?newState(TR):newState());
   if(!S.civW){S.civW=[];S.civDead=0;S.civAid=0;S.civEvac=0;S.amb=[];infs().forEach(u=>{for(let i=0;i<(u.civHit||0)&&u.inB;i++)S.civW.push(newCivW(u.inB));});}
   try{await Promise.race([Promise.all([(HE?('700 16px "Rubik"'):('700 16px "Roboto Condensed"')),(HE?('16px "Heebo"'):('16px "PT Mono"'))].map(f=>document.fonts.load(f,(HE?('דיר 214'):('Дейр 214'))))),new Promise(r=>setTimeout(r,2500))]);}catch(e){}
@@ -1596,7 +1701,7 @@ async function start(data){
   if(S.truth)$('#truthPill').hidden=false;
   resize();dirty=true;requestAnimationFrame(frame);}
 window.claude?.hot?.snapshot?.(()=>({S}));
-window.__kp={get S(){return S;},get C(){return C;},tick:dt=>tick(dt),radioStep,BL:()=>BL,toS:(x,y)=>toS(x,y)};
+window.__kp={get S(){return S;},get C(){return C;},trial:o=>{setCity(o.seed,o.dens,true);return newState(o);},M:()=>M,tick:dt=>tick(dt),radioStep,BL:()=>BL,toS:(x,y)=>toS(x,y)};
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
 })();
 </script>
