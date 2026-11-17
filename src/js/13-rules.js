@@ -1,5 +1,5 @@
 function flushEK(ids){let n=0;for(const id of ids||[]){const e=E_(id);if(e&&e.unrep&&!e.gone){n+=e.unrep;e.unrep=0;}}return n;}
-function noise(x,y,r){if(S.alarm)return;for(const e of alive()){if(e.alert)continue;if(Math.hypot(e.x-x,e.y-y)<r){if(e.leader){raiseAlarm();return;}e.alert=true;}}}
+function noise(x,y,r){if(S.alarm)return;for(const e of alive()){if(e.alert)continue;if(e.wakeT||infs().some(u=>u.inB&&u.inB===e.bld))continue;if(Math.hypot(e.x-x,e.y-y)<r){if(e.leader){raiseAlarm();return;}e.alert=true;}}}
 function scheduleAlarm(e,d){if(S.alarm)return;e.caller=true;e.alert=true;if(!S.alarmT||S.alarmT>S.t+d)S.alarmT=S.t+d;}
 function enemyShot(e){if(S.alarm)return;scheduleAlarm(e,60);noise(e.x,e.y,300);}
 function sleepEntry(u){let det=0,woke=0,lead=false;for(const e of alive()){if(e.bld!==u.tb||e.mv||e.alert)continue;
@@ -26,4 +26,19 @@ function occButtons(n){const o=S.occ&&S.occ[n];if(!o||!S.started||S.over)return[
 // risks of an uncleared building: a device inside, sleepers upstairs who wake up later
 function occTick(){for(const u of infs()){if(u.st!=='occupy'||!u.occTrapT||S.t<u.occTrapT)continue;u.occTrapT=0;const k=1+(Math.random()<.5?1:0);for(let i=0;i<k&&u.men>0;i++)casualty(u);raiseAlarm();
     say(u,T3(`Кобра-6, я ${u.call}! Подрыв внутри здания ${u.inB}! Есть потери! Дом не был проверен. Приём.`,`צפע, כאן ${u.call}! פיצוץ בתוך מבנה ${u.inB}! יש נפגעים! הבית לא נבדק. עבור.`,`Cobra-6, this is ${u.call}! Explosion inside building ${u.inB}! We have casualties! The house was not checked. Over.`),[bChip(u.inB,'ied')],{urgent:true,known:'full'});}
-  for(const e of alive())if(e.wakeT&&S.t>=e.wakeT){e.wakeT=0;e.alert=true;}}
+  for(const e of alive())if(e.wakeT&&S.t>=e.wakeT){e.wakeT=0;e.alert=true;wakeInHeldHouse(e);}}
+function entryAmbush(u){const en=alive().filter(e=>e.bld===u.tb&&!e.mv&&!e.roof&&e.alert&&!e.wakeT);if(!en.length||u.men<=0)return;
+  const p=u.method==='wall'?.05:u.occupy?(u.pace==='fast'?.5:.25):.12;let k=0;for(let i=u.men;i>0&&k<6;i--)if(Math.random()<p){casualty(u);k++;}raiseAlarm();if(!k)return;
+  say(u,T3(`Кобра-6, я ${u.call}! Нас встретили огнём на входе в здание ${u.tb}! ${k===1?'Один выбыл':'Потери: '+k}! Ведём бой!`,`צפע, כאן ${u.call}! קיבלו אותנו באש בכניסה למבנה ${u.tb}! ${k===1?'נפגע אחד':'נפגעים: '+k}! בקרב!`,`Cobra-6, this is ${u.call}! We were met with fire at the entrance to building ${u.tb}! ${k===1?'One down':'Casualties: '+k}! Engaging!`),[bChip(u.tb,'hos')],{urgent:true,known:'full',pid:u.tb});}
+// shooting from a held house wakes whoever sleeps upstairs within 30–60 s; half the time our men hear them first
+function upstairsTick(){for(const u of infs()){if(!u.inB||!u.cont.length||u.men<=0)continue;
+    for(const e of alive()){if(e.bld!==u.inB||e.mv||e.roof||u.cont.includes(e.id))continue;if(e.alert&&!e.wakeT)continue;
+      const t=S.t+30+Math.floor(Math.random()*31);if(!e.wakeT||e.wakeT>t){e.wakeT=t;e.wakeBy=u.id;e.warnT=Math.random()<.5?t-10-Math.floor(Math.random()*11):0;}}}
+  for(const e of alive()){if(e.warnT&&S.t>=e.warnT){e.warnT=0;const u=U_(e.wakeBy);if(u&&u.inB===e.bld&&u.men>0){const fl=BN(e.bld).fl;
+      say(u,T3(`Кобра-6, я ${u.call}. Слышим движение ${fl>1?'на втором этаже':'в соседних комнатах'}, голоса. Похоже, в здании противник. Приём.`,`צפע, כאן ${u.call}. שומעים תנועה ${fl>1?'בקומה השנייה':'בחדרים הסמוכים'}, קולות. נראה שיש אויב בבניין. עבור.`,`Cobra-6, this is ${u.call}. We hear movement ${fl>1?'on the second floor':'in the next rooms'}, voices. Looks like there's enemy in the building. Over.`),[bChip(e.bld,'hos')],{urgent:true,known:'st'});}}}}
+// when a sleeper in a house we hold wakes up: the alarm goes up at once, one or two try to slip away, the rest fight
+function wakeInHeldHouse(e){const hb=e.bld;if(!hb||!BN(hb))return;const u=infs().find(x=>x.inB&&x.inB===hb&&x.men>0);if(!u)return;raiseAlarm();
+  // the alarm sends groups to the Engineer's house; these are already in a fight in their own house and stay
+  e.bld=hb;e.mode='defend';e.dest=0;e.scoot=false;const HB=BN(hb);e.x=HB.cx;e.y=HB.cy;
+  if(e.men>=2&&!e.leader){const k=Math.min(e.men-1,1+(e.men>=4&&Math.random()<.5?1:0));const far=BL.filter(b=>b.n!==e.bld&&!S.destroyed[b.n]&&Math.hypot(b.cx-e.x,b.cy-e.y)>150&&Math.hypot(b.cx-e.x,b.cy-e.y)<320);
+    if(far.length){const d=pick(far);const g=grp(e.id+'x','rest',k,hb,{alert:true});g.mode='move';g.bld=0;g.dest=d.n;g.tx=d.cx;g.ty=d.cy;g.scoot=true;S.enemies.push(g);e.men-=k;e.max=Math.max(1,(e.max||e.men)-k);}}}
