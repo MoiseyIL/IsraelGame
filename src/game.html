@@ -139,8 +139,11 @@ button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 .hist{display:grid;gap:4px;font-size:12px}
 .hist div{display:grid;grid-template-columns:auto 1fr;gap:8px}
 .hist div span:last-child{color:#5d646c}
-#campDoc .tabs{display:flex;gap:0;margin:-6px 0 14px;border:2px solid #2c3a48;border-radius:6px;overflow:hidden;width:max-content;max-width:calc(100% - 110px)}
-#campDoc .tabs button{background:transparent;border:0;padding:7px 14px;font-family:var(--f-head);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#2c3a48;font-size:13px}
+#campDoc .tabs{display:flex;gap:0;margin:-6px 0 12px;border:2px solid #2c3a48;border-radius:6px;overflow:hidden;width:100%;box-sizing:border-box}
+.doc .stamp{position:static!important;display:inline-block;margin:0 0 8px;transform:rotate(-2deg)!important}
+.doc h1{padding-left:0!important;padding-right:0!important}
+#campDoc .tabs button{flex:1 1 0;min-width:0;background:transparent;border:0;padding:8px 6px;font-family:var(--f-head);font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:#2c3a48;font-size:13px;overflow-wrap:anywhere}
+#campDoc h1{padding-inline-end:0}
 #campDoc .tabs button.on{background:#2c3a48;color:var(--paper)}
 #campDoc h3{font-family:var(--f-head);font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin:14px 0 6px;color:#5d646c}
 .trow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 10px;margin:6px 0}
@@ -150,12 +153,13 @@ button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 .seg2 button.on{background:#2c3a48;color:var(--paper);border-color:#2c3a48}
 .code{display:flex;gap:6px;align-items:center}
 .code input{width:4.5em;font:inherit;font-size:16px;padding:5px 6px;border:1px solid #9aa3ab;border-radius:5px;text-align:center;background:#fff;color:var(--paper-ink)}
-.ratio{display:flex;align-items:center;gap:10px;margin:6px 0}
+.ratio{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:6px 0}
+.ratio .bar{min-width:140px}
 .ratio .bar{position:relative;flex:1;height:10px;background:#d6d1c4;border-radius:5px;overflow:hidden}
 .ratio .bar i{position:absolute;inset-block:0;inset-inline-start:0;display:block}
 .ratio .bar i.l0{background:#b3261e}.ratio .bar i.l1{background:#c98a1a}.ratio .bar i.l2{background:#3d7a3a}.ratio .bar i.l3{background:#2c5f8a}
 .ratio .bar b{position:absolute;inset-block:0;width:2px;background:#2b2b2b}
-.ratio span{font-weight:700;white-space:nowrap}
+.ratio span{font-weight:700}
 .chk{list-style:none;padding:0!important;margin:6px 0}
 .chk li.ok{color:#2d5a2a}.chk li.no{color:#8a1f17}.chk small{color:#5d646c}
 .tog{display:flex;gap:8px;align-items:center;margin:10px 0;font-weight:700}
@@ -785,7 +789,7 @@ function askResult(u,b){if(!S.civ[b]){say(u,HE?`צפע, כאן ${u.call}. במב
 // Kfir: a checkpoint stops armed men called out by the alarm
 const cpActive=()=>infs().filter(u=>u.cpOn&&['hold','incover','cover'].includes(u.st)&&u.men>2);
 
-function setBriefHead(){setBriefBody();if(S.train){const c=codeTxt(S.city.seed),dn=L2(DIFF[S.diff||0]);$('#bTitle').textContent=HE?`מבצע אימון · קוד ${c}`:`Тренировочная операция · код ${c}`;$('#bMeta').textContent=HE?`פלוגת «צפע» · קושי: ${dn} · תחילה 02:00 · שחר 05:30`:`Рота «Кобра» · сложность: ${dn} · начало 02:00 · рассвет 05:30`;$('#dTitle').textContent=HE?`סיכום אימון · קוד ${c}`:`Итоги тренировки · код ${c}`;return;}
+function setBriefHead(){setBriefBody();if(S.train){const c=codeTxt(S.city.seed),dn=L2(DIFF[S.diff||0]);$('#bTitle').textContent=HE?'מבצע אימון':'Тренировочная операция';$('#bMeta').textContent=HE?`קוד ${c} · פלוגת «צפע» · קושי: ${dn} · תחילה 02:00 · שחר 05:30`:`Код ${c} · рота «Кобра» · сложность: ${dn.toLowerCase()} · начало 02:00 · рассвет 05:30`;$('#dTitle').textContent=HE?`סיכום אימון · ${c}`:`Итоги тренировки · ${c}`;return;}
   const n=L2(S.opName||['Решет','רשת']);
   $('#bTitle').textContent=HE?`פקודת מבצע: «${n}»`:`Боевой приказ: операция «${n}»`;
   $('#bMeta').textContent=HE?`פלוגת «צפע» · מבצע מס׳ ${S.op||1} · ${opDate(S.day)} · תחילה 02:00 · שחר 05:30`:`Рота «Кобра» · операция №${S.op||1} · ${opDate(S.day)} · начало 02:00 · рассвет 05:30`;
