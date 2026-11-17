@@ -800,14 +800,20 @@ const MAN=id=>C&&C.men.find(m=>m.id===id);
 const manName=m=>m?`${L2(rankOf(m))} ${L2(m.n)}`:'';
 const sk=(u,k)=>!!(u.sk&&u.sk.includes(k));
 function freeNo(g){const used=new Set(C.men.filter(m=>m.g===g&&m.st!=='kia').map(m=>m.no));let n=1;while(used.has(n))n++;return n;}
-function mkMan(g,role,fresh){const f=FORCE[g];const dz=Math.random()<.12;const fn=pick(dz?DFN:FN),ln=pick(dz?DLN:LN);const off=role==='cmd';
+// a full name never repeats in the company (alive, wounded or fallen)
+function uniqName(skip){const used=new Set(C.men.filter(m=>m!==skip).map(m=>m.n[0]));
+  for(let t=0;t<200;t++){const dz=t<100&&Math.random()<.12;const fn=pick(dz?DFN:FN),ln=pick(dz?DLN:LN);if(!used.has(fn[0]+' '+ln[0]))return[fn,ln];}
+  for(const fn of FN)for(const ln of LN)if(!used.has(fn[0]+' '+ln[0]))return[fn,ln];return[pick(FN),pick(LN)];}
+const nameOf=([fn,ln])=>[fn[0]+' '+ln[0],fn[1]+' '+ln[1],fn[2]+' '+ln[2]];
+function fixDupNames(c){const seen=new Set();for(const m of [...c.men].sort((a,b)=>b.ops-a.ops||a.id-b.id)){if(seen.has(m.n[0]))m.n=nameOf(uniqName(m));seen.add(m.n[0]);}}
+function mkMan(g,role,fresh){const f=FORCE[g];const [fn,ln]=uniqName();const off=role==='cmd';
   // YAMAM recruits come from experienced police officers; army units take young conscripts.
   const xp=fresh?(f==='ym'?5+rnd(4):0):(f==='ym'?(off?12+rnd(10):8+rnd(20)):(off?rnd(14):rnd(14)));
   const m={id:C.nid++,g,role,off,xp,ops:0,st:'ok',out:0,no:freeNo(g),n:[fn[0]+' '+ln[0],fn[1]+' '+ln[1],fn[2]+' '+ln[2]]};C.men.push(m);return m;}
 function newCamp(){C={v:1,op:1,day:0,opName:['Решет','רשת',"Reshet"],used:[],nid:1,groups:{},men:[],last:null,hist:[]};
   for(const g of GIDS){C.groups[g]={xp:0,lvl:1,sk:[],pend:0};TPL[FORCE[g]].forEach(r=>mkMan(g,r,false));}return C;}
 function saveCamp(){try{localStorage.setItem(CAMP_KEY,JSON.stringify(C));}catch(e){}}
-function loadCamp(){try{const d=JSON.parse(localStorage.getItem(CAMP_KEY)||'null');if(d&&d.v===1&&d.men)return d;}catch(e){}return null;}
+function loadCamp(){try{const d=JSON.parse(localStorage.getItem(CAMP_KEY)||'null');if(d&&d.v===1&&d.men){C=d;fixDupNames(d);return d;}}catch(e){}return null;}
 function deploy(g){const fit=C.men.filter(m=>m.g===g&&m.st==='ok').sort((a,b)=>b.xp-a.xp);const out=[];
   for(const r of TPL[FORCE[g]]){const i=fit.findIndex(m=>m.role===r);if(i>=0)out.push(fit.splice(i,1)[0]);}
   while(out.length<CAP[g]&&fit.length)out.push(fit.shift());return out.slice(0,CAP[g]).map(m=>m.id);}
