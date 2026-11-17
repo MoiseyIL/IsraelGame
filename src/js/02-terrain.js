@@ -20,7 +20,7 @@ function genCity2(seed,dens){const r=mulberry(seed*31+7),rb=mulberry(seed*131+(d
     village:{sx:[105,150],sy:[100,140],g:8,ga:12,jit:8,split:0,lot:.14,ins:[4,10],shr:.6,n:[.5,.9,1],minA:300,fl:[1,2]},
     mixed:{sx:[120,165],sy:[105,145],g:7,ga:13,jit:2,split:0,lot:.06,ins:[3,8],shr:.5,n:[.15,.55,.85],minA:450,fl:[1,2]}}[type];
   // density changes only what is built inside the same streets: empty lots, buildings per block, their size
-  const lotP=Math.max(.01,P.lot+(dn<0?.2:dn>0?-.05:0)),insK=dn<0?1.7:dn>0?.45:1,shrD=dn<0?.3:dn>0?-.3:0;
+  const lotP=Math.max(.01,P.lot+(dn<0?(type==='village'?.06:.2):dn>0?-.05:0)),insK=dn<0?1.7:dn>0?.45:1,shrD=dn<0?.3:dn>0?-.3:0;
   const ax=cx+(r()-.5)*rx*.5,ay=cy+(r()-.5)*ry*.5;
   const steps=(c0,lo,hi,a,b)=>{const out=[c0];for(let v=c0;v>lo;){v-=a+r()*(b-a);out.unshift(v);}for(let v=c0;v<hi;){v+=a+r()*(b-a);out.push(v);}return out;};
   const xs=steps(ax,cx-rx*1.2,cx+rx*1.2,P.sx[0],P.sx[1]),ys=steps(ay,cy-ry*1.2,cy+ry*1.2,P.sy[0],P.sy[1]);
