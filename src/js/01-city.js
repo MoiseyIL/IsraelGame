@@ -23,6 +23,6 @@ function genCity(seed,dens,g2){if(g2){genCity2(seed,dens);return;}M=M_CLASSIC;se
   raw.sort((a,b)=>a.row-b.row||a.x0-b.x0);
   raw.forEach((b,i)=>{b.n=i+1;b.cx=(b.x0+b.x1)/2;b.cy=(b.y0+b.y1)/2;b.area=(b.x1-b.x0)*(b.y1-b.y0);b.prot=null;BL.push(b);});
   const fr=mulberry(seed+7);BL.forEach(b=>{b.fl=b.area>1500?(fr()<.5?3:2):b.area>500?(fr()<.6?2:1):1;});
-  const big=[...BL].sort((a,b)=>b.area-a.area).slice(0,14);const sch=big.reduce((a,b)=>Math.hypot(b.cx-420,b.cy-1150)<Math.hypot(a.cx-420,a.cy-1150)?b:a,big[0]);sch.prot=(HE?('בית ספר'):('школа'));
-  const cl=big.filter(b=>b!==sch).reduce((a,b)=>Math.hypot(b.cx-980,b.cy-620)<Math.hypot(a.cx-980,a.cy-620)?b:a);cl.prot=(HE?('מרפאה'):('поликлиника'));
+  const big=[...BL].sort((a,b)=>b.area-a.area).slice(0,14);const sch=big.reduce((a,b)=>Math.hypot(b.cx-420,b.cy-1150)<Math.hypot(a.cx-420,a.cy-1150)?b:a,big[0]);sch.prot=(HE?('בית ספר'):((EN?("school"):('школа'))));
+  const cl=big.filter(b=>b!==sch).reduce((a,b)=>Math.hypot(b.cx-980,b.cy-620)<Math.hypot(a.cx-980,a.cy-620)?b:a);cl.prot=(HE?('מרפאה'):((EN?("clinic"):('поликлиника'))));
 }

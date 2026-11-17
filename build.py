@@ -6,11 +6,13 @@ Sources:
   src/page.html        page skeleton with placeholders
   src/styles.css       all styles (Hebrew overrides at the end, under html[lang=he])
   src/markup/ru.html   interface markup, Russian
-  src/markup/he.html   interface markup, Hebrew (placed in <template>, swapped in at start)
+  src/markup/he.html   interface markup, Hebrew (in a <template>, swapped in at start)
+  src/markup/en.html   interface markup, English (likewise)
   src/js/NN-name.js    game script, concatenated in file-name order into one closure
   src/assets/splash.jpg  title screen image, embedded as base64
 
-Writes ru/index.html (Russian) and he/index.html (Hebrew, right-to-left):
+Writes ru/, en/ and he/index.html — the same trilingual game opening in
+Russian, English or Hebrew (right-to-left):
 single self-contained pages. Only the default language, the page title and
 the text direction differ between them.
 """
@@ -19,8 +21,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent
 SRC = ROOT / "src"
+# One game in three languages. Each edition differs only in the language it opens with;
+# the player can switch at any time (the choice is remembered on the device).
 EDITIONS = {
     "ru": {"title": "Project: End of Terror · Операция Решет", "dir": ""},
+    "en": {"title": "Project: End of Terror · Operation Reshet", "dir": ""},
     "he": {"title": "Project: End of Terror · מבצע רשת", "dir": ' dir="rtl"'},
 }
 
@@ -40,6 +45,7 @@ def assemble():
     for key, value in (("__CSS__", read(SRC / "styles.css")),
                        ("__MARKUP_RU__", read(SRC / "markup" / "ru.html")),
                        ("__MARKUP_HE__", read(SRC / "markup" / "he.html")),
+                       ("__MARKUP_EN__", read(SRC / "markup" / "en.html")),
                        ("__JS__", js)):
         assert page.count(key) == 1, key
         page = page.replace(key, value)

@@ -14,16 +14,22 @@ __CSS__
 </style>
 </head>
 <body>
-<script>window.GAME_LANG='__LANG__';</script>
+<script>(()=>{let l=null;try{l=new URLSearchParams(location.search).get('lang');}catch(e){}if(!l){try{l=localStorage.getItem('reshet-lang');}catch(e){}}window.GAME_LANG=['ru','en','he'].includes(l)?l:'__LANG__';})();</script>
 <div id="root"__DIR__>
 __MARKUP_RU__
 </div>
 <template id="tpl-he">
 __MARKUP_HE__
 </template>
-<script>if(window.GAME_LANG==='he'){const r=document.getElementById('root');r.innerHTML=document.getElementById('tpl-he').innerHTML;r.setAttribute('dir','rtl');r.setAttribute('lang','he');document.documentElement.lang='he';document.documentElement.dir='rtl';}</script>
+<template id="tpl-en">
+__MARKUP_EN__
+</template>
+<script>(()=>{const L=window.GAME_LANG,r=document.getElementById('root'),d=document.documentElement;
+if(L!=='ru'){const t=document.getElementById('tpl-'+L);if(t)r.innerHTML=t.innerHTML;}
+const rtl=L==='he';r.setAttribute('lang',L);d.lang=L;if(rtl){r.setAttribute('dir','rtl');d.dir='rtl';}else{r.removeAttribute('dir');d.removeAttribute('dir');}
+document.title={ru:'Project: End of Terror · Операция Решет',en:'Project: End of Terror · Operation Reshet',he:'Project: End of Terror · מבצע רשת'}[L];})();</script>
 <script>
-const HE=window.GAME_LANG==='he';
+const HE=window.GAME_LANG==='he',EN=window.GAME_LANG==='en';
 (()=>{
 "use strict";
 __JS__

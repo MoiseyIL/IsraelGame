@@ -1,8 +1,8 @@
 /* ---------- generated maps for training: town type and shape, roads, terrain ---------- */
 const M_CLASSIC={classic:true,type:'classic',cx:700,cy:860,rx:500,ry:640,minA:500};
 let M=M_CLASSIC;
-const TOWN={grid:['Город','העיר'],old:['Старый город','העיר העתיקה'],camp:['Лагерь беженцев','מחנה הפליטים'],village:['Деревня','הכפר'],mixed:['Город со старым центром','העיר עם הגרעין העתיק']};
-const TOWNL={grid:['город с прямыми улицами','עיר עם רחובות ישרים'],old:['старый город, узкие переулки','עיר עתיקה, סמטאות צרות'],camp:['лагерь беженцев, очень плотная застройка','מחנה פליטים, בנייה צפופה מאוד'],village:['деревня, дома с дворами','כפר, בתים עם חצרות'],mixed:['город со старым центром','עיר עם גרעין עתיק']};
+const TOWN={grid:['Город','העיר',"Town"],old:['Старый город','העיר העתיקה',"Old town"],camp:['Лагерь беженцев','מחנה הפליטים',"Refugee camp"],village:['Деревня','הכפר',"Village"],mixed:['Город со старым центром','העיר עם הגרעין העתיק',"Town with an old center"]};
+const TOWNL={grid:['город с прямыми улицами','עיר עם רחובות ישרים',"town with straight streets"],old:['старый город, узкие переулки','עיר עתיקה, סמטאות צרות',"old town, narrow alleys"],camp:['лагерь беженцев, очень плотная застройка','מחנה פליטים, בנייה צפופה מאוד',"refugee camp, very dense housing"],village:['деревня, дома с дворами','כפר, בתים עם חצרות',"village, houses with yards"],mixed:['город со старым центром','עיר עם גרעין עתיק',"town with an old center"]};
 function segDist(px,py,ax,ay,bx,by){const dx=bx-ax,dy=by-ay,l=dx*dx+dy*dy||1;const t=clamp(((px-ax)*dx+(py-ay)*dy)/l,0,1);return Math.hypot(px-ax-t*dx,py-ay-t*dy);}
 function lineDist(x,y,pts){let d=1e9;for(let i=1;i<pts.length;i++)d=Math.min(d,segDist(x,y,pts[i-1][0],pts[i-1][1],pts[i][0],pts[i][1]));return d;}
 // our groups outside the town are harder to spot in orchards and in the wadi bed
@@ -55,8 +55,8 @@ function genCity2(seed,dens){const r=mulberry(seed*31+7);BL=[];BLOCKS=[];
   raw.forEach((b,i)=>{b.n=i+1;b.cx=(b.x0+b.x1)/2;b.cy=(b.y0+b.y1)/2;b.area=(b.x1-b.x0)*(b.y1-b.y0);b.prot=null;b.fl=P.fl[0]+Math.floor(r()*(P.fl[1]-P.fl[0]+1));if(b.area>1500&&b.fl<2)b.fl=2;BL.push(b);});
   const big=[...BL].sort((a,b)=>b.area-a.area).slice(0,Math.max(6,Math.round(BL.length*.12)));const used=new Set();
   const protAt=(tx,ty,label)=>{const c=big.filter(b=>!used.has(b));if(!c.length)return;const b=c.reduce((a,o)=>Math.hypot(o.cx-tx,o.cy-ty)<Math.hypot(a.cx-tx,a.cy-ty)?o:a);b.prot=label;used.add(b);};
-  protAt(cx+(r()-.5)*rx*1.2,cy+ry*.35,HE?'בית ספר':'школа');protAt(cx+(r()-.5)*rx*1.2,cy-ry*.35,HE?'מרפאה':'поликлиника');
-  if(type!=='grid')protAt(cx+(r()-.5)*rx*.5,cy+(r()-.5)*ry*.5,HE?'מסגד':'мечеть');
+  protAt(cx+(r()-.5)*rx*1.2,cy+ry*.35,HE?'בית ספר':(EN?("school"):('школа')));protAt(cx+(r()-.5)*rx*1.2,cy-ry*.35,HE?'מרפאה':(EN?("clinic"):('поликлиника')));
+  if(type!=='grid')protAt(cx+(r()-.5)*rx*.5,cy+(r()-.5)*ry*.5,HE?'מסגד':(EN?("mosque"):('мечеть')));
   // terrain and roads
   const pal=['#d9d6c4','#d6d1b8','#d3d6c0','#ddd3bb','#d8d8c6'];
   const T={classic:false,type,cx,cy,rx,ry,edge,minA:P.minA,avx:[ax],avy,diag,bg:pal[Math.floor(r()*pal.length)],roads:[],tracks:[],orch:[],hills:[],fields:[],wadi:null,cem:null,ga:P.ga};
@@ -92,12 +92,12 @@ function drawRoads2(g,inner){for(const rd of M.roads){g.lineCap='round';g.lineJo
   if(!inner){g.strokeStyle='#9d9785';g.lineWidth=rd.w+4;g.stroke();}g.strokeStyle='#f4f2ec';g.lineWidth=rd.w;g.stroke();}}
 function drawLabels2(g){g.font=(HE?'20px "Rubik", Arial, sans-serif':'italic 20px "Roboto Condensed", sans-serif');g.fillStyle='#6a5a3c';g.textAlign='center';g.textBaseline='middle';
   for(const h of M.hills)g.fillText(HE?`▲ ${h.h}`:`▲ ${h.h}`,h.x,h.y);
-  if(M.wadi){const p=M.wadi[Math.floor(M.wadi.length/2)];g.fillText(HE?'ואדי':'вади',p[0],p[1]-24);}
-  M.orch.forEach((o,i)=>{if(i<3)g.fillText(o.olive?(HE?'זיתים':'оливы'):(HE?'מטעים':'сады'),(o.x0+o.x1)/2,o.y0-12);});
-  if(M.cem){const c=M.cem;g.fillStyle='rgba(90,90,80,.5)';for(let y=c.y0+8;y<c.y1-6;y+=10)for(let x=c.x0+8;x<c.x1-6;x+=12)g.fillRect(x,y,4,7);g.fillStyle='#6a5a3c';g.font=(HE?'15px "Rubik", Arial, sans-serif':'italic 15px "Roboto Condensed", sans-serif');g.fillText(HE?'בית קברות':'кладбище',(c.x0+c.x1)/2,c.y1+12);}}
+  if(M.wadi){const p=M.wadi[Math.floor(M.wadi.length/2)];g.fillText(HE?'ואדי':(EN?("wadi"):('вади')),p[0],p[1]-24);}
+  M.orch.forEach((o,i)=>{if(i<3)g.fillText(o.olive?(HE?'זיתים':(EN?("olives"):('оливы'))):(HE?'מטעים':(EN?("orchards"):('сады'))),(o.x0+o.x1)/2,o.y0-12);});
+  if(M.cem){const c=M.cem;g.fillStyle='rgba(90,90,80,.5)';for(let y=c.y0+8;y<c.y1-6;y+=10)for(let x=c.x0+8;x<c.x1-6;x+=12)g.fillRect(x,y,4,7);g.fillStyle='#6a5a3c';g.font=(HE?'15px "Rubik", Arial, sans-serif':'italic 15px "Roboto Condensed", sans-serif');g.fillText(HE?'בית קברות':(EN?("cemetery"):('кладбище')),(c.x0+c.x1)/2,c.y1+12);}}
 function bldAt(x,y,tol){for(const b of BL)if(x>=b.x0-2&&x<=b.x1+2&&y>=b.y0-2&&y<=b.y1+2)return b;if(!tol)return null;let best=null,bd=tol;for(const b of BL){const dx=Math.max(b.x0-x,0,x-b.x1),dy=Math.max(b.y0-y,0,y-b.y1),d=Math.hypot(dx,dy);if(d<bd){bd=d;best=b;}}return best;}
 const cell=(x,y)=>COLS[clamp(Math.floor(x/CELL),0,6)]+(clamp(Math.floor(y/CELL),0,10)+1);
-function placeTxt(x,y){const b=bldAt(x,y,45);return b?(HE?(`ליד מבנה ${b.n}, משבצת ${cell(x,y)}`):(`у здания ${b.n}, квадрат ${cell(x,y)}`)):(HE?(`משבצת ${cell(x,y)}`):(`квадрат ${cell(x,y)}`));}
+function placeTxt(x,y){const b=bldAt(x,y,45);return b?(HE?(`ליד מבנה ${b.n}, משבצת ${cell(x,y)}`):((EN?(`near building ${b.n}, grid ${cell(x,y)}`):(`у здания ${b.n}, квадрат ${cell(x,y)}`)))):(HE?(`משבצת ${cell(x,y)}`):((EN?(`grid ${cell(x,y)}`):(`квадрат ${cell(x,y)}`))));}
 const inTown=(x,y)=>M.classic?((x-700)/500)**2+((y-860)/640)**2<1:((x-M.cx)/M.rx)**2+((y-M.cy)/M.ry)**2<M.edge(x,y)**2;
 
 function drawMap(){
@@ -118,9 +118,9 @@ function drawMap(){
   g.textAlign='center';g.textBaseline='middle';
   for(const b of BL){const fs=clamp(Math.min(b.x1-b.x0,b.y1-b.y0)*.55,13,20);g.font=(HE?(`700 ${fs}px "Rubik", Arial, sans-serif`):(`700 ${fs}px "Roboto Condensed", "Arial Narrow", sans-serif`));g.lineWidth=3.5;g.strokeStyle='rgba(244,242,236,.9)';g.strokeText(b.n,b.cx,b.cy);g.fillStyle='#14171b';g.fillText(b.n,b.cx,b.cy);
     if(b.prot){g.font=(HE?('700 14px "Rubik", sans-serif'):('700 14px "Roboto Condensed", sans-serif'));g.strokeText(b.prot.toUpperCase(),b.cx,b.y1+12);g.fillStyle='#24467a';g.fillText(b.prot.toUpperCase(),b.cx,b.y1+12);}}
-  g.font=(HE?('700 34px "Rubik", Arial, sans-serif'):('700 30px "Roboto Condensed", sans-serif'));g.lineWidth=5;g.strokeStyle='rgba(217,214,196,.9)';g.fillStyle='#2b2e33';g.letterSpacing=(HE?('2px'):('6px'));const TX=M.classic?700:M.cx,TY=M.classic?170:Math.max(50,M.cy-M.ry-50);g.strokeText((HE?('דיר נביל'):('ДЕЙР-НАБИЛЬ')),TX,TY);g.fillText((HE?('דיר נביל'):('ДЕЙР-НАБИЛЬ')),TX,TY);g.letterSpacing='0px';
-  g.font=(HE?('20px "Rubik", Arial, sans-serif'):('italic 20px "Roboto Condensed", sans-serif'));g.fillStyle='#6a5a3c';if(M.classic){g.fillText((HE?('ואדי'):('вади')),1210,1640);g.fillText((HE?('מטעים'):('сады')),280,1700);g.fillText((HE?('מטעים'):('сады')),1100,1150);}else drawLabels2(g);
-  g.font=(HE?('17px "Heebo", Arial, sans-serif'):('16px "PT Mono", monospace'));g.textAlign='right';g.textBaseline='bottom';g.fillStyle='rgba(34,37,42,.75)';g.fillText((HE?('תצ״א מקודד «דיר נביל» · גיליון 1 · רשת 200 מ׳'):('GRG «ДЕЙР-НАБИЛЬ» · лист 1 · сетка 200 м')),MWm-14,MHm-12);
+  g.font=(HE?('700 34px "Rubik", Arial, sans-serif'):('700 30px "Roboto Condensed", sans-serif'));g.lineWidth=5;g.strokeStyle='rgba(217,214,196,.9)';g.fillStyle='#2b2e33';g.letterSpacing=(HE?('2px'):('6px'));const TX=M.classic?700:M.cx,TY=M.classic?170:Math.max(50,M.cy-M.ry-50);g.strokeText((HE?('דיר נביל'):((EN?("DEIR NABIL"):('ДЕЙР-НАБИЛЬ')))),TX,TY);g.fillText((HE?('דיר נביל'):((EN?("DEIR NABIL"):('ДЕЙР-НАБИЛЬ')))),TX,TY);g.letterSpacing='0px';
+  g.font=(HE?('20px "Rubik", Arial, sans-serif'):('italic 20px "Roboto Condensed", sans-serif'));g.fillStyle='#6a5a3c';if(M.classic){g.fillText((HE?('ואדי'):((EN?("wadi"):('вади')))),1210,1640);g.fillText((HE?('מטעים'):((EN?("orchards"):('сады')))),280,1700);g.fillText((HE?('מטעים'):((EN?("orchards"):('сады')))),1100,1150);}else drawLabels2(g);
+  g.font=(HE?('17px "Heebo", Arial, sans-serif'):('16px "PT Mono", monospace'));g.textAlign='right';g.textBaseline='bottom';g.fillStyle='rgba(34,37,42,.75)';g.fillText((HE?('תצ״א מקודד «דיר נביל» · גיליון 1 · רשת 200 מ׳'):((EN?("GRG \"DEIR NABIL\" · sheet 1 · 200 m grid"):('GRG «ДЕЙР-НАБИЛЬ» · лист 1 · сетка 200 м')))),MWm-14,MHm-12);
   return cv;
 }
 

@@ -1,38 +1,38 @@
 /* ---------- campaign: named soldiers carried over from operation to operation ---------- */
-const CAMP_KEY=HE?'reshet-camp-he':'reshet-camp-ru';let C=null;
-const L2=a=>a?(HE?a[1]:a[0]):'';
+const CAMP_KEY=HE?'reshet-camp-he':EN?'reshet-camp-en':'reshet-camp-ru';let C=null;
+const L2=a=>a?(HE?a[1]:EN&&a[2]!=null?a[2]:a[0]):'';
 const rnd=n=>Math.floor(Math.random()*n);
-const FN=[['Авраам','אברהם'],['Даниэль','דניאל'],['Йонатан','יונתן'],['Ноам','נועם'],['Ори','אורי'],['Итай','איתי'],['Эйтан','איתן'],['Амит','עמית'],['Идо','עידו'],['Омер','עומר'],['Яир','יאיר'],['Гай','גיא'],['Рои','רועי'],['Нир','ניר'],['Асаф','אסף'],['Михаэль','מיכאל'],['Давид','דוד'],['Ариэль','אריאל'],['Элад','אלעד'],['Матан','מתן'],['Йосеф','יוסף'],['Амир','אמיר'],['Барак','ברק'],['Лиор','ליאור'],['Эяль','אייל'],['Нетанэль','נתנאל'],['Шахар','שחר'],['Дима','דימה'],['Алекс','אלכס'],['Эльдад','אלדד'],['Хен','חן'],['Ярден','ירדן'],['Ави','אבי'],['Ицхак','יצחק'],['Йоав','יואב'],['Надав','נדב']];
-const LN=[['Коэн','כהן'],['Леви','לוי'],['Мизрахи','מזרחי'],['Перец','פרץ'],['Битон','ביטון'],['Даган','דגן'],['Фридман','פרידמן'],['Шапиро','שפירא'],['Азулай','אזולאי'],['Охана','אוחנה'],['Голан','גולן'],['Бен-Давид','בן דוד'],['Кац','כץ'],['Амар','עמר'],['Малка','מלכה'],['Хадад','חדד'],['Розен','רוזן'],['Авидан','אבידן'],['Коган','קוגן'],['Зильберман','זילברמן'],['Нахум','נחום'],['Ашкенази','אשכנזי'],['Бен-Ами','בן עמי'],['Яфе','יפה'],['Вайс','וייס'],['Сасон','ששון'],['Гросс','גרוס'],['Эльбаз','אלבז'],['Шитрит','שטרית'],['Рубин','רובין']];
+const FN=[['Авраам','אברהם',"Avraham"],['Даниэль','דניאל',"Daniel"],['Йонатан','יונתן',"Yonatan"],['Ноам','נועם',"Noam"],['Ори','אורי',"Ori"],['Итай','איתי',"Itai"],['Эйтан','איתן',"Eitan"],['Амит','עמית',"Amit"],['Идо','עידו',"Ido"],['Омер','עומר',"Omer"],['Яир','יאיר',"Yair"],['Гай','גיא',"Guy"],['Рои','רועי',"Roi"],['Нир','ניר',"Nir"],['Асаф','אסף',"Asaf"],['Михаэль','מיכאל',"Michael"],['Давид','דוד',"David"],['Ариэль','אריאל',"Ariel"],['Элад','אלעד',"Elad"],['Матан','מתן',"Matan"],['Йосеф','יוסף',"Yosef"],['Амир','אמיר',"Amir"],['Барак','ברק',"Barak"],['Лиор','ליאור',"Lior"],['Эяль','אייל',"Eyal"],['Нетанэль','נתנאל',"Netanel"],['Шахар','שחר',"Shahar"],['Дима','דימה',"Dima"],['Алекс','אלכס',"Alex"],['Эльдад','אלדד',"Eldad"],['Хен','חן',"Hen"],['Ярден','ירדן',"Yarden"],['Ави','אבי',"Avi"],['Ицхак','יצחק',"Yitzhak"],['Йоав','יואב',"Yoav"],['Надав','נדב',"Nadav"]];
+const LN=[['Коэн','כהן',"Cohen"],['Леви','לוי',"Levi"],['Мизрахи','מזרחי',"Mizrahi"],['Перец','פרץ',"Peretz"],['Битон','ביטון',"Biton"],['Даган','דגן',"Dagan"],['Фридман','פרידמן',"Friedman"],['Шапиро','שפירא',"Shapira"],['Азулай','אזולאי',"Azulay"],['Охана','אוחנה',"Ohana"],['Голан','גולן',"Golan"],['Бен-Давид','בן דוד',"Ben-David"],['Кац','כץ',"Katz"],['Амар','עמר',"Amar"],['Малка','מלכה',"Malka"],['Хадад','חדד',"Hadad"],['Розен','רוזן',"Rosen"],['Авидан','אבידן',"Avidan"],['Коган','קוגן',"Kogan"],['Зильберман','זילברמן',"Zilberman"],['Нахум','נחום',"Nahum"],['Ашкенази','אשכנזי',"Ashkenazi"],['Бен-Ами','בן עמי',"Ben-Ami"],['Яфе','יפה',"Yafe"],['Вайс','וייס',"Weiss"],['Сасон','ששון',"Sasson"],['Гросс','גרוס',"Gross"],['Эльбаз','אלבז',"Elbaz"],['Шитрит','שטרית',"Shitrit"],['Рубин','רובין',"Rubin"]];
 // Druze soldiers serve in all three units; their names are drawn from a separate list.
-const DFN=[['Фирас','פיראס'],['Салман','סלמאן'],['Ваэль','ואאל'],['Камаль','כמאל'],['Шади','שאדי']];
-const DLN=[['Халаби','חלבי'],['Кабалан','קבלאן'],['Ханифес','חניפס'],['Асад','אסעד']];
+const DFN=[['Фирас','פיראס',"Firas"],['Салман','סלמאן',"Salman"],['Ваэль','ואאל',"Wael"],['Камаль','כמאל',"Kamal"],['Шади','שאדי',"Shadi"]];
+const DLN=[['Халаби','חלבי',"Halabi"],['Кабалан','קבלאן',"Kabalan"],['Ханифес','חניפס',"Hanifes"],['Асад','אסעד',"Assad"]];
 const GIDS=['k1','k2','k3','dv'];
 const FORCE={k1:'ym',k2:'ym',k3:'yh',dv:'dv'};
 const CAP={k1:8,k2:8,k3:6,dv:8};
 const TPL={ym:['cmd','med','drone','mg','brc','rif','rif','rif'],yh:['cmd','med','drone','sap','sap','sap'],dv:['cmd','med','drone','snp','mg','rif','rif','rif']};
-const GNAME={k1:['Кобра-1','צפע 1'],k2:['Кобра-2','צפע 2'],k3:['Алмаз','יהלום'],dv:['Вишня','דובדבן']};
-const FNAME={ym:['ЯМАМ, штурмовая группа','ימ״מ, צוות הסתערות'],yh:['сапёры «Яхалом»','חבלני «יהלום»'],dv:['мистаарвим «Дувдеван»','מסתערבי «דובדבן»']};
+const GNAME={k1:['Кобра-1','צפע 1',"Cobra-1"],k2:['Кобра-2','צפע 2',"Cobra-2"],k3:['Алмаз','יהלום',"Diamond"],dv:['Вишня','דובדבן',"Cherry"]};
+const FNAME={ym:['ЯМАМ, штурмовая группа','ימ״מ, צוות הסתערות',"Yamam, assault team"],yh:['сапёры «Яхалом»','חבלני «יהלום»',"Yahalom sappers"],dv:['мистаарвим «Дувдеван»','מסתערבי «דובדבן»',"Duvdevan mista'arvim"]};
 // YAMAM is a police unit and uses Border Police ranks; Yahalom and Duvdevan use IDF ranks.
-const RANKS={ym:[['капрал','רב-שוטר'],['сержант','סמל'],['старший сержант','סמל ראשון'],['старшина','רב-סמל'],['старший старшина','רב-סמל מתקדם']],
-  ymo:[['младший инспектор','מפקח משנה'],['инспектор','מפקח'],['старший инспектор','פקד']],
-  idf:[['рядовой','טוראי'],['ефрейтор','רב״ט'],['сержант','סמל'],['старший сержант','סמ״ר'],['старшина','רס״ל']],
-  idfo:[['младший лейтенант','סג״ם'],['лейтенант','סגן'],['капитан','סרן']]};
+const RANKS={ym:[['капрал','רב-שוטר',"Corporal"],['сержант','סמל',"Sergeant"],['старший сержант','סמל ראשון',"Staff Sergeant"],['старшина','רב-סמל',"Sergeant First Class"],['старший старшина','רב-סמל מתקדם',"Master Sergeant"]],
+  ymo:[['младший инспектор','מפקח משנה',"Sub-Inspector"],['инспектор','מפקח',"Inspector"],['старший инспектор','פקד',"Chief Inspector"]],
+  idf:[['рядовой','טוראי',"Private"],['ефрейтор','רב״ט',"Corporal"],['сержант','סמל',"Sergeant"],['старший сержант','סמ״ר',"Staff Sergeant"],['старшина','רס״ל',"Sergeant First Class"]],
+  idfo:[['младший лейтенант','סג״ם',"Second Lieutenant"],['лейтенант','סגן',"Lieutenant"],['капитан','סרן',"Captain"]]};
 const RK_XP=[0,5,12,21,32],RKO_XP=[0,12,28],GLVL=[0,8,20,36,56];
-const ROLE={cmd:['командир группы','מפקד הצוות'],med:['медик','חובש'],drone:['оператор дрона','מפעיל רחפן'],mg:['пулемётчик','מקלען'],brc:['подрывник','פורץ'],sap:['сапёр','חבלן'],snp:['снайпер','צלף'],rif:['стрелок','לוחם']};
+const ROLE={cmd:['командир группы','מפקד הצוות',"team leader"],med:['медик','חובש',"medic"],drone:['оператор дрона','מפעיל רחפן',"drone operator"],mg:['пулемётчик','מקלען',"machine gunner"],brc:['подрывник','פורץ',"breacher"],sap:['сапёр','חבלן',"sapper"],snp:['снайпер','צלף',"sniper"],rif:['стрелок','לוחם',"rifleman"]};
 const SKILLS={ym:['cqb','capture','fire','stealth'],yh:['fastdis','charge','demo','fire'],dv:['stealth','recon','sniper','capture']};
-const SK={cqb:[['Быстрая зачистка','טיהור מהיר'],['зачистка зданий на 20% быстрее','טיהור מבנים מהיר ב-20%']],
-  capture:[['Взятие живыми','לכידה בחיים'],['на 10% чаще берут спящих живыми','סיכוי גבוה ב-10% לתפוס ישנים בחיים']],
-  fire:[['Огневая дисциплина','משמעת אש'],['в перестрелке на 15% точнее','מדויקים ב-15% בקרב אש']],
-  stealth:[['Скрытное выдвижение','תנועה חשאית'],['наблюдатели и патрули замечают на 40% реже','תצפיתנים וסיורים מבחינים ב-40% פחות']],
-  fastdis:[['Быстрое разминирование','פירוק מהיר'],['ловушку с двери снимают на 40% быстрее','מפרקים מטען מהדלת מהר יותר ב-40%']],
-  charge:[['Направленный заряд','מטען כיווני'],['подрыв стены на 40% быстрее','פריצת קיר מהירה ב-40%']],
-  demo:[['Подрыв мастерской','השמדת מעבדה'],['мастерскую готовят к подрыву за 3 минуты вместо 5','מכינים את המעבדה לפיצוץ ב-3 דקות במקום 5']],
-  recon:[['Разведка','תצפית'],['наблюдение за зданием на треть короче','תצפית על מבנה קצרה בשליש']],
-  sniper:[['Снайперская пара','צמד צלפים'],['снайпер почти не промахивается по наблюдателям','הצלף כמעט לא מחטיא תצפיתנים']]};
-const OPNAMES=[['Тихая вода','מים שקטים'],['Медная нить','חוט נחושת'],['Белый камень','אבן לבנה'],['Сухая ветка','ענף יבש'],['Старый колодец','באר ישנה'],['Песочные часы','שעון חול'],['Глиняный кувшин','כד חרס'],['Северный ветер','רוח צפונית'],['Ночная тропа','שביל לילה'],['Каменная соль','מלח סלעים'],['Чёрный кедр','ארז שחור'],['Тёмный двор','חצר חשוכה']];
-const MONTHS=HE?['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר']:['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
-function opDate(day){const d=new Date(2026,10,14+(day||0));return HE?`ליל ${d.getDate()} ב${MONTHS[d.getMonth()]}`:`ночь на ${d.getDate()} ${MONTHS[d.getMonth()]}`;}
+const SK={cqb:[['Быстрая зачистка','טיהור מהיר',"Fast clearing"],['зачистка зданий на 20% быстрее','טיהור מבנים מהיר ב-20%',"buildings cleared 20% faster"]],
+  capture:[['Взятие живыми','לכידה בחיים',"Taken alive"],['на 10% чаще берут спящих живыми','סיכוי גבוה ב-10% לתפוס ישנים בחיים',"10% more often take sleepers alive"]],
+  fire:[['Огневая дисциплина','משמעת אש',"Fire discipline"],['в перестрелке на 15% точнее','מדויקים ב-15% בקרב אש',"15% more accurate in firefights"]],
+  stealth:[['Скрытное выдвижение','תנועה חשאית',"Stealthy approach"],['наблюдатели и патрули замечают на 40% реже','תצפיתנים וסיורים מבחינים ב-40% פחות',"lookouts and patrols notice them 40% less"]],
+  fastdis:[['Быстрое разминирование','פירוק מהיר',"Fast clearing of traps"],['ловушку с двери снимают на 40% быстрее','מפרקים מטען מהדלת מהר יותר ב-40%',"door traps removed 40% faster"]],
+  charge:[['Направленный заряд','מטען כיווני',"Shaped charge"],['подрыв стены на 40% быстрее','פריצת קיר מהירה ב-40%',"wall breaching 40% faster"]],
+  demo:[['Подрыв мастерской','השמדת מעבדה',"Workshop demolition"],['мастерскую готовят к подрыву за 3 минуты вместо 5','מכינים את המעבדה לפיצוץ ב-3 דקות במקום 5',"workshop rigged for demolition in 3 minutes instead of 5"]],
+  recon:[['Разведка','תצפית',"Reconnaissance"],['наблюдение за зданием на треть короче','תצפית על מבנה קצרה בשליש',"building observation a third shorter"]],
+  sniper:[['Снайперская пара','צמד צלפים',"Sniper pair"],['снайпер почти не промахивается по наблюдателям','הצלף כמעט לא מחטיא תצפיתנים',"the sniper almost never misses lookouts"]]};
+const OPNAMES=[['Тихая вода','מים שקטים',"Still Water"],['Медная нить','חוט נחושת',"Copper Thread"],['Белый камень','אבן לבנה',"White Stone"],['Сухая ветка','ענף יבש',"Dry Branch"],['Старый колодец','באר ישנה',"Old Well"],['Песочные часы','שעון חול',"Hourglass"],['Глиняный кувшин','כד חרס',"Clay Jug"],['Северный ветер','רוח צפונית',"North Wind"],['Ночная тропа','שביל לילה',"Night Trail"],['Каменная соль','מלח סלעים',"Rock Salt"],['Чёрный кедр','ארז שחור',"Black Cedar"],['Тёмный двор','חצר חשוכה',"Dark Yard"]];
+const MONTHS=HE?['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר']:(EN?(['January','February','March','April','May','June','July','August','September','October','November','December']):(['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']));
+function opDate(day){const d=new Date(2026,10,14+(day||0));return HE?`ליל ${d.getDate()} ב${MONTHS[d.getMonth()]}`:(EN?(`night of ${MONTHS[d.getMonth()]} ${d.getDate()}`):(`ночь на ${d.getDate()} ${MONTHS[d.getMonth()]}`));}
 const rkIdx=(xp,t)=>{let i=0;while(i+1<t.length&&xp>=t[i+1])i++;return i;};
 function rankOf(m){const ym=FORCE[m.g]==='ym';return m.off?RANKS[ym?'ymo':'idfo'][rkIdx(m.xp,RKO_XP)]:RANKS[ym?'ym':'idf'][rkIdx(m.xp,RK_XP)];}
 const rankKey=m=>(m.off?'o':'e')+(m.off?rkIdx(m.xp,RKO_XP):rkIdx(m.xp,RK_XP));
@@ -44,8 +44,8 @@ function freeNo(g){const used=new Set(C.men.filter(m=>m.g===g&&m.st!=='kia').map
 function mkMan(g,role,fresh){const f=FORCE[g];const dz=Math.random()<.12;const fn=pick(dz?DFN:FN),ln=pick(dz?DLN:LN);const off=role==='cmd';
   // YAMAM recruits come from experienced police officers; army units take young conscripts.
   const xp=fresh?(f==='ym'?5+rnd(4):0):(f==='ym'?(off?12+rnd(10):8+rnd(20)):(off?rnd(14):rnd(14)));
-  const m={id:C.nid++,g,role,off,xp,ops:0,st:'ok',out:0,no:freeNo(g),n:[fn[0]+' '+ln[0],fn[1]+' '+ln[1]]};C.men.push(m);return m;}
-function newCamp(){C={v:1,op:1,day:0,opName:['Решет','רשת'],used:[],nid:1,groups:{},men:[],last:null,hist:[]};
+  const m={id:C.nid++,g,role,off,xp,ops:0,st:'ok',out:0,no:freeNo(g),n:[fn[0]+' '+ln[0],fn[1]+' '+ln[1],fn[2]+' '+ln[2]]};C.men.push(m);return m;}
+function newCamp(){C={v:1,op:1,day:0,opName:['Решет','רשת',"Reshet"],used:[],nid:1,groups:{},men:[],last:null,hist:[]};
   for(const g of GIDS){C.groups[g]={xp:0,lvl:1,sk:[],pend:0};TPL[FORCE[g]].forEach(r=>mkMan(g,r,false));}return C;}
 function saveCamp(){try{localStorage.setItem(CAMP_KEY,JSON.stringify(C));}catch(e){}}
 function loadCamp(){try{const d=JSON.parse(localStorage.getItem(CAMP_KEY)||'null');if(d&&d.v===1&&d.men)return d;}catch(e){}return null;}
@@ -62,16 +62,16 @@ function dowMan(u){if(!u.crew||!C)return null;const w=u.crew.filter(id=>u.cs[id]
 function evacMen(u){if(!u.crew)return;for(const id of u.crew)if(u.cs[id]==='w')u.cs[id]='we';}
 // Radio gives casualties by roster number only (no names on the net); the commander's log adds who it is.
 function casRep(u){const ids=(u.newIds||[]).filter(id=>MAN(id));u.newIds=[];if(!ids.length)return{t:'',note:''};
-  let t=HE?` מספרים: ${ids.map(id=>MAN(id).no).join(', ')}.`:` Номера: ${ids.map(id=>MAN(id).no).join(', ')}.`;
+  let t=HE?` מספרים: ${ids.map(id=>MAN(id).no).join(', ')}.`:(EN?(` Roster numbers: ${ids.map(id=>MAN(id).no).join(', ')}.`):(` Номера: ${ids.map(id=>MAN(id).no).join(', ')}.`));
   for(const id of ids){const m=MAN(id);
-    if(m.role==='cmd'&&!roleOk(u,'cmd')){const nx=curCmd(u);if(nx)t+=HE?` המפקד נפגע, מספר ${nx.no} מקבל פיקוד.`:` Командир выбыл, командование принял номер ${nx.no}.`;}
-    else if(m.role==='med'&&!roleOk(u,'med'))t+=HE?' החובש נפגע.':' Медик выбыл.';
-    else if(m.role==='drone'&&!roleOk(u,'drone'))t+=HE?' מפעיל הרחפן נפגע, אין רחפן.':' Оператор дрона выбыл, дрона нет.';}
-  const note=ids.map(id=>{const m=MAN(id);const k=u.cs[id];return HE?`מס׳ ${m.no} — ${manName(m)}, ${k==='k'?'נהרג':'נפצע'}`:`№${m.no} — ${manName(m)}, ${k==='k'?'погиб':'ранен'}`;}).join(' · ');
+    if(m.role==='cmd'&&!roleOk(u,'cmd')){const nx=curCmd(u);if(nx)t+=HE?` המפקד נפגע, מספר ${nx.no} מקבל פיקוד.`:(EN?(` Team leader is down, number ${nx.no} has command.`):(` Командир выбыл, командование принял номер ${nx.no}.`));}
+    else if(m.role==='med'&&!roleOk(u,'med'))t+=HE?' החובש נפגע.':(EN?(" Medic is down."):(' Медик выбыл.'));
+    else if(m.role==='drone'&&!roleOk(u,'drone'))t+=HE?' מפעיל הרחפן נפגע, אין רחפן.':(EN?(" Drone operator is down, no drone."):(' Оператор дрона выбыл, дрона нет.'));}
+  const note=ids.map(id=>{const m=MAN(id);const k=u.cs[id];return HE?`מס׳ ${m.no} — ${manName(m)}, ${k==='k'?'נהרג':'נפצע'}`:(EN?(`#${m.no} — ${manName(m)}, ${k==='k'?'killed':'wounded'}`):(`№${m.no} — ${manName(m)}, ${k==='k'?'погиб':'ранен'}`));}).join(' · ');
   return{t,note};}
 function curCmd(u){const a=u.crew.map(MAN).filter(m=>m&&!u.cs[m.id]);return a.find(m=>m.role==='cmd')||a.sort((x,y)=>y.xp-x.xp)[0];}
 function crewLine(u){if(!u.crew||!C)return'';const cm=curCmd(u);if(!cm)return'';
-  return(HE?`מפקד: ${manName(cm)} · רמה ${C.groups[u.id].lvl}`:`Командир: ${manName(cm)} · уровень ${C.groups[u.id].lvl}`)+'\n';}
+  return(HE?`מפקד: ${manName(cm)} · רמה ${C.groups[u.id].lvl}`:(EN?(`Team leader: ${manName(cm)} · level ${C.groups[u.id].lvl}`):(`Командир: ${manName(cm)} · уровень ${C.groups[u.id].lvl}`)))+'\n';}
 function nextOpName(){const free=OPNAMES.map((_,i)=>i).filter(i=>!C.used.includes(i));const i=free.length?pick(free):rnd(OPNAMES.length);C.used.push(i);return OPNAMES[i];}
 function campAfter(){if(!C||S.campDone||S.train)return;S.campDone=true;
   const ok=S.leader==='killed'||S.leader==='captured';const best=S.leader==='captured'&&S.lab==='destroyed'&&!S.civHarm;

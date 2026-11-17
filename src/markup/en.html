@@ -1,0 +1,103 @@
+<div id="app">
+  <header id="top">
+    <div class="kp"><small>Cobra-6 · company CP</small><span id="clock">02:00</span></div>
+    <div class="seg" id="speed" role="group" aria-label="Time speed">
+      <button data-s="0" aria-label="Pause">❚❚</button><button data-s="1">×1</button><button data-s="2">×2</button><button data-s="4">×4</button>
+    </div>
+    <button class="hb" id="bSound" aria-label="Radio sound"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9v6h4l5 4V5L8 9z"/><path id="sndWave" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg></button>
+    <button class="hb" id="bHelp" aria-label="Operation order"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7M9 7h4"/></svg></button>
+  </header>
+  <div id="obj"></div>
+  <main id="mapwrap">
+    <canvas id="map"></canvas>
+    <div class="mapbtns" id="mapbtns"><button class="mb" id="bFit">Whole map</button></div>
+    <div id="banner" hidden></div>
+    <div id="confirm" hidden><div id="cTxt"></div><button id="cNo">Cancel</button><button id="cYes">Send</button></div>
+    <div id="truthPill" hidden>Actual situation</div>
+  </main>
+  <section id="radio" aria-label="Radio net">
+    <div class="rhead"><span class="lamp" id="lamp"></span><span class="t">Cobra company net · encrypted</span><button id="bExpand">More</button></div>
+    <div id="log"><div class="empty">The radio is silent. Read the order and start the operation.</div></div>
+  </section>
+  <nav id="units" aria-label="Units"></nav>
+</div>
+
+<div id="sheet" hidden><div class="sbg" id="sbg"></div><div class="spanel"><h3 id="sTitle"></h3><p id="sSub"></p><div class="sbtns" id="sBtns"></div></div></div>
+
+<div id="brief" class="ov" hidden>
+  <div class="doc">
+    <div class="stamp">SECRET</div>
+    <h1 id="bTitle">Operation order: Operation Reshet</h1>
+    <div class="meta" id="bMeta">Cobra company · night of November 14 · start 02:00 · dawn 05:30</div>
+    <h2>1. Situation</h2>
+    <p id="bSit">The town of Deir Nabil. A cell of the Hadid group, 10–14 armed men, is preparing a series of attacks. The cell leader, known as <b>"the Engineer"</b>, runs the bomb-making. Civilians are asleep in the surrounding buildings. Lookouts on rooftops near the southern entrance and a tunnel are likely.</p>
+    <p>This is how such cells usually fight: small groups open fire and immediately change position, fall back into residential buildings and may take shelter in the clinic. When the alarm goes up, loudspeakers will call local men to arms. IEDs against vehicles are possible on the main streets, and one of the houses on the intelligence list may be a trap.</p>
+    <h2>2. Mission</h2>
+    <p>Cobra company is to neutralize "the Engineer" and destroy the bomb workshop by dawn (05:30). <b>Capture is preferred to killing</b>: the Shin Bet needs his testimony. Avoid civilian casualties.</p>
+    <p><b>Time.</b> After dawn the town wakes up: people on the streets, videos on social media, growing international outcry, which costs you in the debrief. The outcry also grows with destroyed buildings and harmed civilians. At 06:30 you withdraw no matter what. When both objectives are complete, brigade HQ orders the withdrawal and the operation ends 10 minutes later.</p>
+    <h2>3. Execution</h2>
+    <ul id="bUnits">
+      <li><b>Cobra-1, -2</b>: Yamam assault teams — the Israel Police counter-terrorism unit, 8 operators each. Suppressed weapons, night vision. The operation was planned in advance.</li>
+      <li><b>Diamond</b>: a Yahalom sapper team (the elite IDF combat engineering unit), 6 soldiers. They quietly clear traps from doors and safely demolish the workshop and the tunnel.</li>
+      <li><b>Drone operators</b>: every team has a small indoor drone operator (modeled on the Israeli Xtend). The drone flies in through a window and shows people, weapons, explosive devices, the tunnel and the workshop. Range about 350 m, 3 flights per team (spare batteries). The drone can be heard or shot down.</li>
+      <li><b>Cherry</b>: an elite mista'arvim unit, modeled on Duvdevan of the Oz Commando Brigade. In the game it is a team of 8, some disguised as locals, in a civilian car: you can pick the drop-off point, and the car waits there. Lookouts almost never notice it. It shoots more accurately than the others, holds up better under fire and takes prisoners more often.</li>
+      <li><b>Oketz</b>: two service dogs. A dog goes into a building first and reveals people, weapons and explosives at the entrance. It can be shot.</li>
+      <li><b>Hawk</b>: a UAV. Sees streets and rooftops within ~300 m of its orbit point, cannot see inside buildings.</li>
+      <li><b>Hammer</b>: an attack helicopter, 4 missiles, fuel for 90 minutes. You can send it back to base to rearm (40 min) or call a relief aircraft (a new one in 20 min). Strikes only on a <b>confirmed target</b> and never on the no-strike list.</li>
+      <li><b>Hammer cover</b>: you can assign an area. The helicopter watches on thermal, reports armed men on streets and rooftops and engages with its cannon those who are fighting or running. The fire is loud: the alarm goes up at once. Firing at windows with civilians behind them is dangerous.</li>
+    </ul>
+    <h2>Methods</h2>
+    <ul>
+      <li><b>Quiet entry</b>: the door is opened silently. Sleepers are often taken in their beds, but doors may be booby-trapped.</li>
+      <li><b>Wall breach</b>: a minute and a half longer and loud, the whole block wakes up. But it bypasses a trapped door and surprises those inside. Troops moved through walls in Nablus in 2002.</li>
+      <li><b>"Pressure cooker"</b> (nohal sir lahatz): cordon the building and escalate step by step. Stages: loudspeaker, warning fire, anti-tank missile, D9 bulldozer demolition. Civilians come out, fighters may surrender. But it takes time, and the target may have a tunnel.</li>
+      <li><b>"Roof knock"</b>: a warning missile before the strike. Residents have time to get out, but so may the fighters.</li>
+      <li><b>Building recon</b>: a team approaches covertly and watches for a minute and a half to two minutes: are there people, guards, devices on the door, signs of a tunnel. Cherry notices more and is almost never spotted. Oketz dogs also find tunnel shafts.</li>
+      <li><b>Workshop and sappers</b>: without sappers the demolition takes longer (8 minutes) and is more dangerous. A fight inside the workshop can cause a secondary explosion, and a strike on it damages neighboring houses. Diamond quietly clears door traps and can blow the tunnel so that "the Engineer" cannot escape.</li>
+      <li><b>Where is the workshop</b>: intelligence names a grid square, circled on the map. A drone, a building recon (chemical smell, taped windows), a dog (smells explosives), questioning a detainee or searching the Engineer's body will narrow it down.</li>
+      <li><b>Emergency evacuation</b>: any team can be pulled back to base at once. There the wounded go to the medics, ammo is replenished and the team is ready to go out again. The medevac helicopter flies straight to the team: the team marks the landing zone itself.</li>
+      <li><b>Detainee</b>: "the Engineer" can be questioned on site (quick, but he may lie or stay silent) or flown out to the Shin Bet (slower, but his statement is more reliable). This is how you can learn where the workshop is.</li>
+      <li><b>Team leaders act on their own</b>: under fire a team returns fire, moves to the nearest cover out of the shooter's sight and reports where the fire is coming from. Then the leader decides: hold cover and suppress; with the upper hand, flank and assault; if the enemy is stronger, there are many wounded or the task is covert, break contact and go around by another street. When the fire dies down, the team continues its task. Under fire the wounded only get tourniquets, treatment comes after the fight. Firefights happen only with line of sight along the streets.</li>
+      <li><b>Pace and route</b>: "stealthy" is about 2.5 km/h in town, "fast" is about 6 km/h, but the team is easier to see and hear. Teams move along the streets, not through houses. Clearing a house takes 2 to 15 minutes, depending on its size and number of floors.</li>
+      <li><b>Stealth.</b> Our suppressed shots can be heard at about 70 m. An enemy shot can be heard at 300 m, and within a minute he will alert the whole cell unless he is neutralized in time. Explosions raise the alarm at once. A lookout who spots you raises the alarm after thirty seconds; a suppressed sniper can take him out first. On alarm, "the Engineer" runs for the tunnel unless his house is cordoned. A cordon on the tunnel building (a team within 120 m) cuts off his escape.</li>
+    </ul>
+    <h2>4. Support</h2>
+    <p><b>Angel</b>: medevac helicopters. A free aircraft reaches the LZ in 5 minutes; if none is free, another is launched (12 min). They pick up the wounded and bring ammo to teams within 150 m of the LZ. After a flight the aircraft goes to the hospital and returns in 20 minutes. A hot LZ may be refused.</p>
+    <h2>5. Command and signal</h2>
+    <p>The map is a town plan with a 200 m grid (columns A–G, rows 1–11) and numbered buildings. Teams report in the <b>SALUTE</b> format: size, activity, location, unit, time, equipment.</p>
+    <div class="leg">
+      <svg viewBox="0 0 30 26"><rect x="2" y="3" width="26" height="16" fill="#a8dcf5" stroke="#14324a" stroke-width="1.5"/><path d="M2 3l26 16M28 3L2 19" stroke="#14324a" stroke-width="1.2"/><rect x="9" y="7" width="12" height="8" fill="#a8dcf5"/><text x="15" y="13.6" font-size="7" font-weight="700" text-anchor="middle" fill="#14324a" font-family="Arial,sans-serif">SF</text></svg><span>Yamam "Cobra-1/2": special forces assault team</span>
+      <svg viewBox="0 0 30 26"><rect x="2" y="3" width="26" height="16" fill="#a8dcf5" stroke="#14324a" stroke-width="1.5"/><path d="M7 8h16M7 8v7M15 8v7M23 8v7" stroke="#14324a" stroke-width="1.7" fill="none"/></svg><span>"Diamond" sappers (Yahalom)</span>
+      <svg viewBox="0 0 30 26"><rect x="2" y="3" width="26" height="16" fill="#a8dcf5" stroke="#14324a" stroke-width="1.5"/><path d="M2 19L28 3" stroke="#14324a" stroke-width="1.2"/><rect x="9" y="7" width="12" height="8" fill="#a8dcf5"/><text x="15" y="13.6" font-size="7" font-weight="700" text-anchor="middle" fill="#14324a" font-family="Arial,sans-serif">SF</text><circle cx="9" cy="23" r="2.3" fill="#14324a"/><circle cx="21" cy="23" r="2.3" fill="#14324a"/></svg><span>"Cherry": mista'arvim, wheels mean in the car</span>
+      <svg viewBox="0 0 30 22"><path d="M15 1l10 10-10 10L5 11z" fill="#ff9b9b" stroke="#7a1010" stroke-width="1.5"/></svg><span>enemy, target confirmed</span>
+      <svg viewBox="0 0 30 22"><circle cx="15" cy="11" r="8" fill="#ffef8a" stroke="#6b5a00" stroke-width="1.5"/></svg><span>unidentified</span>
+      <svg viewBox="0 0 30 22"><rect x="7" y="3" width="16" height="16" fill="#a8e6a1" stroke="#1f5a1a" stroke-width="1.5"/></svg><span>civilians</span>
+      <svg viewBox="0 0 30 22"><circle cx="15" cy="11" r="8" fill="#e3c08a" stroke="#5a3a10" stroke-width="1.5"/><path d="M10 8h10l-5 7z" fill="#5a3a10"/></svg><span>tunnel</span>
+      <svg viewBox="0 0 30 22"><path d="M15 2L25 19H5z" fill="#ffcf5a" stroke="#7a3a00" stroke-width="1.5"/><text x="15" y="17" font-size="10" font-weight="700" text-anchor="middle" fill="#5a2800" font-family="Arial">!</text></svg><span>IED: in the street or on a building door</span>
+    </div>
+    <p style="font-size:13px;color:#5d646c">You move the markers of your own teams.</p>
+    <p>Tap a building on the map to mark it or request a strike. Tap a team marker to give an order. You only know where your teams are from their reports.</p>
+    <button class="go" id="bGo">Start operation</button>
+    <button class="go alt" id="bEnd" hidden>End operation</button>
+    <button class="go alt" id="bNew" hidden>Start over</button>
+    <p class="meta" style="margin:12px 0 0;text-align:center">The game saves automatically on this device.</p>
+  </div>
+</div>
+
+<div id="debrief" class="ov" hidden>
+  <div class="doc">
+    <div class="stamp">DEBRIEF</div>
+    <h1 id="dTitle">Operation Reshet debrief</h1>
+    <div class="meta" id="dMeta"></div>
+    <div class="res" id="dRes"></div>
+    <div class="stat" id="dStat"></div>
+    <p id="dNote" style="margin-top:12px"></p>
+    <button class="go" id="bTruth">Show the actual situation</button>
+    <button class="go alt" id="bAgain">Back to company HQ</button>
+  </div>
+</div>
+
+<div id="camp" class="ov" hidden><div class="doc" id="campDoc"></div></div>
+
+<div id="splash" hidden><canvas id="spC" aria-label="Project: End of Terror"></canvas><button id="spGo">Start</button></div>
+<div id="loading" class="ov">Preparing the town map…</div>

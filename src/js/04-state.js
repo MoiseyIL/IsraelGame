@@ -13,15 +13,15 @@ function newState(TRN){TRN=TRN||null;
   let decoys=okB.filter(b=>![L,T,Wk,R].includes(b)&&near(b,L,70,280));if(decoys.length<2)decoys=okB.filter(b=>![L,T,Wk,R].includes(b)).sort((a,b)=>Math.hypot(a.cx-L.cx,a.cy-L.cy)-Math.hypot(b.cx-L.cx,b.cy-L.cy)).slice(0,6);const cand=[L,pick(decoys)];let d2=pick(decoys);while(d2===cand[1]&&decoys.length>1)d2=pick(decoys);cand.push(d2);cand.sort(()=>r()-.5);
   const sT=M.classic?[1180,700,1380]:[MY+RY*.5,MX,MY+RY*.81];let south=okB.filter(b=>b.cy>sT[0]&&b!==L);if(south.length<2)south=[...okB].filter(b=>b!==L).sort((a,b)=>b.cy-a.cy).slice(0,8);const Lk1=south.reduce((a,b)=>Math.abs(b.cx-sT[1])+Math.abs(b.cy-sT[2])*.5<Math.abs(a.cx-sT[1])+Math.abs(a.cy-sT[2])*.5?b:a);
   const Lk2=pk(south.filter(b=>b!==Lk1&&Math.abs(b.cx-Lk1.cx)>250),south.filter(b=>b!==Lk1).concat(okB.filter(b=>b!==Lk1&&b!==L)));
-  const civ={};BL.forEach(b=>{civ[b.n]=b.prot===(HE?('מרפאה'):('поликлиника'))?7:b.prot?0:(r()<.68?1+Math.floor(r()*6):0);});
+  const civ={};BL.forEach(b=>{civ[b.n]=b.prot===(HE?('מרפאה'):((EN?("clinic"):('поликлиника'))))?7:b.prot?0:(r()<.68?1+Math.floor(r()*6):0);});
   civ[L.n]=r()<.55?3+Math.floor(r()*3):0;civ[Wk.n]=0;civ[R.n]=r()<.3?2:0;civ[Lk1.n]=Math.max(civ[Lk1.n],2);
   const TM=TRN?[.6,.9,1,1.15][TRN.diff]:1;const traps={};[[L,.6],[Wk,.8],[R,.5],[T,.4]].forEach(([b,p])=>{if(r()<p*TM)traps[b.n]=true;});
   const decoyB=cand.find(b=>b!==L);traps[decoyB.n]=true;
   const ieds=M.classic?[{x:700,y:950+r()*450},{x:r()<.5?300+r()*250:850+r()*250,y:860}]:[{x:M.avx[0],y:MY+60+r()*RY*.6},{x:r()<.5?MX-RX*.8+r()*RX*.5:MX+RX*.3+r()*RX*.5,y:M.avy[0]}];if(TRN){ieds.length=[1,2,2,3][TRN.diff];if(ieds.length>2)ieds[2]=M.classic?{x:700,y:380+r()*380}:{x:M.avx[0],y:MY-RY*.75+r()*RY*.6};}
   civ[decoyB.n]=0;
   const ps=Math.min(1,RY/600);const pw=M.classic?[[700,700],[560,700],[560,1020],[840,1020],[840,700]]:[[MX,MY-160*ps],[MX-140*ps,MY-160*ps],[MX-140*ps,MY+160*ps],[MX+140*ps,MY+160*ps],[MX+140*ps,MY-160*ps]];
-  const units=[squad('k1',(HE?('צפע 1'):('Кобра-1')),(HE?('צ1'):('К1')),660,2040),squad('k2',(HE?('צפע 2'):('Кобра-2')),(HE?('צ2'):('К2')),700,2075),squad('k3',(HE?('יהלום'):('Алмаз')),(HE?('יה'):('Ал')),740,2040,6),squad('dv',(HE?('דובדבן'):('Вишня')),(HE?('ד'):('В')),610,2080,8,true),
-    {id:'ya',call:(HE?('זיק'):('Ястреб')),sh:(HE?('ז'):('Я')),type:'uav',x:M.classic?700:MX,y:M.classic?1500:Math.min(1700,MY+RY)},{id:'mo',call:(HE?('שרף'):('Молот')),sh:(HE?('ש'):('М')),type:'strike',x:610,y:2140},{id:'an',call:(HE?('ינשוף'):('Ангел')),sh:(HE?('י'):('А')),type:'medevac',x:790,y:2140}];
+  const units=[squad('k1',(HE?('צפע 1'):((EN?("Cobra-1"):('Кобра-1')))),(HE?('צ1'):((EN?("C1"):('К1')))),660,2040),squad('k2',(HE?('צפע 2'):((EN?("Cobra-2"):('Кобра-2')))),(HE?('צ2'):((EN?("C2"):('К2')))),700,2075),squad('k3',(HE?('יהלום'):((EN?("Diamond"):('Алмаз')))),(HE?('יה'):((EN?("Di"):('Ал')))),740,2040,6),squad('dv',(HE?('דובדבן'):((EN?("Cherry"):('Вишня')))),(HE?('ד'):((EN?("Ch"):('В')))),610,2080,8,true),
+    {id:'ya',call:(HE?('זיק'):((EN?("Hawk"):('Ястреб')))),sh:(HE?('ז'):((EN?("Hk"):('Я')))),type:'uav',x:M.classic?700:MX,y:M.classic?1500:Math.min(1700,MY+RY)},{id:'mo',call:(HE?('שרף'):((EN?("Hammer"):('Молот')))),sh:(HE?('ש'):((EN?("Hm"):('М')))),type:'strike',x:610,y:2140},{id:'an',call:(HE?('ינשוף'):((EN?("Angel"):('Ангел')))),sh:(HE?('י'):((EN?("An"):('А')))),type:'medevac',x:790,y:2140}];
   units[3].veh=true;units[3].carU=true;units[2].sap=true;
   if(TRN)units.splice(0,4,...mkTrainUnits(TRN.sel));else units.forEach(u=>{if(u.type==='inf')crewApply(u);});
   let ens=[grp('eL','leader',3,L.n,{leader:true}),grp('eW','lab',2,Wk.n),grp('eR','rest',3,R.n),grp('o1','look',1,Lk1.n,{roof:true}),grp('o2','look',1,Lk2.n,{roof:true}),Object.assign(grp('eP','patrol',2,L.n,{mode:'patrol',wp:pw,wi:1}),{bld:0,x:pw[0][0],y:pw[0][1]})];
@@ -30,14 +30,14 @@ function newState(TRN){TRN=TRN||null;
     const lks=[];const lc=okB.filter(b=>!used.includes(b)&&(M.classic?(b.cy>1100||Math.abs(b.cx-700)>330):(b.cy>MY+RY*.375||Math.abs(b.cx-MX)>RX*.66)));for(let i=0;i<[1,2,2,3][D]+(r()<.4?1:0)&&lc.length;i++){const far=lc.filter(b=>lks.every(o=>Math.hypot(o.cx-b.cx,o.cy-b.cy)>220));const b=far.length?pick(far):pick(lc);lks.push(b);lc.splice(lc.indexOf(b),1);civ[b.n]=Math.max(civ[b.n],2);ens.push(grp('o'+(i+1),'look',1,b.n,{roof:true}));}
     const pw2=M.classic?[[700,1020],[560,1020],[560,1300],[840,1300],[840,1020]]:[[MX,MY+160*ps],[MX-140*ps,MY+160*ps],[MX-140*ps,MY+Math.min(440,RY*.7)],[MX+140*ps,MY+Math.min(440,RY*.7)],[MX+140*ps,MY+160*ps]];const pws=[pw,pw2];for(let i=0;i<[0,1,1,2][D];i++){const w=pws[i];ens.push(Object.assign(grp('eP'+(i||''),'patrol',2,L.n,{mode:'patrol',wp:w,wi:1}),{bld:0,x:w[0][0],y:w[0][1]}));}}
   const intel=TRN?mkIntel(ens,TRN.diff,traps,ieds,r):null;
-  const own={},known={};units.forEach(u=>{own[u.id]={x:u.x,y:u.y};known[u.id]={t:T0,men:u.men||0,wounded:0,ammo:100,st:(HE?('במקום'):('на месте'))};});
-  return{train:!!TRN,city:{seed:TRN?TRN.seed:SEED,dens:TRN?TRN.dens:'normal',g:TRN?2:0},intel,mobK:TRN?[1,2,3,4][TRN.diff]:null,diff:TRN?TRN.diff:null,op:TRN?0:C?C.op:1,opName:TRN?['Тренировка','אימון']:C?C.opName:['Решет','רשת'],day:C&&!TRN?C.day:0,t:T0,speed:0,acc:0,started:false,over:false,result:null,truth:false,alarm:false,
+  const own={},known={};units.forEach(u=>{own[u.id]={x:u.x,y:u.y};known[u.id]={t:T0,men:u.men||0,wounded:0,ammo:100,st:(HE?('במקום'):((EN?("in place"):('на месте'))))};});
+  return{train:!!TRN,city:{seed:TRN?TRN.seed:SEED,dens:TRN?TRN.dens:'normal',g:TRN?2:0},intel,mobK:TRN?[1,2,3,4][TRN.diff]:null,diff:TRN?TRN.diff:null,op:TRN?0:C?C.op:1,opName:TRN?['Тренировка','אימון',"Training"]:C?C.opName:['Решет','רשת',"Reshet"],day:C&&!TRN?C.day:0,t:T0,speed:0,acc:0,started:false,over:false,result:null,truth:false,alarm:false,
     L:L.n,T:T.n,Wk:Wk.n,R:R.n,cand:cand.map(b=>b.n),civ,civHarm:0,leader:'free',lab:'intact',destroyed:{},
     units,uav:M.classic?{x:700,y:1500,tx:700,ty:1500}:{x:MX,y:Math.min(1700,MY+RY),tx:MX,ty:Math.min(1700,MY+RY)},
     enemies:ens,
     strike:{pend:[]},mol:{st:'station',ammo:4,fuel:5400,tA:0,relief:0,gun:10,cover:null},med:{free:1,trips:[]},dogs:2,pc:{},traps,civOut:0,fled:0,decoy:decoyB.n,ieds,civW:[],civDead:0,civAid:0,civEvac:0,amb:[],
     marks:{own,ord:{},b:{},m:[],strike:[],lz:[]},pidT:{},cleared:{},
-    known,kobj:{eng:(HE?('לא אותר'):('не найден')),lab:(HE?('לא אותרה'):('не найдена'))},stats:{kia:0,died:0,evac:0,ek:0,wia:0,det:0,dogsLost:0},
+    known,kobj:{eng:(HE?('לא אותר'):((EN?("not located"):('не найден')))),lab:(HE?('לא אותרה'):((EN?("not located"):('не найдена'))))},stats:{kia:0,died:0,evac:0,ek:0,wia:0,det:0,dogsLost:0},
     log:[],radio:{q:[],cur:null,prog:0,dur:0,gap:0},nid:1};
 }
 const U_=id=>S.units.find(u=>u.id===id);

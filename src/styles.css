@@ -172,6 +172,13 @@ button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 #splash[hidden]{display:none}
 #spC{position:absolute;inset:0;display:block}
 #spGo{position:absolute;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:rgba(201,71,58,.92);color:#f3efe6;border:0;border-radius:6px;padding:14px 38px;font-family:var(--f-head);font-weight:700;font-size:18px;letter-spacing:.14em;text-transform:uppercase;box-shadow:0 4px 18px rgba(0,0,0,.5)}
+.langbar{display:flex;gap:6px;justify-content:center;direction:ltr}
+.langbar button{min-width:46px;padding:7px 10px;border-radius:6px;border:1px solid #9aa3ab;background:#fff;color:#2c3a48;font-family:var(--f-head);font-weight:700;font-size:13px;letter-spacing:.06em}
+.langbar button.on{background:#2c3a48;color:#f3efe6;border-color:#2c3a48}
+#campDoc .langbar{justify-content:flex-start;margin:-4px 0 12px}
+#spLang{position:absolute;left:0;right:0;bottom:calc(98px + env(safe-area-inset-bottom,0px))}
+#spLang button{background:rgba(0,0,0,.55);color:#ddd;border-color:rgba(255,255,255,.35)}
+#spLang button.on{background:#f3efe6;color:#111;border-color:#f3efe6}
 #loading{align-items:center;font-family:var(--f-mono);color:var(--mute);font-size:14px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 

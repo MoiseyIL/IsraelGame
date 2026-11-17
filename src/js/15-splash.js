@@ -16,7 +16,12 @@ function drawSplash(c,w,h,img){const port=h>w*1.15;c.fillStyle='#000';c.fillRect
   sp('0px');c.fillStyle='#d23b2e';c.fillRect(port?cx-T*1.4:cx-T*2.8,ty-T*.62,T*2.8,Math.max(2,T*.045));
   c.font=`${T*.27}px "PT Mono", monospace`;sp(`${T*.08}px`);c.fillStyle='rgba(235,235,230,.85)';c.fillText('OPERATION RESHET',cx,ty-T*.2);sp('0px');}
 const SPLASH_IMG='data:image/jpeg;base64,__SPLASH_B64__';
+const LANGS=[['ru','RU'],['en','EN'],['he','עב']];
+function langBar(id){return`<div class="langbar"${id?` id="${id}"`:''} role="group" aria-label="Language">`+LANGS.map(([l,t])=>`<button data-lang="${l}"${window.GAME_LANG===l?' class="on" aria-pressed="true"':''}>${t}</button>`).join('')+'</div>';}
+function bindLang(root){root.querySelectorAll('[data-lang]').forEach(b=>b.onclick=e=>{e.stopPropagation();setLang(b.dataset.lang);});}
+function setLang(l){if(l===window.GAME_LANG)return;try{saveGame();}catch(e){}try{localStorage.setItem('reshet-lang',l);}catch(e){}
+  try{const u=new URL(location.href);if(u.searchParams.has('lang')){u.searchParams.set('lang',l);location.replace(u.href);return;}}catch(e){}location.reload();}
 function showSplash(){const el=$('#splash'),cv=$('#spC'),img=new Image();let ok=false;
   const paint=()=>{if(el.hidden||!ok)return;const d=Math.min(2,window.devicePixelRatio||1),w=innerWidth,h=innerHeight;cv.width=Math.round(w*d);cv.height=Math.round(h*d);cv.style.width=w+'px';cv.style.height=h+'px';drawSplash(cv.getContext('2d'),cv.width,cv.height,img);};
-  el.hidden=false;const fl=Promise.race([Promise.all(['700 40px "Roboto Condensed"','40px "PT Mono"'].map(f=>document.fonts.load(f,'PROJECT'))).catch(()=>{}),new Promise(r=>setTimeout(r,2500))]);img.onload=()=>{fl.then(()=>{ok=true;paint();});};img.src=SPLASH_IMG;addEventListener('resize',paint);el.onclick=()=>{el.hidden=true;removeEventListener('resize',paint);};}
+  if(!$('#spLang')){el.insertAdjacentHTML('beforeend',langBar('spLang'));bindLang(el);}el.hidden=false;const fl=Promise.race([Promise.all(['700 40px "Roboto Condensed"','40px "PT Mono"'].map(f=>document.fonts.load(f,'PROJECT'))).catch(()=>{}),new Promise(r=>setTimeout(r,2500))]);img.onload=()=>{fl.then(()=>{ok=true;paint();});};img.src=SPLASH_IMG;addEventListener('resize',paint);el.onclick=()=>{el.hidden=true;removeEventListener('resize',paint);};}
 
