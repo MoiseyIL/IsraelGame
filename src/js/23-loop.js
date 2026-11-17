@@ -14,8 +14,8 @@ function clearSave(){try{localStorage.removeItem(SAVE_KEY);}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.hidden)saveGame();});window.addEventListener('pagehide',saveGame);
 async function start(data){
   C=loadCamp()||newCamp();saveCamp();TR=loadTR();try{MODE=localStorage.getItem(MODE_KEY)==='train'?'train':'camp';}catch(e){}
-  const saved=(data&&data.S)?null:loadGame();const S0=(data&&data.S)||saved;if(S0)MODE=S0.train?'train':'camp';
-  const city=S0?(S0.city||{seed:SEED,dens:'normal'}):MODE==='train'?{seed:TR.seed,dens:TR.dens,g:2}:{seed:SEED,dens:'normal'};genCity(city.seed,city.dens,city.g===2);buildNav();
+  let saved=(data&&data.S)?null:loadGame();if(saved&&saved.train&&!(saved.city&&saved.city.g===3)){clearSave();saved=null;}const S0=(data&&data.S)||saved;if(S0)MODE=S0.train?'train':'camp';
+  const city=S0?(S0.city||{seed:SEED,dens:'normal'}):MODE==='train'?{seed:TR.seed,dens:TR.dens,g:3}:{seed:SEED,dens:'normal'};genCity(city.seed,city.dens,city.g>=2);buildNav();
   S=S0||(MODE==='train'?newState(TR):newState());
   if(!S.civW){S.civW=[];S.civDead=0;S.civAid=0;S.civEvac=0;S.amb=[];infs().forEach(u=>{for(let i=0;i<(u.civHit||0)&&u.inB;i++)S.civW.push(newCivW(u.inB));});}
   try{await Promise.race([Promise.all([(HE?('700 16px "Rubik"'):('700 16px "Roboto Condensed"')),(HE?('16px "Heebo"'):('16px "PT Mono"'))].map(f=>document.fonts.load(f,(HE?('דיר 214'):((EN?("Deir 214"):('Дейр 214'))))))),new Promise(r=>setTimeout(r,2500))]);}catch(e){}

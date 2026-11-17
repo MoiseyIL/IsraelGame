@@ -31,7 +31,7 @@ function newState(TRN){TRN=TRN||null;
     const pw2=M.classic?[[700,1020],[560,1020],[560,1300],[840,1300],[840,1020]]:[[MX,MY+160*ps],[MX-140*ps,MY+160*ps],[MX-140*ps,MY+Math.min(440,RY*.7)],[MX+140*ps,MY+Math.min(440,RY*.7)],[MX+140*ps,MY+160*ps]];const pws=[pw,pw2];for(let i=0;i<[0,1,1,2][D];i++){const w=pws[i];ens.push(Object.assign(grp('eP'+(i||''),'patrol',2,L.n,{mode:'patrol',wp:w,wi:1}),{bld:0,x:w[0][0],y:w[0][1]}));}}
   const intel=TRN?mkIntel(ens,TRN.diff,traps,ieds,r):null;
   const own={},known={};units.forEach(u=>{own[u.id]={x:u.x,y:u.y};known[u.id]={t:T0,men:u.men||0,wounded:0,ammo:100,st:(HE?('במקום'):((EN?("in place"):('на месте'))))};});
-  return{train:!!TRN,city:{seed:TRN?TRN.seed:SEED,dens:TRN?TRN.dens:'normal',g:TRN?2:0},intel,mobK:TRN?[1,2,3,4][TRN.diff]:null,diff:TRN?TRN.diff:null,op:TRN?0:C?C.op:1,opName:TRN?['Тренировка','אימון',"Training"]:C?C.opName:['Решет','רשת',"Reshet"],day:C&&!TRN?C.day:0,t:T0,speed:0,acc:0,started:false,over:false,result:null,truth:false,alarm:false,
+  return{train:!!TRN,city:{seed:TRN?TRN.seed:SEED,dens:TRN?TRN.dens:'normal',g:TRN?3:0},intel,mobK:TRN?[1,2,3,4][TRN.diff]:null,diff:TRN?TRN.diff:null,op:TRN?0:C?C.op:1,opName:TRN?['Тренировка','אימון',"Training"]:C?C.opName:['Решет','רשת',"Reshet"],day:C&&!TRN?C.day:0,t:T0,speed:0,acc:0,started:false,over:false,result:null,truth:false,alarm:false,
     L:L.n,T:T.n,Wk:Wk.n,R:R.n,cand:cand.map(b=>b.n),civ,civHarm:0,leader:'free',lab:'intact',destroyed:{},
     units,uav:M.classic?{x:700,y:1500,tx:700,ty:1500}:{x:MX,y:Math.min(1700,MY+RY),tx:MX,ty:Math.min(1700,MY+RY)},
     enemies:ens,
