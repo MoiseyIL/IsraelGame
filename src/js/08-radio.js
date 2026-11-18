@@ -12,6 +12,7 @@ function say(u,text,chips,o){o=o||{};if(o.eid&&!o.noSpot){const tg=tgtNote(o);if
   if(o.spot&&!o.noSpot){const B=(S.spotBuf=S.spotBuf||{});const k=u.id||u.call;(B[k]=B[k]||{u:{id:u.id,call:u.call,type:u.type},t0:S.t,items:[]}).items.push({text,chips:chips||[],pid:o.pid||0,d:o.spot});return;}
   if(o.known&&u.id&&!u.men&&u.type==='inf'){const uu=U_(u.id);if(uu)u=uu;}if(S.mission)text=text.replace(/боевиков/g,'солдат противника').replace(/מחבלים/g,'חיילי אויב').replace(/מחבל/g,'חייל אויב');const m={from:u.call,uid:u.id||null,eid:o.eid||'',text,note:o.note||'',chips:chips||[],urgent:!!o.urgent,act:o.act||null,kobj:o.kobj||null,pid:o.pid||0,ek:o.ek||0,det:o.det||0};
   if(o.known&&u.type==='inf')m.known=o.known==='full'?{men:u.men,wounded:u.wounded,ammo:Math.round(u.ammo/10)*10,st:stLabel(u),full:true}:{st:stLabel(u)};
+  if(S.radio.q.some(x=>x.uid&&x.uid===m.uid&&x.text===m.text))return; // the same message already waiting
   if(m.urgent||o.front){m.front=!!o.front;const i=S.radio.q.findIndex(x=>!x.urgent&&!x.front);if(i<0)S.radio.q.push(m);else S.radio.q.splice(i,0,m);}else S.radio.q.push(m);}
 // the commander's own transmissions go ahead of routine reports already waiting (urgent ones still come first)
 function hq(text,act){const m={from:(HE?('צפע'):((EN?("Cobra-6"):('Кобра-6')))),out:true,text,act,chips:[]};const q=S.radio.q,i=q.findIndex(x=>!x.out&&!x.urgent&&!x.front);if(i<0)q.push(m);else q.splice(i,0,m);}
