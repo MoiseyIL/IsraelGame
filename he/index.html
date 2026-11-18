@@ -1126,13 +1126,18 @@ const enMen=o=>enemyOrder(o).reduce((s,t)=>s+Math.round(RUF[t].men*(o.diff===0?.
 function newMissionState(o){const st=newState({seed:o.seed,diff:o.diff,dens:o.dens,sel:o.sel});
   st.mission=true;st.train=false;st.city.g=3;st.opName=['Миссия','משימה','Mission'];st.traps={};st.ieds=[];st.decoy=0;st.alarm=true;st.alarmT0=0;st.mob=true;st.mobK=0;
   const O=nearFree(M.avx[0],M.avy[0])||[M.cx/NG|0,M.cy/NG|0];const ox=O[0]*NG+NG/2,oy=O[1]*NG+NG/2;st.obj={x:ox,y:oy};
-  const d=Math.max(500,Math.min(oy-60,1150,2100-oy));const ours=nearFree(ox,oy+d)||[ox/NG|0,(oy+d)/NG|0],theirs=nearFree(ox,oy-d)||[ox/NG|0,(oy-d)/NG|0];
+  // both start lines at the same distance from the objective and out of town (a line of teams 200 m wide, two rows deep)
+  const clear=(y,dir)=>[-130,-65,0,65,130].every(dx=>[0,40*dir,-30*dir].every(dy=>!inTown(ox+dx,y+dy)&&!blockOf(ox+dx,y+dy)));
+  let d=Math.max(500,Math.min(oy-60,1150,2100-oy)),dS=d;
+  for(let k=0;k<60&&!(clear(oy+d,1)&&clear(oy-d,-1));k++){if(oy+d+20>2120||oy-d-20<60)break;d+=20;}
+  dS=d;for(let k=0;k<60&&!clear(oy+dS,1)&&oy+dS+20<=2120;k++)dS+=20; // our side must be out of town even if the north edge of the map is near
+  const ours=nearFree(ox,oy+dS)||[ox/NG|0,(oy+dS)/NG|0],theirs=nearFree(ox,oy-d)||[ox/NG|0,(oy-d)/NG|0];
   st.ourBase={x:ours[0]*NG,y:ours[1]*NG};st.enBase={x:theirs[0]*NG,y:theirs[1]*NG};
-  st.units.filter(u=>u.type==='inf').forEach((u,i)=>{u.pace='fast';u.x=st.ourBase.x-90+(i%4)*60;u.y=st.ourBase.y+Math.floor(i/4)*40;u.tx=u.x;u.ty=u.y;st.marks.own[u.id]={x:u.x,y:u.y};});
+  st.units.filter(u=>u.type==='inf').forEach((u,i)=>{u.pace='fast';const c=nearFree(st.ourBase.x-90+(i%4)*60,st.ourBase.y+Math.floor(i/4)*40);u.x=c?c[0]*NG+NG/2:st.ourBase.x;u.y=c?c[1]*NG+NG/2:st.ourBase.y;u.tx=u.x;u.ty=u.y;st.marks.own[u.id]={x:u.x,y:u.y};});
   const ya=st.units.find(u=>u.type==='uav');if(ya){ya.x=ox;ya.y=oy+200;}st.uav={x:ox,y:oy+200,tx:ox,ty:oy+200};st.marks.own.ya={x:ox,y:oy+200};
   const order=enemyOrder(o);const b0=BL[0].n;
   st.enemies=order.map((t,i)=>{const R=RUF[t];const g=grp('a'+i,'army',Math.round(R.men*(o.diff===0?.8:1)),b0,{alert:true,rt:t,...(m=>({q:m.q+(o.diff>=3?.05:0),rk:m.rk,stl:m.stl,spd:m.spd}))(mechOf(t,R.men)),sap:!!R.sap,mode:'base',role:'',prog:0});
-    g.bld=0;g.x=st.enBase.x-90+(i%4)*60;g.y=st.enBase.y-Math.floor(i/4)*40;g.tx=g.x;g.ty=g.y;return g;});
+    g.bld=0;{const c=nearFree(st.enBase.x-90+(i%4)*60,st.enBase.y-Math.floor(i/4)*40);g.x=c?c[0]*NG+NG/2:st.enBase.x;g.y=c?c[1]*NG+NG/2:st.enBase.y;}g.tx=g.x;g.ty=g.y;return g;});
   st.units=st.units.filter(u=>u.id!=='mo');st.mol.st='none';st.mol.ammo=0;st.mol.gun=0;st.mol.cover=null;
   st.charge={us:null,them:null};st.mres=null;st.enOrder=order;st.aiT=0;st.contact0=0;return st;}
 // ---- army AI: fire and maneuver, bounding overwatch, strongpoints, flanking, reserve, orderly withdrawal ----
@@ -2291,7 +2296,7 @@ async function start(data){
   if(S.truth)$('#truthPill').hidden=false;
   resize();dirty=true;requestAnimationFrame(frame);}
 window.claude?.hot?.snapshot?.(()=>({S}));
-window.__kp={get S(){return S;},get C(){return C;},trial:o=>{setCity(o.seed,o.dens,true);return newState(o);},M:()=>M,tick:dt=>tick(dt),radioStep,BL:()=>BL,DEB:()=>DEB,toS:(x,y)=>toS(x,y)};
+window.__kp={get S(){return S;},get C(){return C;},trial:o=>{setCity(o.seed,o.dens,true);return newState(o);},mtrial:o=>{setCity(o.seed,o.dens,true);return newMissionState(o);},chk:(x,y)=>({town:inTown(x,y),blk:!!blockOf(x,y),free:navFree(Math.floor(x/NG),Math.floor(y/NG))}),M:()=>M,tick:dt=>tick(dt),radioStep,BL:()=>BL,DEB:()=>DEB,toS:(x,y)=>toS(x,y)};
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
 })();
 </script>
