@@ -240,7 +240,7 @@ html[lang=he] .doc ul{padding-inline-start:18px;padding-left:unset}
   <div id="obj"></div>
   <main id="mapwrap">
     <canvas id="map"></canvas>
-    <div class="mapbtns" id="mapbtns"><button class="mb" id="bFit">Вся карта</button></div>
+    <div class="mapbtns" id="mapbtns"><button class="mb" id="bFit">Вся карта</button><button class="mb" id="bSweep">Доклад целей</button></div>
     <div id="banner" hidden></div>
     <div id="confirm" hidden><div id="cTxt"></div><button id="cNo">Отмена</button><button id="cYes">Передать</button></div>
     <div id="truthPill" hidden>Реальная обстановка</div>
@@ -345,7 +345,7 @@ html[lang=he] .doc ul{padding-inline-start:18px;padding-left:unset}
   <div id="obj"></div>
   <main id="mapwrap">
     <canvas id="map"></canvas>
-    <div class="mapbtns" id="mapbtns"><button class="mb" id="bFit">כל המפה</button></div>
+    <div class="mapbtns" id="mapbtns"><button class="mb" id="bFit">כל המפה</button><button class="mb" id="bSweep">דיווח מטרות</button></div>
     <div id="banner" hidden></div>
     <div id="confirm" hidden><div id="cTxt"></div><button id="cNo">ביטול</button><button id="cYes">שדר</button></div>
     <div id="truthPill" hidden>המצב האמיתי</div>
@@ -451,7 +451,7 @@ html[lang=he] .doc ul{padding-inline-start:18px;padding-left:unset}
   <div id="obj"></div>
   <main id="mapwrap">
     <canvas id="map"></canvas>
-    <div class="mapbtns" id="mapbtns"><button class="mb" id="bFit">Whole map</button></div>
+    <div class="mapbtns" id="mapbtns"><button class="mb" id="bFit">Whole map</button><button class="mb" id="bSweep">Report targets</button></div>
     <div id="banner" hidden></div>
     <div id="confirm" hidden><div id="cTxt"></div><button id="cNo">Cancel</button><button id="cYes">Send</button></div>
     <div id="truthPill" hidden>Actual situation</div>
@@ -1329,7 +1329,7 @@ function radioStep(rdt){
 }
 
 /* ---------- acts ---------- */
-function doAct(a){const u=a.uid?U_(a.uid):null;
+function doAct(a){if(a.k==='sweep'){sweep();return;}const u=a.uid?U_(a.uid):null;
   if(a.k==='order')orderExec(u,a);else if(a.k==='rep')sayReport(u);else if(a.k==='strike')strikeExec(a);else if(a.k==='med')medExec(a);
   else if(a.k==='atgm')atgmExec(u,a.b);
   else if(a.k==='mplant'||a.k==='mdefuse')missionAct(u,a);
@@ -1431,6 +1431,37 @@ function addCivW(b){if(S.civ[b]>0)S.civ[b]--;S.civHarm++;S.civW.push(newCivW(b))
 const cwActive=c=>c.st==='hurt'||c.st==='stable'||c.st==='treated';
 function killCivIn(b){for(const c of S.civW)if(c.b===b&&cwActive(c)){c.st='dead';S.civDead++;}}
 const cwTxt=c=>(HE?(`${c.who} — ${c.wound}, ${c.sev==='heavy'?'פצוע קשה':'פצוע קל'}`):((EN?(`${c.who} — ${c.wound}, ${c.sev==='heavy'?'serious':'light'}`):(`${c.who} — ${c.wound}, ${c.sev==='heavy'?'тяжёлое':'лёгкое'}`))));
+/* ---------- target check: all stations report what they see now; old marks fade or go ---------- */
+// A mark is "stale" (drawn grey) when nobody has confirmed it for 15 minutes, or when the last check could not see it.
+const STALE=900;
+const ptStale=m=>!!m.uc||(m.t!=null&&S.t-m.t>STALE);
+const bStale=n=>!!(S.marks.bu&&S.marks.bu[n])||(S.marks.bt&&S.marks.bt[n]!=null&&S.t-S.marks.bt[n]>STALE);
+function markB(n,k,t){S.marks.b[n]=k;(S.marks.bt||(S.marks.bt={}))[n]=t;if(S.marks.bu)delete S.marks.bu[n];}
+// who of ours can see a point now: a ground team within 150 m with a line of sight, or the UAV within 320 m
+function seesPt(x,y,e){for(const u of infs()){if(u.men<=0)continue;const p=uPos(u,x,y),q=e?ePos(e,p[0],p[1]):[x,y];if(Math.hypot(p[0]-q[0],p[1]-q[1])<150&&los(p[0],p[1],q[0],q[1]))return u;}
+  const ya=U_('ya');if(ya&&S.uav&&Math.hypot(S.uav.x-x,S.uav.y-y)<320&&(!e||outside(e)))return ya;return null;}
+function sweep(){const rep=new Map(),add=(u,t)=>{if(!rep.has(u))rep.set(u,[]);rep.get(u).push(t);};const A=alive();const seen=new Set();
+  // enemy marks in the street: still there — moved to where they are now; nobody there — removed; not visible — grey
+  for(const m of [...S.marks.m]){const e=A.find(e=>outside(e)&&!seen.has(e)&&Math.hypot(e.x-m.x,e.y-m.y)<45&&seesPt(e.x,e.y,e));
+    if(e){seen.add(e);m.x=e.x;m.y=e.y;m.t=S.t;m.n=cnt(e.men);m.uc=false;add(seesPt(e.x,e.y,e),T3(`противник ${placeTxt(e.x,e.y)} на месте, ${cnt(e.men)}`,`האויב ${placeTxt(e.x,e.y)} עדיין שם, ${cnt(e.men)}`,`enemy ${placeTxt(e.x,e.y)} still there, ${cnt(e.men)}`));continue;}
+    const ob=seesPt(m.x,m.y);if(ob){S.marks.m.splice(S.marks.m.indexOf(m),1);add(ob,T3(`${placeTxt(m.x,m.y)}: противника нет, метку снимаем`,`${placeTxt(m.x,m.y)}: אין אויב, מורידים את הסימון`,`${placeTxt(m.x,m.y)}: no enemy, mark removed`));}
+    else m.uc=true;}
+  // enemy marks on buildings: fire from it confirms; inside a building nobody can be seen, so a quiet one is only "unconfirmed"
+  for(const n in S.marks.b){if(S.marks.b[n]!=='hos')continue;if(S.destroyed[n]||S.cleared[n]){delete S.marks.b[n];continue;}
+    const f=A.find(e=>e.bld==n&&!outside(e)&&e.cont.length);if(f){markB(n,'hos',S.t);add(U_(f.cont[0]),T3(`из здания ${n} ведут огонь`,`יורים ממבנה ${n}`,`fire from building ${n}`));}
+    else (S.marks.bu||(S.marks.bu={}))[n]=1;}
+  // new targets: groups in the open that someone sees, and buildings that fire at us
+  for(const e of A){if(seen.has(e))continue;
+    if(outside(e)){const ob=seesPt(e.x,e.y,e);if(!ob||S.marks.m.some(m=>Math.hypot(m.x-e.x,m.y-e.y)<45))continue;S.marks.m.push({id:S.nid++,x:e.x,y:e.y,t:S.t,n:cnt(e.men)});seen.add(e);
+      add(ob,T3(`новая цель: ${cnt(e.men)} ${e.roof?'на крыше здания '+e.bld:placeTxt(e.x,e.y)}`,`מטרה חדשה: ${cnt(e.men)} ${e.roof?'על גג מבנה '+e.bld:placeTxt(e.x,e.y)}`,`new target: ${cnt(e.men)} ${e.roof?'on the roof of building '+e.bld:placeTxt(e.x,e.y)}`));}
+    else if(e.bld&&e.cont.length&&S.marks.b[e.bld]!=='hos'){markB(e.bld,'hos',S.t);add(U_(e.cont[0]),T3(`новая цель: огонь из здания ${e.bld}`,`מטרה חדשה: אש ממבנה ${e.bld}`,`new target: fire from building ${e.bld}`));}}
+  const grey=S.marks.m.filter(m=>m.uc).length+Object.keys(S.marks.bu||{}).filter(n=>S.marks.b[n]==='hos').length;
+  for(const [u,a0] of rep){let a=[...new Set(a0)].join('; ');a=a.charAt(0).toUpperCase()+a.slice(1);say(u,T3(`Кобра-6, я ${u.call}. ${a}. Приём.`,`צפע, כאן ${u.call}. ${a}. עבור.`,`Cobra-6, this is ${u.call}. ${a}. Over.`),[],{known:'st'});}
+  const w={call:T3('Штаб роты','מפקדת הפלוגה','Company HQ'),type:'x'};
+  say(w,(rep.size?'':T3('Новых целей никто не видит. ','אף אחד לא רואה מטרות חדשות. ','Nobody sees any new targets. '))
+    +(grey?T3(`Не подтверждено и показано серым: ${grey}.`,`לא אומתו ומוצגים באפור: ${grey}.`,`Unconfirmed, shown in grey: ${grey}.`):T3('Все метки на карте подтверждены.','כל הסימונים במפה אומתו.','Every mark on the map is confirmed.')),[],{});
+  dirty=true;}
+const SWEEP_TXT=()=>T3('Всем станциям сети «Кобра», я Кобра-6. Доложить цели: что видите сейчас, по старым меткам — подтвердить или снять. Приём.','כל התחנות ברשת «צפע», כאן צפע. דווחו מטרות: מה אתם רואים עכשיו, ולגבי הסימונים הישנים — לאמת או להוריד. עבור.','All stations on the Cobra net, this is Cobra-6. Report targets: what you see now; confirm or clear the old marks. Over.');
 /* ---------- simulation ---------- */
 const NG=5,NW=Math.ceil(MWm/NG),NH=Math.ceil(MHm/NG);let NAV=null;
 function buildNav(){NAV=new Uint8Array(NW*NH);for(const b of BLOCKS){if(b.lot)continue;const x0=Math.floor((b.x0+1)/NG),x1=Math.floor((b.x1-1)/NG),y0=Math.floor((b.y0+1)/NG),y1=Math.floor((b.y1-1)/NG);for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)NAV[y*NW+x]=1;}genDebris();}
@@ -1975,8 +2006,8 @@ function rebuildLog(){logEl.innerHTML='';if(!S.log.length)logEl.innerHTML=(HE?('
 function useChip(m,c,b){let p;
   if(c.k==='ied'){if(c.b){(S.marks.bied||(S.marks.bied={}))[c.b]=1;p={x:BN(c.b).cx,y:BN(c.b).cy};}else{S.marks.ied=S.marks.ied||[];if(!(c.mid&&S.marks.ied.find(e=>e.id===c.mid))){c.mid=S.nid++;S.marks.ied.push({id:c.mid,x:c.x,y:c.y,t:m.t});}p=c;}c.used=true;b.classList.add('used');b.textContent='✓ '+c.label;dirty=true;if(p)ensureVisible(p.x,p.y);return;}
   if(c.k==='pos'){S.marks.own[c.uid]={x:c.x,y:c.y};p=c;}
-  else if(c.b){S.marks.b[c.b]=c.k;p={x:BN(c.b).cx,y:BN(c.b).cy};}
-  else{const ex=c.mid&&S.marks.m.find(e=>e.id===c.mid);if(ex){ex.x=c.x;ex.y=c.y;}else{c.mid=S.nid++;S.marks.m.push({id:c.mid,x:c.x,y:c.y,t:m.t,n:c.n});}p=c;}
+  else if(c.b){markB(c.b,c.k,m.t);p={x:BN(c.b).cx,y:BN(c.b).cy};}
+  else{const ex=c.mid&&S.marks.m.find(e=>e.id===c.mid);if(ex){ex.x=c.x;ex.y=c.y;ex.t=m.t;ex.uc=false;}else{c.mid=S.nid++;S.marks.m.push({id:c.mid,x:c.x,y:c.y,t:m.t,n:c.n});}p=c;}
   c.used=true;b.classList.add('used');b.textContent='✓ '+c.label;dirty=true;if(p)ensureVisible(p.x,p.y);}
 function lamp(k){$('#lamp').className='lamp'+(k?' '+k:'');}
 
@@ -2007,7 +2038,7 @@ new ResizeObserver(resize).observe(cv);
 
 function arrow(c,ax,ay,bx,by,col){c.save();c.strokeStyle=col;c.fillStyle=col;c.lineWidth=2;c.setLineDash([7,5]);c.beginPath();c.moveTo(ax,ay);c.lineTo(bx,by);c.stroke();c.setLineDash([]);const a=Math.atan2(by-ay,bx-ax);c.beginPath();c.moveTo(bx,by);c.lineTo(bx-11*Math.cos(a-.4),by-11*Math.sin(a-.4));c.lineTo(bx-11*Math.cos(a+.4),by-11*Math.sin(a+.4));c.closePath();c.fill();c.restore();}
 function halo(c,t,x,y,col){c.lineWidth=3;c.strokeStyle='rgba(244,242,236,.92)';c.strokeText(t,x,y);c.fillStyle=col;c.fillText(t,x,y);}
-function symHos(c,x,y,r,t){c.beginPath();c.moveTo(x,y-r);c.lineTo(x+r,y);c.lineTo(x,y+r);c.lineTo(x-r,y);c.closePath();c.fillStyle='#ff9b9b';c.fill();c.strokeStyle='#7a1010';c.lineWidth=1.8;c.stroke();if(t){c.fillStyle='#5a0b0b';c.font=(HE?('700 10px "Rubik", sans-serif'):('700 10px "Roboto Condensed", sans-serif'));c.textAlign='center';c.textBaseline='middle';c.fillText(t,x,y+.5);}}
+function symHos(c,x,y,r,t,old){c.beginPath();c.moveTo(x,y-r);c.lineTo(x+r,y);c.lineTo(x,y+r);c.lineTo(x-r,y);c.closePath();c.fillStyle=old?'#d2d0cc':'#ff9b9b';c.fill();c.strokeStyle=old?'#77736c':'#7a1010';c.lineWidth=1.8;c.stroke();if(t){c.fillStyle='#5a0b0b';c.font=(HE?('700 10px "Rubik", sans-serif'):('700 10px "Roboto Condensed", sans-serif'));c.textAlign='center';c.textBaseline='middle';c.fillText(t,x,y+.5);}}
 function symUnk(c,x,y){c.beginPath();c.arc(x,y,9,0,7);c.fillStyle='#ffef8a';c.fill();c.strokeStyle='#6b5a00';c.lineWidth=1.8;c.stroke();c.fillStyle='#4a3e00';c.font=(HE?('700 11px "Rubik", sans-serif'):('700 11px "Roboto Condensed", sans-serif'));c.textAlign='center';c.textBaseline='middle';c.fillText('?',x,y+.5);}
 function symTun(c,x,y){c.beginPath();c.arc(x,y,9,0,7);c.fillStyle='#e3c08a';c.fill();c.strokeStyle='#5a3a10';c.lineWidth=1.8;c.stroke();c.beginPath();c.moveTo(x-5,y-3);c.lineTo(x+5,y-3);c.lineTo(x,y+4);c.closePath();c.fillStyle='#5a3a10';c.fill();}
 function symIed(c,x,y,r){c.beginPath();c.moveTo(x,y-r);c.lineTo(x+r,y+r*.8);c.lineTo(x-r,y+r*.8);c.closePath();c.fillStyle='#ffcf5a';c.fill();c.strokeStyle='#7a3a00';c.lineWidth=1.8;c.stroke();c.fillStyle='#5a2800';c.font='700 '+Math.round(r*1.1)+'px Arial, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('!',x,y+r*.3);}
@@ -2051,10 +2082,10 @@ function render(){
   if(S.marks.labArea){const [sx,sy]=toS(S.marks.labArea.x+CELL/2,S.marks.labArea.y+5);c.font='700 11px "Rubik", "Roboto Condensed", sans-serif';c.textAlign='center';c.textBaseline='middle';halo(c,(HE?('אזור המעבדה (מודיעין)'):((EN?("workshop area (intel)"):('район мастерской (разведка)')))),sx,sy+10,'#9a5300');}
   {const [sx,sy]=toS(STAGE.x,STAGE.y);c.font=(HE?('700 12px "Rubik", sans-serif'):('700 11px "Roboto Condensed", sans-serif'));c.textAlign='center';halo(c,(HE?('נק״כ «ארז»'):((EN?("Staging \"Cedar\""):('ТС «Кедр»')))),sx,sy+28,'#14324a');}
   // building marks
-  for(const n in S.marks.b){const b=BN(+n),[sx,sy]=toS(b.cx,b.cy),k=S.marks.b[n];const ox=sx+14,oy=sy-12;if(k==='hos')symHos(c,ox,oy,10,'');else if(k==='unk')symUnk(c,ox,oy);else if(k==='civ')symCiv(c,ox,oy);else if(k==='tun')symTun(c,ox,oy);}
+  for(const n in S.marks.b){const b=BN(+n),[sx,sy]=toS(b.cx,b.cy),k=S.marks.b[n];const ox=sx+14,oy=sy-12;if(k==='hos')symHos(c,ox,oy,10,bStale(n)?'?':'',bStale(n));else if(k==='unk')symUnk(c,ox,oy);else if(k==='civ')symCiv(c,ox,oy);else if(k==='tun')symTun(c,ox,oy);}
   for(const n in (S.marks.bied||{})){const b=BN(+n),[sx,sy]=toS(b.cx,b.cy);symIed(c,sx-15,sy-12,9);}
   for(const m of (S.marks.ied||[])){const [sx,sy]=toS(m.x,m.y);symIed(c,sx,sy,11);c.font='10px Arial, sans-serif';c.textAlign='center';c.textBaseline='middle';halo(c,(HE?('מטען '):((EN?("IED "):('СВУ '))))+fmt(m.t),sx,sy+19,'#7a3a00');}
-  for(const m of S.marks.m){const [sx,sy]=toS(m.x,m.y);symHos(c,sx,sy,11,'');c.font=(HE?('10px "Heebo", sans-serif'):('10px "PT Mono", monospace'));c.textAlign='center';c.textBaseline='middle';halo(c,fmt(m.t),sx,sy+19,'#7a1010');}
+  for(const m of S.marks.m){const [sx,sy]=toS(m.x,m.y),old=ptStale(m);symHos(c,sx,sy,11,old?'?':'',old);c.font=(HE?('10px "Heebo", sans-serif'):('10px "PT Mono", monospace'));c.textAlign='center';c.textBaseline='middle';halo(c,fmt(m.t),sx,sy+19,old?'#6b6863':'#7a1010');}
   for(const id in S.marks.ord){const o=S.marks.ord[id];const a=toS(o.fx,o.fy),b=toS(o.x,o.y);arrow(c,a[0],a[1],b[0],b[1],'#1f6fb0');}
   for(const m of S.marks.strike){const b=BN(m.b),[sx,sy]=toS(b.cx,b.cy),r=100*K*V.s;c.save();c.strokeStyle='#c42828';c.lineWidth=2;c.setLineDash([5,4]);c.beginPath();c.arc(sx,sy,r,0,7);c.stroke();c.setLineDash([]);c.font=(HE?('700 11px "Rubik", sans-serif'):('700 11px "Roboto Condensed", sans-serif'));c.textAlign='center';c.textBaseline='middle';halo(c,m.tI?(S.t<m.tI?(HE?(`תקיפה ${fmt(m.tI)}`):((EN?(`strike ${fmt(m.tI)}`):(`удар ${fmt(m.tI)}`)))):(HE?('תקיפה'):((EN?("strike"):('удар'))))):(HE?('בקשה'):((EN?("requested"):('заявка')))),sx,sy-r-8,'#c42828');c.restore();}
   if(S.marks.car){const [sx,sy]=toS(S.marks.car.x,S.marks.car.y);c.save();c.fillStyle='#a8dcf5';c.strokeStyle='#14324a';c.lineWidth=1.6;c.fillRect(sx-17,sy-9,34,18);c.strokeRect(sx-17,sy-9,34,18);c.fillStyle='#14324a';c.font='700 10px "Rubik", "Roboto Condensed", sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText((HE?('רכב'):((EN?("CAR"):('АВТО')))),sx,sy+.5);c.restore();}
@@ -2159,7 +2190,7 @@ function selectUnit(id,center){selId=id;updUnits();dirty=true;const u=U_(id),k=S
 function openBldSheet(n){const b=BN(n);const mk=S.marks.b[n];const pid=S.pidT[n];
   const info=[(HE?(`משבצת ${cell(b.cx,b.cy)}. קומות: ${b.fl}.${b.prot?' ברשימת האיסור לתקיפה ('+b.prot+').':''}`):((EN?(`Grid ${cell(b.cx,b.cy)}. Floors: ${b.fl}.${b.prot?' ON THE NO-STRIKE LIST ('+b.prot+').':''}`):(`Квадрат ${cell(b.cx,b.cy)}. Этажей: ${b.fl}.${b.prot?' В СПИСКЕ ЗАПРЕТА НА УДАРЫ ('+b.prot+').':''}`)))),(HE?(`אימות מטרה: ${pid?fmt(pid)+(S.t-pid>900?' (פג תוקף)':''):'אין'}.`):((EN?(`Target confirmation: ${pid?fmt(pid)+(S.t-pid>900?' (outdated)':''):'none'}.`):(`Подтверждение цели: ${pid?fmt(pid)+(S.t-pid>900?' (устарело)':''):'нет'}.`)))),S.marks.bied&&S.marks.bied[n]?(HE?('סומן מטען בכניסה.'):((EN?("IED marked at the entrance."):('Отмечено СВУ на входе.')))):'',bState(n)>0&&bState(n)<4?T3('Состояние: '+BST[bState(n)][0]+' — защищает хуже.','מצב: '+BST[bState(n)][1]+' — מגן פחות.','Condition: '+BST[bState(n)][2]+' — gives less protection.'):'',S.cleared[n]?(HE?('טוהר.'):((EN?("Cleared."):('Зачищено.')))):'',S.destroyed[n]?(HE?('הרוס.'):((EN?("Destroyed."):('Разрушено.')))):'',occLine(n)].filter(Boolean).join('\n');
   const near=infs().filter(u=>{const m=S.marks.own[u.id];return Math.hypot(m.x-b.cx,m.y-b.cy)<100;}).map(u=>u.call);
-  const set=k=>()=>{if(k)S.marks.b[n]=k;else delete S.marks.b[n];dirty=true;};
+  const set=k=>()=>{if(k)markB(n,k,S.t);else delete S.marks.b[n];dirty=true;};
   openSheet((HE?(`מבנה ${n}`):((EN?(`Building ${n}`):(`Здание ${n}`)))),info+(near.length?(HE?(`\nזהירות: לפי הסימונים שלכם, קרוב מ־100 מ׳: ${near.join(', ')}.`):((EN?(`\nWARNING: by your markers, within 100 m: ${near.join(', ')}.`):(`\nВНИМАНИЕ: по вашим меткам ближе 100 м: ${near.join(', ')}.`)))):''),[
     {t:(HE?('אויב'):((EN?("Enemy"):('Противник')))),d:(HE?('סימון אדום'):((EN?("red marker"):('красная метка')))),on:set('hos')},{t:(HE?('לא מזוהים'):((EN?("Unidentified"):('Неопознанные')))),d:(HE?('סימון צהוב'):((EN?("yellow marker"):('жёлтая метка')))),on:set('unk')},{t:(HE?('אזרחים'):((EN?("Civilians"):('Мирные')))),d:(HE?('סימון ירוק'):((EN?("green marker"):('зелёная метка')))),on:set('civ')},{t:(HE?('מנהרה'):((EN?("Tunnel"):('Подземный ход')))),d:(HE?('סימון חום'):((EN?("brown marker"):('коричневая метка')))),on:set('tun')},{t:(HE?('הסר סימון'):((EN?("Clear marker"):('Снять метку')))),d:mk?(HE?('למחוק'):((EN?("erase"):('стереть')))):(HE?('אין סימון'):((EN?("no markers"):('меток нет')))),dis:!mk,on:set(null)},{t:(HE?('סימון מטען'):((EN?("IED marker"):('Метка СВУ')))),d:S.marks.bied&&S.marks.bied[n]?(HE?('להסיר מהדלת'):((EN?("remove from door"):('снять с двери')))):(HE?('לסמן על הדלת'):((EN?("put on door"):('поставить на дверь')))),on:()=>{S.marks.bied=S.marks.bied||{};if(S.marks.bied[n])delete S.marks.bied[n];else S.marks.bied[n]=1;dirty=true;}},
     {t:(HE?('תקיפת «שרף»'):((EN?("Hammer strike"):('Удар «Молота»')))),d:!S.started||S.over?(HE?('המבצע לא פעיל'):((EN?("operation not running"):('операция не идёт')))):b.prot?(HE?('ברשימת האיסור'):((EN?("on the no-strike list"):('объект в списке запрета')))):(HE?('בדיקה ובקשה'):((EN?("check and request"):('проверка и заявка')))),dis:!S.started||S.over,danger:true,wide:true,on:()=>openStrikeSheet(n)}].filter(b=>!(S.mission&&b.danger&&b.wide)).concat(occButtons(n)));}
@@ -2191,6 +2222,8 @@ $('#cYes').onclick=()=>{const t=UI.target;if(!t||!t.pt)return;const u=U_(t.uid);
     hq((HE?(`${u.call}, כאן צפע. ${txt}. עבור.`):((EN?(`${u.call}, this is Cobra-6. ${txt}. Over.`):(`${u.call}, я Кобра-6. ${txt}. Приём.`)))),{k:'order',uid:u.id,kind:t.kind,x,y,b:t.b,method:t.method});}
   UI.target=null;updTarget();dirty=true;};
 $('#bFit').onclick=()=>{V.s=minS();clampView();};
+// all stations: check the targets on the map
+$('#bSweep').onclick=()=>{if(!S.started||S.over)return;if(S.radio.q.some(m=>m.act&&m.act.k==='sweep'))return;hq(SWEEP_TXT(),{k:'sweep'});};
 $('#bExpand').onclick=()=>{const a=$('#app');a.classList.toggle('big');$('#bExpand').textContent=a.classList.contains('big')?(HE?('צמצם'):((EN?("Less"):('Уже')))):(HE?('הרחב'):((EN?("More"):('Шире'))));};
 
 /* ---------- header ---------- */
