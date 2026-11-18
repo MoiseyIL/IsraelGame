@@ -1076,7 +1076,8 @@ const CH={
   sgol:[7,6,7,7,6,6,7], stz:[7,6,7,7,6,6,7], sgv:[7,6,7,7,6,6,7], snh:[7,6,7,7,6,6,7],
   gol: [9,5,3,4,6,4,4], tz:[9,5,3,4,6,4,4], gv:[9,5,3,4,6,4,4], nh:[9,5,3,4,6,4,4], kf:[9,5,3,4,6,4,4],
   // Russian Army (missions)
-  sso: [7,8,8,7,8,5,7], spn:[7,7,7,7,7,5,7], vdv:[10,6,3,6,7,4,4], mp:[9,5,3,5,7,4,4], msv:[9,5,3,4,5,4,4], isp:[6,5,5,5,5,4,5]};
+  sso: [7,8,8,7,8,5,7], spn:[7,7,7,7,7,5,7], vdv:[10,6,3,6,7,4,4], mp:[9,5,3,5,7,4,4], msv:[9,5,3,4,5,4,4], isp:[6,5,5,5,5,4,5],
+  shturm:[8,5,3,5,8,3,4], stormv:[7,3,2,5,6,2,2], bars:[7,4,3,4,4,3,3], sobr:[7,6,5,6,8,7,4], razv:[7,6,7,7,6,5,7], snip:[4,5,8,6,2,2,9]};
 // special abilities: tags, not numbers; each adds a little to the final score (no more than +5)
 function chTags(t){const T=TU[t]||RUF[t]||{},a=[];
   if(T.uc)a.push([['маскировка под местных','הסוואה כמקומיים','disguised as locals'],1]);if(T.veh)a.push([['машина','רכב','car'],1]);
@@ -1115,16 +1116,34 @@ const RUF={
   gm:['Мотострелковый взвод: много стволов, удерживает позиции.','מחלקת חי״ר ממוכן: הרבה קני ירי, מחזיקה עמדות.','Motor rifle platoon: many rifles, holds positions.'],src:'https://en.wikipedia.org/wiki/Russian_Ground_Forces'},
  isp:{n:['Инженерно-сапёрные','הנדסה קרבית','Combat Engineers'],men:6,sap:true,
   pub:['Инженерные войска России: инженерная разведка, разминирование, заграждения и подрывные работы.','כוחות ההנדסה של רוסיה: סיור הנדסי, פינוי מוקשים, מכשולים והריסות.','Russian Engineer Troops: engineer reconnaissance, mine clearing, obstacles and demolitions.'],
-  gm:['Сапёры: быстрее ставят и обезвреживают заряд.','חבלנים: מציבים ומנטרלים מטען מהר יותר.','Sappers: plant and defuse charges faster.'],src:'https://en.wikipedia.org/wiki/Russian_Ground_Forces'}};
+  gm:['Сапёры: быстрее ставят и обезвреживают заряд.','חבלנים: מציבים ומנטרלים מטען מהר יותר.','Sappers: plant and defuse charges faster.'],src:'https://en.wikipedia.org/wiki/Russian_Ground_Forces'},
+ shturm:{n:['Штурмовой отряд','יחידת הסתערות','Assault detachment'],men:12,
+  pub:['В 2023 году в российской армии появились штурмовые отряды. По захваченному наставлению, которое разбирали ISW и аналитики, это примерно усиленный батальон: командная группа, 2–3 штурмовые роты, разведка, танковая группа и группа РЭБ. Штурмовая рота строится вокруг командной группы, группы БПЛА и 2–3 штурмовых взводов. Отряды могут усиливать ротами «Шторм».','ב־2023 הופיעו בצבא הרוסי יחידות הסתערות. לפי חוברת הדרכה שנתפסה ונותחה בידי ISW ואנליסטים, זה בערך גדוד מתוגבר: צוות פיקוד, 2–3 פלוגות הסתערות, סיור, קבוצת טנקים וקבוצת לוחמה אלקטרונית. פלוגת הסתערות בנויה סביב צוות פיקוד, צוות כטב״מים ו־2–3 מחלקות הסתערות. אפשר לתגבר את היחידות בפלוגות «שטורם».','In 2023 the Russian army formed assault detachments. According to a captured manual analysed by ISW and others, a detachment is roughly a reinforced battalion: a command group, 2–3 assault companies, reconnaissance, a tank group and an electronic warfare group. An assault company is built around a command group, a UAV group and 2–3 assault platoons. Detachments can be reinforced with Storm companies.'],
+  gm:['Штурмовой взвод: напор и бой в зданиях.','מחלקת הסתערות: לחץ וקרב במבנים.','Assault platoon: pressure and fighting in buildings.'],src:'https://carnegieendowment.org/research/2024/10/assessing-russian-military-adaptation-in-2023'},
+ stormv:{n:['«Шторм-V»','«שטורם-V»','Storm-V'],men:16,
+  pub:['Роты «Шторм-Z» набирали в том числе из заключённых. 24 июня 2023 года подписан закон, по которому «Шторм-Z» расформировали и заменили подразделениями «Шторм-V». Аналитики RUSI описывают деление российской пехоты на линейную, штурмовую, специальную и «расходную».','פלוגות «שטורם-Z» גויסו בין השאר מאסירים. ב־24 ביוני 2023 נחתם חוק שפירק את «שטורם-Z» והחליף אותן ביחידות «שטורם-V». אנליסטים של RUSI מתארים חלוקה של החי״ר הרוסי לקו, הסתערות, מיוחדים ו«מתכלים».','Storm-Z companies were recruited partly from prisoners. On 24 June 2023 a law disbanded Storm-Z and replaced it with Storm-V units. RUSI analysts describe Russian infantry as split into line, assault, specialised and "disposable" troops.'],
+  gm:['Многочисленная, но слабо подготовленная группа: много людей, мало меткости и стойкости.','קבוצה גדולה אך מאומנת חלש: הרבה אנשים, מעט דיוק ועמידות.','A large but poorly trained group: many men, little accuracy or resilience.'],src:'https://en.wikipedia.org/wiki/Storm-Z'},
+ bars:{n:['БАРС (резерв)','BARS (מילואים)','BARS (reserve)'],men:12,
+  pub:['Боевой армейский резерв страны — программа резерва Минобороны России, введена в 2015 году, активно продвигалась с конца 2021 года. Из добровольцев сформированы батальоны, в том числе региональные; часть их подчинена Минобороны напрямую. По оценке ISW, к середине 2025 года в них было около 40 тысяч человек.','«מילואים קרביים של המדינה» — תוכנית המילואים של משרד ההגנה הרוסי, הונהגה ב־2015 וקודמה במרץ מסוף 2021. ממתנדבים הוקמו גדודים, גם אזוריים; חלקם כפופים ישירות למשרד ההגנה. לפי הערכת ISW, באמצע 2025 היו בהם כ־40 אלף איש.','Combat Army Reserve of the Country — a Russian Defence Ministry reserve programme introduced in 2015 and actively promoted from late 2021. Volunteers were formed into battalions, including regional ones; some are under the Defence Ministry directly. ISW estimated about 40,000 men in them by mid-2025.'],
+  gm:['Добровольческий взвод резерва: средняя выучка, медленнее регулярных частей.','מחלקת מתנדבי מילואים: אימון בינוני, איטית מהיחידות הסדירות.','Volunteer reserve platoon: average training, slower than regular units.'],src:'https://en.wikipedia.org/wiki/BARS_(Russia)'},
+ sobr:{n:['СОБР Росгвардии','SOBR של המשמר הלאומי','Rosgvardia SOBR'],men:8,
+  pub:['Росгвардия — национальная гвардия России, преемник внутренних войск, ОМОН и СОБР МВД. По данным украинского Центра национального сопротивления, в Украине кроме регулярных частей Росгвардии работают сводные отряды ОМОН и СОБР, их задачи — поиск подпольщиков и «фильтрация» населения. В феврале 2026 года в Росгвардии создан свой Генеральный штаб.','המשמר הלאומי של רוסיה (רוסגווארדיה) — יורש של כוחות הפנים, OMON ו־SOBR של משרד הפנים. לפי המרכז האוקראיני להתנגדות לאומית, באוקראינה פועלים לצד היחידות הסדירות גם צוותים מאוחדים של OMON ו־SOBR, ומשימתם — איתור מחתרות ו«סינון» האוכלוסייה. בפברואר 2026 הוקם במשמר הלאומי מטה כללי משלו.','Rosgvardia is Russia\'s National Guard, successor to the Interior Ministry\'s internal troops, OMON and SOBR. According to Ukraine\'s National Resistance Center, besides regular Rosgvardia units, combined OMON and SOBR detachments operate in Ukraine; their tasks are hunting partisans and "filtering" the population. In February 2026 Rosgvardia got its own General Staff.'],
+  gm:['Полицейский спецназ: силён в зданиях и при задержании, слабее в поле.','יחידה מיוחדת משטרתית: חזקה במבנים ובמעצרים, חלשה יותר בשטח.','Police special unit: strong in buildings and arrests, weaker in the open.'],src:'https://en.wikipedia.org/wiki/National_Guard_of_Russia'},
+ razv:{n:['Войсковая разведка','סיור חטיבתי','Brigade reconnaissance'],men:8,
+  pub:['Разведывательные роты и батальоны входят в мотострелковые бригады и дивизии российских Сухопутных войск. С 2023 года армия возвращается от бригад к дивизиям, у каждой дивизии своя разведка.','פלוגות וגדודי סיור שייכים לחטיבות ולאוגדות הרובאים הממוכנים של כוחות היבשה הרוסיים. מאז 2023 הצבא חוזר מחטיבות לאוגדות, ולכל אוגדה סיור משלה.','Reconnaissance companies and battalions belong to the motor rifle brigades and divisions of the Russian Ground Forces. Since 2023 the army has been moving back from brigades to divisions, each with its own reconnaissance.'],
+  gm:['Разведгруппа: скрытно выдвигается и быстро находит противника.','צוות סיור: מתקדם בחשאי ומוצא את האויב מהר.','Recon team: moves covertly and finds the enemy quickly.'],src:'https://warontherocks.com/a-return-to-mass-russian-force-expansion-in-the-war-with-ukraine/'},
+ snip:{n:['Снайперская группа','צוות צלפים','Sniper team'],men:4,
+  pub:['В 2011 году Минобороны России объявило о создании отдельных снайперских подразделений в бригадах Сухопутных войск.','ב־2011 הודיע משרד ההגנה הרוסי על הקמת יחידות צלפים נפרדות בחטיבות כוחות היבשה.','In 2011 the Russian Defence Ministry announced separate sniper units in Ground Forces brigades.'],
+  gm:['Маленькая группа: почти незаметна, далеко видит, но огня мало.','צוות קטן: כמעט בלתי נראה, רואה רחוק, אבל מעט אש.','A small team: nearly invisible, sees far, but little firepower.'],src:'https://www.globalsecurity.org/wmd/library/news/russia/2011/russia-111007-rianovosti01.htm'}};
 // analogs: which Russian unit answers each of our units
-const ANALOG={ym:'spn',dv:'spn',mg:'sso',eg:'sso',sgol:'spn',stz:'spn',sgv:'spn',snh:'spn',gol:'msv',tz:'vdv',gv:'mp',nh:'msv',kf:'msv',yh:'isp'};
+const ANALOG={ym:'sobr',dv:'spn',mg:'snip',eg:'sso',sgol:'razv',stz:'razv',sgv:'razv',snh:'razv',gol:'msv',tz:'vdv',gv:'mp',nh:'shturm',kf:'shturm',yh:'isp'};
 const NATIONS=[['ru',['Россия','רוסיה','Russia'],true],['x1',['Другие страны — позже','מדינות נוספות — בהמשך','More countries — later'],false]];
 const PLANT_T=60,PLANT_SAP=40,DET_T=300,HOLD_R=70;
 function loadMS(){let d=null;try{d=JSON.parse(localStorage.getItem(MIS_KEY)||'null');}catch(e){}if(!d||!d.seed)d={seed:1000+rnd(9000),diff:1,dens:'normal',sel:['ym','eg','gol','yh'],nation:'ru'};d.sel=(d.sel||[]).filter(t=>TU[t]&&!TU[t].off);return d;}
 function saveMS(){try{localStorage.setItem(MIS_KEY,JSON.stringify(MS));localStorage.setItem(MODE_KEY,MODE);}catch(e){}}
 function enemyOrder(o){const r=mulberry(o.seed*7+o.diff*3+11);let list=o.sel.map(t=>ANALOG[t]).filter(Boolean);
   if(!list.length)list=['msv','spn'];if(o.diff===0&&list.length>=3)list.splice(list.findIndex(t=>t!=='isp'),1);
-  if(o.diff>=2)list.push('msv');if(o.diff>=3)list.push('vdv');if(!list.includes('isp')&&r()<.6)list.push('isp');return list.slice(0,8);}
+  if(o.diff>=2)list.push(r()<.5?'bars':'stormv');if(o.diff>=3)list.push('shturm');if(!list.includes('isp')&&r()<.6)list.push('isp');return list.slice(0,8);}
 const ourMen=sel=>sel.reduce((s,t)=>s+(TU[t].men||0),0);
 // power of a whole side: the sum of the units' scores (a smaller enemy team on the easy level counts proportionally less)
 const ourPow=sel=>sel.reduce((s,t)=>s+chPower(t),0),enPow=o=>Math.round(enemyOrder(o).reduce((s,t)=>s+chPower(t)*(o.diff===0?.8:1),0));
@@ -1661,9 +1680,9 @@ function bcov(b){if(S.destroyed[b])return .6;return .35+Math.min(99,(S.bdmg||{})
 const isOur=s=>s.type==='inf';
 // heavy weapons: 2 = machine guns and launchers (infantry platoons, army platoons), 1 = machine gun, 0 = rifles only
 function hwOf(s){if(isOur(s))return s.cls?(s.cls==='inf'?2:1):(s.id==='k1'||s.id==='k2'?2:1);
-  if(s.kind==='army')return({vdv:2,mp:2,msv:2,sso:1,spn:1})[s.rt]||0;return(s.kind==='leader'||s.kind==='rest')&&s.max>=3?1:0;}
+  if(s.kind==='army')return({vdv:2,mp:2,msv:2,sso:1,spn:1,shturm:2,stormv:2,bars:2,sobr:1,razv:1})[s.rt]||0;return(s.kind==='leader'||s.kind==='rest')&&s.max>=3?1:0;}
 function lawOf(s){if(isOur(s))return hwOf(s)>=2?3:s.cls==='sf'||s.cls==='rec'||s.id==='dv'?1:0;
-  if(s.kind==='army')return({vdv:3,mp:3,msv:3,sso:1,spn:1})[s.rt]||0;return(s.kind==='leader'||s.kind==='rest')&&s.max>=3?1:0;}
+  if(s.kind==='army')return({vdv:3,mp:3,msv:3,sso:1,spn:1,shturm:3,stormv:1,bars:2,razv:1})[s.rt]||0;return(s.kind==='leader'||s.kind==='rest')&&s.max>=3?1:0;}
 const dmgCount=()=>Object.keys(S.bdmg||{}).filter(n=>!S.destroyed[n]&&S.bdmg[n]>=20).length;
 // fire at a building someone is shooting from: rifles break windows, machine guns more, launchers punch holes
 function wpnFire(s,b,sh,dt,tgt){const B=BN(b);if(!B||S.destroyed[b]||s.men<=0)return;const hw=hwOf(s);
