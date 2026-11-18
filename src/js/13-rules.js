@@ -14,7 +14,7 @@ function labBlast(b){const B=BN(b);S.lab='destroyed';S.destroyed[b]=true;raiseAl
   S.civHarm+=S.civ[b];S.civDead+=S.civ[b];S.civ[b]=0;killCivIn(b);
   for(const u of infs()){const d=Math.hypot(u.x-B.cx,u.y-B.cy);if(d<45&&u.men>0){const n=u.men;for(let i=0;i<n;i++)if(Math.random()<(u.inB===b?.35:.15))casualty(u);}}
   for(const o of BL){if(o.n===b)continue;if(Math.hypot(o.cx-B.cx,o.cy-B.cy)<45)for(let i=S.civ[o.n];i>0;i--)if(Math.random()<.4)addCivW(o.n);}}
-function casualty(u){u.tccc=false;u.men--;const w=Math.random()<.7;if(w){u.wounded++;u.newW++;S.stats.wia++;}else{S.stats.kia++;u.newK++;}u.morale-=9;hitMan(u,w?'w':'k');}
+function casualty(u){u.tccc=false;u.men--;const w=Math.random()<.7;if(w){u.wounded++;u.newW++;S.stats.wia++;}else{S.stats.kia++;u.newK++;}u.morale-=9*(u.mk||1);hitMan(u,w?'w':'k');}
 
 // buildings our teams hold as cover, as known from their reports
 function occSet(uid,b,st){S.occ=S.occ||{};for(const k in S.occ){delete S.occ[k][uid];if(!Object.keys(S.occ[k]).length)delete S.occ[k];}if(b&&st)(S.occ[b]=S.occ[b]||{})[uid]=st;}
@@ -28,7 +28,7 @@ function occTick(){for(const u of infs()){if(u.st!=='occupy'||!u.occTrapT||S.t<u
     say(u,T3(`Кобра-6, я ${u.call}! Подрыв внутри здания ${u.inB}! Есть потери! Дом не был проверен. Приём.`,`צפע, כאן ${u.call}! פיצוץ בתוך מבנה ${u.inB}! יש נפגעים! הבית לא נבדק. עבור.`,`Cobra-6, this is ${u.call}! Explosion inside building ${u.inB}! We have casualties! The house was not checked. Over.`),[bChip(u.inB,'ied')],{urgent:true,known:'full'});}
   for(const e of alive())if(e.wakeT&&S.t>=e.wakeT){e.wakeT=0;e.alert=true;wakeInHeldHouse(e);}}
 function entryAmbush(u){const en=alive().filter(e=>e.bld===u.tb&&!e.mv&&!e.roof&&e.alert&&!e.wakeT);if(!en.length||u.men<=0)return;
-  const p=u.method==='wall'?.05:u.occupy?(u.pace==='fast'?.5:.25):.12;let k=0;for(let i=u.men;i>0&&k<6;i--)if(Math.random()<p){casualty(u);k++;}raiseAlarm();if(!k)return;
+  const p=(u.method==='wall'?.05:u.occupy?(u.pace==='fast'?.5:.25):.12)*(u.ent||1);let k=0;for(let i=u.men;i>0&&k<6;i--)if(Math.random()<p){casualty(u);k++;}raiseAlarm();if(!k)return;
   say(u,T3(`Кобра-6, я ${u.call}! Нас встретили огнём на входе в здание ${u.tb}! ${k===1?'Один выбыл':'Потери: '+k}! Ведём бой!`,`צפע, כאן ${u.call}! קיבלו אותנו באש בכניסה למבנה ${u.tb}! ${k===1?'נפגע אחד':'נפגעים: '+k}! בקרב!`,`Cobra-6, this is ${u.call}! We were met with fire at the entrance to building ${u.tb}! ${k===1?'One down':'Casualties: '+k}! Engaging!`),[bChip(u.tb,'hos')],{urgent:true,known:'full',pid:u.tb});}
 // shooting from a held house wakes whoever sleeps upstairs within 30–60 s; half the time our men hear them first
 function upstairsTick(){for(const u of infs()){if(!u.inB||!u.cont.length||u.men<=0)continue;

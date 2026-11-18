@@ -213,6 +213,14 @@ html[lang=he] .doc{font-size:16px;line-height:1.6}
 html[lang=he] .doc .stamp{left:14px;transform:rotate(-5deg);right:unset}
 html[lang=he] .doc h1{padding-left:100px;padding-right:unset}
 html[lang=he] .doc ul{padding-inline-start:18px;padding-left:unset}
+/* characteristics: seven bars and the final power score */
+.chs{display:grid;grid-template-columns:auto 1fr 18px;gap:2px 8px;align-items:center;margin:6px 0 2px;font-size:12px;color:#3b4652}
+.chs .cn{white-space:nowrap}.chs .cv{font-family:var(--f-mono);text-align:end}
+.chs .cb{height:6px;background:#e3e0d6;border-radius:3px;overflow:hidden}.chs .cb i{display:block;height:100%;background:#4d6b85}
+.cpw{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12px;color:#5d646c;margin-bottom:2px}
+.cpw b{font-family:var(--f-head);font-size:16px;color:#2c3a48;white-space:nowrap}
+.chl{margin:4px 0 10px;font-size:13px}.chl ul{margin:6px 0;padding-inline-start:18px}.chl li{margin:3px 0}
+.mcount small.pw{font-size:12px;color:#2c3a48;font-weight:700;margin-top:2px}
 </style>
 </head>
 <body>
@@ -877,46 +885,46 @@ const MAXG=7;
 const UCAT=[['sf',['Спецназ и полиция','יחידות מיוחדות',"Special forces and police"]],['rec',['Разведка пехотных бригад','סיירות החטיבות',"Infantry brigade reconnaissance"]],['inf',['Пехотные бригады','חטיבות חי״ר',"Infantry brigades"]],['eng',['Инженерные войска','הנדסה קרבית',"Combat engineers"]],['bdr',['Корпус охраны границ','מערך הגנת הגבולות',"Border Defense Corps"]]];
 // pub: only what is published (Wikipedia, IDF site, news). Numbers under "В игре" are game conventions.
 const TU={
- ym:{c:'sf',n:['ЯМАМ','ימ״מ',"Yamam"],sh:['ЯМ','ימ',"Ym"],men:8,q:1,stl:1,cap:.6,clr:1,st:[3,3,5],
+ ym:{c:'sf',n:['ЯМАМ','ימ״מ',"Yamam"],sh:['ЯМ','ימ',"Ym"],men:8,
   pub:['Спецподразделение полиции Израиля по борьбе с террором, в составе пограничной полиции, создано в 1974 году. Штурм зданий, освобождение заложников, задержание разыскиваемых.','היחידה המשטרתית ללוחמה בטרור, חלק ממשמר הגבול, הוקמה ב-1974. פריצה למבנים, חילוץ בני ערובה, מעצר מבוקשים.',"Israel Police counter-terrorism unit, part of the Border Police, founded in 1974. Building assaults, hostage rescue, arrests of wanted suspects."],
   gm:['Штурмовая группа, оружие с глушителями. Чаще всех берёт живыми.','צוות הסתערות, נשק עם משתיקים. לוכד בחיים יותר מכולם.',"Assault team with suppressed weapons. Takes suspects alive more often than anyone."],src:'https://en.wikipedia.org/wiki/Yamam'},
- dv:{c:'sf',n:['Дувдеван','דובדבן',"Duvdevan"],sh:['Дв','דב',"Dv"],men:8,uc:true,veh:true,cap:.75,st:[3,5,4],
+ dv:{c:'sf',n:['Дувдеван','דובדבן',"Duvdevan"],sh:['Дв','דב',"Dv"],men:8,uc:true,veh:true,
   pub:['Подразделение мистаарвим бригады коммандос «Оз»: бойцы действуют под видом местных жителей и задерживают разыскиваемых на Западном берегу.','יחידת מסתערבים בחטיבת הקומנדו «עוז»: הלוחמים פועלים בהסוואה של תושבים מקומיים ועוצרים מבוקשים ביהודה ושומרון.',"Mista'arvim unit of the Oz Commando Brigade: soldiers operate disguised as local residents and arrest wanted suspects in the West Bank."],
   gm:['Под видом местных, на гражданской машине. Наблюдатели почти не замечают.','בהסוואה של מקומיים, ברכב אזרחי. תצפיתנים כמעט לא מבחינים בהם.',"Disguised as locals, in a civilian car. Lookouts almost never notice them."],src:'https://en.wikipedia.org/wiki/Duvdevan_Unit'},
- mg:{c:'sf',n:['Маглан','מגלן',"Maglan"],sh:['Мг','מג',"Mg"],men:6,q:1.05,stl:.8,cap:.5,clr:1.25,optic:true,atgm:4,st:[3,4,2],
+ mg:{c:'sf',n:['Маглан','מגלן',"Maglan"],sh:['Мг','מג',"Mg"],men:6,optic:true,atgm:4,
   pub:['Подразделение 212 бригады коммандос, создано в 1986 году как противотанковое и разведывательное, с современным вооружением. Задачи засекречены. По сообщениям ЦАХАЛ о Хан-Юнисе (2024): наводили огонь с воздуха, вели снайперский огонь и ближний бой, применяли высокоточные боеприпасы, малыми дронами осматривали здания.','יחידה 212 בחטיבת הקומנדו, הוקמה ב-1986 כיחידת נ״ט וסיור עם אמצעי לחימה מתקדמים. המשימות מסווגות. לפי דיווחי צה״ל מחאן יונס (2024): הכוונת אש מהאוויר, ירי צלפים, לחימה מטווח קצר, חימוש מדויק ורחפנים קטנים לסריקת מבנים.',"Unit 212 of the Commando Brigade, founded in 1986 as an anti-tank and reconnaissance unit with advanced weapons. Its missions are classified. According to IDF reports from Khan Yunis (2024): directing fire from the air, sniper fire, close combat, precision munitions, small drones to search buildings."],
   gm:['Малая группа. Управляемые ракеты по огневым точкам, дальняя оптика: видит дальше и подтверждает цели для удара. Долгая зачистка — не её работа.','צוות קטן. טילים מונחים נגד עמדות ירי, אופטיקה לטווח ארוך: רואה רחוק יותר ומאמת מטרות לתקיפה. טיהור ארוך — לא המקצוע שלה.',"Small team. Guided missiles against firing points, long-range optics: sees farther and confirms targets for strikes. Long building clearing is not its job."],src:'https://en.wikipedia.org/wiki/Maglan'},
- eg:{c:'sf',n:['Эгоз','אגוז',"Egoz"],sh:['Эг','אג',"Eg"],men:8,q:1.1,stl:.7,amb:.8,cap:.55,st:[4,4,4],
+ eg:{c:'sf',n:['Эгоз','אגוז',"Egoz"],sh:['Эг','אג',"Eg"],men:8,amb:.8,
   pub:['Подразделение 621 бригады коммандос, создано в 1995 году для противопартизанской войны против «Хезболлы» на юге Ливана. После 2000 года действует на Западном берегу и в Газе: специальная разведка, рейды, борьба с террором. Действует малыми группами. Участвовало в операции в Дженине в июле 2023 года.','יחידה 621 בחטיבת הקומנדו, הוקמה ב-1995 ללוחמת גרילה נגד חיזבאללה בדרום לבנון. אחרי 2000 פועלת ביהודה ושומרון וברצועת עזה: סיור מיוחד, פשיטות, לוחמה בטרור. פועלת בצוותים קטנים. השתתפה במבצע בג׳נין ביולי 2023.',"Unit 621 of the Commando Brigade, founded in 1995 for counter-guerrilla warfare against Hezbollah in southern Lebanon. Since 2000 it has operated in the West Bank and Gaza: special reconnaissance, raids, counter-terrorism. Operates in small teams. Took part in the Jenin operation in July 2023."],
   gm:['Скрытный ночной рейд, засады на патрули, сильна в уличном бою.','פשיטה לילית חשאית, מארבים לסיורים, חזקה בקרב ברחוב.',"Covert night raid, ambushes on patrols, strong in street fighting."],src:'https://en.wikipedia.org/wiki/Egoz_Unit'},
- yh:{c:'eng',n:['Яхалом','יהלום',"Yahalom"],sh:['Ях','יה',"Yh"],men:6,q:.95,sap:true,st:[2,3,3],
+ yh:{c:'eng',n:['Яхалом','יהלום',"Yahalom"],sh:['Ях','יה',"Yh"],men:6,sap:true,
   pub:['Специальное подразделение инженерных войск ЦАХАЛ: разминирование, подрывные работы, туннели.','היחידה המיוחדת של חיל ההנדסה הקרבית: פירוק מטענים, הריסות, מנהרות.',"Special unit of the IDF Combat Engineering Corps: mine clearing, demolitions, tunnels."],
   gm:['Тихо снимают ловушки с дверей, подрывают мастерскую и подземный ход.','מפרקים מטענים בדלתות בשקט, מפוצצים את המעבדה והמנהרה.',"Quietly clear traps from doors, demolish the workshop and the tunnel."],src:'https://en.wikipedia.org/wiki/Yahalom_(unit)'},
- sgol:{c:'rec',n:['Сайерет Голани','סיירת גולני',"Sayeret Golani"],sh:['СГл','סג',"SGl"],men:8,q:1,stl:.8,cap:.55,st:[3,4,3],
+ sgol:{c:'rec',n:['Сайерет Голани','סיירת גולני',"Sayeret Golani"],sh:['СГл','סג',"SGl"],men:8,
   pub:['Разведывательное подразделение бригады «Голани». У каждой регулярной пехотной бригады ЦАХАЛ есть своё разведподразделение.','יחידת הסיור של חטיבת גולני. לכל חטיבת חי״ר סדירה בצה״ל יש יחידת סיור משלה.',"Reconnaissance unit of the Golani Brigade. Every regular IDF infantry brigade has its own reconnaissance unit."],
   gm:['Небольшая подготовленная группа: скрытное выдвижение, разведка, штурм.','צוות קטן ומיומן: תנועה חשאית, סיור, הסתערות.',"Small trained team: stealthy approach, reconnaissance, assault."],src:'https://en.wikipedia.org/wiki/Golani_Brigade'},
- stz:{c:'rec',n:['Разведбат «Цанханим»','פלס״ר צנחנים',"Paratroopers Recon"],sh:['РЦ','פצ',"PRc"],men:8,q:1,stl:.8,cap:.55,st:[3,4,3],
+ stz:{c:'rec',n:['Разведбат «Цанханим»','פלס״ר צנחנים',"Paratroopers Recon"],sh:['РЦ','פצ',"PRc"],men:8,
   pub:['Разведывательный батальон (5135) бригады «Цанханим». Источники по-разному называют его роль: разведка или патрулирование.','גדוד הסיור (5135) של חטיבת הצנחנים. המקורות מתארים את תפקידו בצורות שונות: סיור או פטרול.',"Reconnaissance battalion (5135) of the Paratroopers Brigade. Sources describe its role differently: reconnaissance or patrol."],
   gm:['Небольшая подготовленная группа: скрытное выдвижение, разведка, штурм.','צוות קטן ומיומן: תנועה חשאית, סיור, הסתערות.',"Small trained team: stealthy approach, reconnaissance, assault."],src:'https://en.wikipedia.org/wiki/35th_Paratroopers_Brigade_(Israel)'},
- sgv:{c:'rec',n:['Сайерет Гивати','סיירת גבעתי',"Givati Recon"],sh:['СГв','סב',"GRc"],men:8,q:1,stl:.8,cap:.55,st:[3,4,3],
+ sgv:{c:'rec',n:['Сайерет Гивати','סיירת גבעתי',"Givati Recon"],sh:['СГв','סב',"GRc"],men:8,
   pub:['Разведывательный батальон 846 «Шуалей Шимшон» («Лисы Самсона») бригады «Гивати».','גדוד הסיור 846 «שועלי שמשון» של חטיבת גבעתי.',"Reconnaissance battalion 846 \"Shualei Shimshon\" (\"Samson's Foxes\") of the Givati Brigade."],
   gm:['Небольшая подготовленная группа: скрытное выдвижение, разведка, штурм.','צוות קטן ומיומן: תנועה חשאית, סיור, הסתערות.',"Small trained team: stealthy approach, reconnaissance, assault."],src:'https://en.wikipedia.org/wiki/Givati_Brigade'},
- snh:{c:'rec',n:['Разведбат «Нахаль»','גדס״ר נח״ל',"Nahal Recon"],sh:['РН','גנ',"NRc"],men:8,q:1,stl:.8,cap:.55,ask:true,st:[3,4,3],
+ snh:{c:'rec',n:['Разведбат «Нахаль»','גדס״ר נח״ל',"Nahal Recon"],sh:['РН','גנ',"NRc"],men:8,ask:true,
   pub:['Разведывательный батальон бригады «Нахаль». По сообщению СМИ, в одном рейде на Западном берегу разведчики «Нахаля» задержали 11 разыскиваемых и опросили около 80 жителей.','גדוד הסיור של חטיבת הנח״ל. לפי דיווח בתקשורת, בפשיטה אחת ביהודה ושומרון עצרו לוחמי הסיור של הנח״ל 11 מבוקשים ותחקרו כ-80 תושבים.',"Reconnaissance battalion of the Nahal Brigade. According to media reports, in one raid in the West Bank Nahal reconnaissance troops arrested 11 wanted suspects and questioned about 80 residents."],
   gm:['Скрытная группа. Может опросить жителей дома: подсказки разведки, но это время и риск шума.','צוות חשאי. יכול לתחקר תושבי בית: רמזים מודיעיניים, אבל זה לוקח זמן ויש סיכון לרעש.',"Covert team. Can question the residents of a house: intelligence clues, but it takes time and risks noise."],src:'https://www.ynetnews.com/article/hj0000sjsigg'},
- gol:{c:'inf',n:['Голани','גולני',"Golani"],sh:['Гл','גו',"Gl"],men:16,q:.85,stl:2.2,loud:true,cap:.4,clr:.75,dr:2,st:[5,1,3],
+ gol:{c:'inf',n:['Голани','גולני',"Golani"],sh:['Гл','גו',"Gl"],men:16,loud:true,dr:2,
   pub:['1-я пехотная бригада, создана в 1948 году, Северный военный округ. Батальоны 12-й «Барак», 13-й «Гидеон», 51-й.','חטיבת חי״ר 1, הוקמה ב-1948, פיקוד הצפון. גדודים 12 «ברק», 13 «גדעון», 51.',"1st Infantry Brigade, founded in 1948, Northern Command. Battalions: 12th \"Barak\", 13th \"Gideon\", 51st."],
   gm:['Пехотный взвод: много стволов, оцепление и обыск. Без глушителей — шумный и заметный.','מחלקת חי״ר: הרבה קני ירי, כיתור וסריקה. בלי משתיקים — רועשת ובולטת.',"Infantry platoon: many rifles, cordon and search. No suppressors — loud and easy to spot."],src:'https://en.wikipedia.org/wiki/Golani_Brigade'},
- tz:{c:'inf',n:['Цанханим','צנחנים',"Paratroopers"],sh:['Цн','צנ',"Pt"],men:16,q:.85,stl:2.2,loud:true,cap:.4,clr:.75,dr:2,st:[5,1,3],
+ tz:{c:'inf',n:['Цанханим','צנחנים',"Paratroopers"],sh:['Цн','צנ',"Pt"],men:16,loud:true,dr:2,
   pub:['35-я парашютно-десантная бригада (98-я дивизия). Батальоны 101-й, 202-й, 890-й. Создана в 1950-х, когда подразделение 101 объединили с 890-м батальоном.','חטיבת הצנחנים 35 (אוגדה 98). גדודים 101, 202, 890. הוקמה בשנות ה-50 מאיחוד יחידה 101 עם גדוד 890.',"35th Paratroopers Brigade (98th Division). Battalions: 101st, 202nd, 890th. Formed in the 1950s when Unit 101 was merged with the 890th Battalion."],
   gm:['Пехотный взвод: много стволов, оцепление и обыск. Без глушителей — шумный и заметный.','מחלקת חי״ר: הרבה קני ירי, כיתור וסריקה. בלי משתיקים — רועשת ובולטת.',"Infantry platoon: many rifles, cordon and search. No suppressors — loud and easy to spot."],src:'https://en.wikipedia.org/wiki/35th_Paratroopers_Brigade_(Israel)'},
- gv:{c:'inf',n:['Гивати','גבעתי',"Givati"],sh:['Гв','גב',"Gv"],men:16,q:.85,stl:2.2,loud:true,cap:.4,clr:.75,dr:2,st:[5,1,3],
+ gv:{c:'inf',n:['Гивати','גבעתי',"Givati"],sh:['Гв','גב',"Gv"],men:16,loud:true,dr:2,
   pub:['84-я пехотная бригада, Южный военный округ. Батальоны «Шакед», «Цабар», «Ротем». По сообщению ЦАХАЛ, батальон «Цабар» в Газе обнаружил мастерскую по производству оружия.','חטיבת חי״ר 84, פיקוד הדרום. גדודים «שקד», «צבר», «רותם». לפי דיווח צה״ל, גדוד «צבר» איתר בעזה בית מלאכה לייצור אמצעי לחימה.',"84th Infantry Brigade, Southern Command. Battalions: Shaked, Tzabar, Rotem. According to the IDF, the Tzabar Battalion found a weapons production workshop in Gaza."],
   gm:['Пехотный взвод: много стволов, оцепление и обыск. Без глушителей — шумный и заметный.','מחלקת חי״ר: הרבה קני ירי, כיתור וסריקה. בלי משתיקים — רועשת ובולטת.',"Infantry platoon: many rifles, cordon and search. No suppressors — loud and easy to spot."],src:'https://en.wikipedia.org/wiki/Givati_Brigade'},
- nh:{c:'inf',n:['Нахаль','נח״ל',"Nahal"],sh:['Нх','נח',"Nh"],men:16,q:.85,stl:2.2,loud:true,cap:.4,clr:.75,dr:2,ask:true,st:[5,1,3],
+ nh:{c:'inf',n:['Нахаль','נח״ל',"Nahal"],sh:['Нх','נח',"Nh"],men:16,loud:true,dr:2,ask:true,
   pub:['933-я пехотная бригада, одна из пяти пехотных бригад ЦАХАЛ. Части бригады действуют на Западном берегу: «каждый день — от поиска оружия до задержаний и опросов на месте» (офицер бригады, Ynet).','חטיבת חי״ר 933, אחת מחמש חטיבות החי״ר של צה״ל. כוחות החטיבה פועלים ביהודה ושומרון: «כל יום — מחיפוש אמצעי לחימה ועד מעצרים ותחקורים בשטח» (קצין בחטיבה, ynet).',"933rd Infantry Brigade, one of the five IDF infantry brigades. Its units operate in the West Bank: \"every day — from weapons searches to arrests and questioning in the field\" (a brigade officer, Ynet)."],
   gm:['Пехотный взвод. Может опросить жителей дома: подсказки разведки, но это время и риск шума.','מחלקת חי״ר. יכולה לתחקר תושבי בית: רמזים מודיעיניים, אבל זה לוקח זמן ויש סיכון לרעש.',"Infantry platoon. Can question the residents of a house: intelligence clues, but it takes time and risks noise."],src:'https://en.wikipedia.org/wiki/Nahal_Brigade'},
- kf:{c:'inf',n:['Кфир','כפיר',"Kfir"],sh:['Кф','כפ',"Kf"],men:16,q:.85,stl:2.2,loud:true,cap:.4,clr:.75,dr:2,cp:true,st:[5,1,3],
+ kf:{c:'inf',n:['Кфир','כפיר',"Kfir"],sh:['Кф','כפ',"Kf"],men:16,loud:true,dr:2,cp:true,
   pub:['900-я пехотная бригада, создана в 2005 году, по данным ЦАХАЛ — крупнейшая пехотная. Главная задача — борьба с террором в Иудее и Самарии: рейды, патрули, блокпосты, задержания. Батальоны «Нахшон», «Шимшон», «Харув», «Духифат», «Нецах Иехуда».','חטיבת חי״ר 900, הוקמה ב-2005, לפי צה״ל חטיבת החי״ר הגדולה ביותר. המשימה העיקרית — לוחמה בטרור ביהודה ושומרון: פשיטות, סיורים, מחסומים, מעצרים. גדודים «נחשון», «שמשון», «חרוב», «דוכיפת», «נצח יהודה».',"900th Infantry Brigade, founded in 2005, the largest infantry brigade according to the IDF. Main task: counter-terrorism in Judea and Samaria — raids, patrols, checkpoints, arrests. Battalions: Nahshon, Shimshon, Haruv, Duchifat, Netzah Yehuda."],
   gm:['Пехотный взвод. Может поставить блокпост: вооружённых, которых поднимут по тревоге, задерживают на подходе.','מחלקת חי״ר. יכולה להציב מחסום: חמושים שמגויסים בכוננות נעצרים בדרך.',"Infantry platoon. Can set up a checkpoint: armed men called out by the alarm are stopped on their way."],src:'https://en.wikipedia.org/wiki/Kfir_Brigade'},
  car:{c:'bdr',n:['Каракаль','קרקל',"Caracal"],off:true,
@@ -932,7 +940,7 @@ const ABIL=t=>{const T=TU[t],a=[];
   if(T.ask)a.push(HE?'תחקור תושבים':(EN?("questioning residents"):('опрос жителей')));if(T.cp)a.push(HE?'מחסום':(EN?("checkpoint"):('блокпост')));if(T.amb)a.push(HE?'מארבים':(EN?("ambushes"):('засады')));
   a.push(HE?`רחפנים: ${T.dr??3}`:(EN?(`drones: ${T.dr??3}`):(`дронов: ${T.dr??3}`)));return a.join(' · ');};
 const stars=n=>'★'.repeat(n)+'☆'.repeat(5-n);const rng=a=>a[0]===a[1]?String(a[0]):`${a[0]}–${a[1]}`;
-const powerOf=t=>{const T=TU[t];return T.men*(T.q||1)*(T.uc?1.3:1)+(T.atgm?2:0);};
+const powerOf=t=>{const T=TU[t];return fpOf(CH[t][0])*(T.uc?1.3:1)+(T.atgm?2:0);};
 function loadTR(){let d=null;try{d=JSON.parse(localStorage.getItem(TRAIN_KEY)||'null');}catch(e){}
   if(!d||!d.seed)d={seed:1000+rnd(9000),diff:1,dens:'normal',sel:[],limit:false};d.sel=(d.sel||[]).filter(t=>TU[t]&&!TU[t].off);return d;}
 function saveTR(){try{localStorage.setItem(TRAIN_KEY,JSON.stringify(TR));localStorage.setItem(MODE_KEY,MODE);}catch(e){}}
@@ -941,7 +949,7 @@ function setCity(seed,dens,g2){genCity(seed,dens,g2);buildNav();for(const k in A
 function mkTrainUnits(sel){const cnt={};return sel.map((t,i)=>{const T=TU[t];cnt[t]=(cnt[t]||0)+1;const multi=sel.filter(x=>x===t).length>1;
   const call=L2(T.n)+(multi?(HE?' ':'-')+cnt[t]:''),sh=L2(T.sh)+(multi?cnt[t]:'');
   const u=squad('t'+i,call,sh,610+(i%4)*60,2035+Math.floor(i/4)*45,T.men,!!T.uc);
-  Object.assign(u,{tt:t,cls:T.c,q:T.q||1,stl:T.stl||1,cap:T.cap,clr:T.clr||1,loud:!!T.loud,amb:T.amb||0,optic:!!T.optic,atgm:T.atgm||0,ask:!!T.ask,cpU:!!T.cp,drones:T.dr??3,sap:!!T.sap,veh:!!T.veh,carU:!!T.veh});return u;});}
+  Object.assign(u,{tt:t,cls:T.c,...mechOf(t,T.men),loud:!!T.loud,amb:T.amb||0,optic:!!T.optic,atgm:T.atgm||0,ask:!!T.ask,cpU:!!T.cp,drones:T.dr??3,sap:!!T.sap,veh:!!T.veh,carU:!!T.veh});return u;});}
 // what the intelligence summary says (estimates, not the truth)
 function mkIntel(ens,D,traps,ieds,r){const tot=ens.filter(e=>e.kind!=='look'&&e.kind!=='patrol').reduce((s,e)=>s+e.men,0)+ens.filter(e=>e.kind==='patrol').reduce((s,e)=>s+e.men,0);
   const lk=ens.filter(e=>e.kind==='look').length;const lo=Math.max(3,Math.round(tot*(.75+r()*.1))),hi=Math.round(tot*(1.15+r()*.15))+1;
@@ -951,8 +959,8 @@ function recommend(I){const E=(I.lo+I.hi)/2;const sel=['ym','yh',I.lk[1]>=2?'dv'
   while(P()<3.2*E&&sel.length<MAXG)sel.push(add[i++%add.length]);return sel;}
 function checks(I,sel){const has=f=>sel.some(t=>f(TU[t],t));const out=[];
   out.push([has(T=>T.sap),HE?'חבלנים: מעבדה ומטענים בדלתות':(EN?("Sappers: the workshop and booby-trapped doors"):('Сапёры: мастерская и ловушки на дверях')),HE?'בלי חבלנים פיצוץ המעבדה ארוך ומסוכן יותר':(EN?("without sappers, demolishing the workshop takes longer and is riskier"):('без сапёров подрыв мастерской дольше и опаснее'))]);
-  if(I.lk[1]>=2)out.push([has(T=>T.uc||(T.stl||1)<1),HE?`צוות חשאי נגד תצפיתנים (${rng(I.lk)})`:(EN?(`A covert team against the lookouts (${rng(I.lk)})`):(`Скрытная группа против наблюдателей (${rng(I.lk)})`)),HE?'בלי זה הכוננות תעלה מוקדם':(EN?("without one, the alarm will be raised early"):('без неё тревогу поднимут рано'))]);
-  out.push([has(T=>(T.cap||0)>=.55),HE?'צוות ללכידת «המהנדס» בחיים':(EN?("A team to capture \"the Engineer\" alive"):('Группа для задержания «Инженера» живым')),HE?'ימ״מ, דובדבן או אגוז':(EN?("Yamam, Duvdevan or Egoz"):('ЯМАМ, Дувдеван или Эгоз'))]);
+  if(I.lk[1]>=2)out.push([has((T,t)=>T.uc||mechOf(t,T.men).stl<1),HE?`צוות חשאי נגד תצפיתנים (${rng(I.lk)})`:(EN?(`A covert team against the lookouts (${rng(I.lk)})`):(`Скрытная группа против наблюдателей (${rng(I.lk)})`)),HE?'בלי זה הכוננות תעלה מוקדם':(EN?("without one, the alarm will be raised early"):('без неё тревогу поднимут рано'))]);
+  out.push([has((T,t)=>mechOf(t,T.men).cap>=.5),HE?'צוות ללכידת «המהנדס» בחיים':(EN?("A team to capture \"the Engineer\" alive"):('Группа для задержания «Инженера» живым')),HE?'ימ״מ, דובדבן או אגוז':(EN?("Yamam, Duvdevan or Egoz"):('ЯМАМ, Дувдеван или Эгоз'))]);
   out.push([sel.length>=3,HE?'מספיק צוותים לכיתור המנהרה':(EN?("Enough teams to cordon off the tunnel"):('Хватает групп, чтобы оцепить подземный ход')),HE?'לפחות 3 צוותים קרקעיים':(EN?("at least 3 ground teams are needed"):('нужно хотя бы 3 наземные группы'))]);
   if(I.mob>=2)out.push([has(T=>T.c==='inf')||sel.length>=5,HE?'עתודה נגד חמושים שיגויסו בכוננות':(EN?("A reserve against men who will be armed when the alarm goes up"):('Резерв против вооружённых, которых поднимут по тревоге')),HE?'מחלקת חי״ר; לכפיר יש מחסום':(EN?("an infantry platoon; Kfir can set up a checkpoint"):('пехотный взвод; у «Кфира» есть блокпост'))]);
   return out;}
@@ -988,11 +996,11 @@ function showTrain(){const I=S.intel,sel=TR.sel,h=[];const rec=recommend(I);cons
   if(over)h.push(`<p class="warn">${HE?'יותר צוותים ממגבלת המפקדה.':(EN?("More teams than HQ allows."):('Групп больше, чем разрешает штаб.'))}</p>`);
   h.push(`<p class="meta">${HE?'תמיד זמינים: הכטב״ם «זיק», מסוק הקרב «שרף», מסוקי הפינוי «ינשוף», שני כלבי «עוקץ».':(EN?("Always available: the Hawk UAV, the Hammer attack helicopter, the Angel medevac helicopters and two Oketz dogs."):('Всегда в распоряжении: беспилотник «Ястреб», ударный вертолёт «Молот», вертолёты эвакуации «Ангел», две собаки «Окец».'))}</p>`);
   h.push(`<button class="go" id="tGo"${!sel.length||over?' disabled':''}>${HE?'לפקודת המבצע':(EN?("To the operation order"):('К боевому приказу'))}</button>`);
-  h.push(`<h2>${HE?'רשימת הכוחות':(EN?("Unit list"):('Список подразделений'))}</h2><p class="meta">${HE?'המידע על היחידות — ממקורות פתוחים בלבד. מספר הלוחמים והמאפיינים במשחק — מוסכמות של המשחק.':(EN?("Unit information comes only from open sources. Team sizes and ratings in the game are game conventions."):('Сведения о подразделениях — только из открытых источников. Численность и характеристики в игре — игровые условности.'))}</p>`);
+  h.push(`<h2>${HE?'רשימת הכוחות':(EN?("Unit list"):('Список подразделений'))}</h2><p class="meta">${HE?'המידע על היחידות — ממקורות פתוחים בלבד. מספר הלוחמים והמאפיינים במשחק — מוסכמות של המשחק.':(EN?("Unit information comes only from open sources. Team sizes and ratings in the game are game conventions."):('Сведения о подразделениях — только из открытых источников. Численность и характеристики в игре — игровые условности.'))}</p>`);h.push(chLegend());
   for(const [c,cn] of UCAT){h.push(`<h3>${L2(cn)}</h3>`);
     for(const t of Object.keys(TU).filter(k=>TU[k].c===c)){const T=TU[t];const n=sel.filter(x=>x===t).length;
       h.push(`<div class="ucard${T.off?' off':''}"><div class="uh"><b>${esc(L2(T.n))}</b>${T.off?`<small>${HE?'לא משתתף בפשיטות':(EN?("does not take part in raids"):('в рейдах не участвует'))}</small>`:`<button data-add="${t}"${sel.length>=lim||n>=2?' disabled':''}>${n?`+ (${n})`:'+'}</button>`}</div>`);
-      if(!T.off)h.push(`<div class="us"><span>${HE?'אש':(EN?("Fire"):('Огонь'))} ${stars(T.st[0])}</span><span>${HE?'חשאיות':(EN?("Stealth"):('Скрытность'))} ${stars(T.st[1])}</span><span>${HE?'הסתערות':(EN?("Assault"):('Штурм'))} ${stars(T.st[2])}</span></div><div class="ug"><b>${HE?'במשחק:':(EN?("In the game:"):('В игре:'))}</b> ${esc(L2(T.gm))} <small>${ABIL(t)}</small></div>`);
+      if(!T.off)h.push(chHTML(t)+`<div class="ug"><b>${HE?'במשחק:':(EN?("In the game:"):('В игре:'))}</b> ${esc(L2(T.gm))} <small>${ABIL(t)}</small></div>`);
       h.push(`<details><summary>${HE?'ממקורות פתוחים':(EN?("From open sources"):('Из открытых источников'))}</summary><p>${esc(L2(T.pub))} <a href="${T.src}" target="_blank" rel="noopener">${HE?'מקור':(EN?("source"):('источник'))}</a></p></details></div>`);}}
   const d=$('#campDoc');d.innerHTML=h.join('');$('#camp').hidden=false;bindTabs();bindLang(d);
   const pv=$('#tPrev');if(pv&&mapCv){const c=document.createElement('canvas');c.width=220;c.height=Math.round(220*H/W);c.getContext('2d').drawImage(mapCv,0,0,c.width,c.height);pv.src=c.toDataURL('image/jpeg',.82);}
@@ -1032,28 +1040,66 @@ function askResult(u,b){if(!S.civ[b]){say(u,HE?`צפע, כאן ${u.call}. במב
 // Kfir: a checkpoint stops armed men called out by the alarm
 const cpActive=()=>infs().filter(u=>u.cpOn&&['hold','incover','cover'].includes(u.st)&&u.men>2);
 
+/* ---------- characteristics: one table for every unit, ours and the enemy's ---------- */
+// Game conventions on a 1..10 scale, not real data. This table is the single source: the battle parameters
+// (accuracy, how often the group is hit, how easily it is spotted, pace, clearing time, capture chance,
+// observation time) are all computed from it, so what the catalog shows is what happens in the game.
+const CH_K=[['Огневая мощь','עוצמת אש','Firepower'],['Стойкость','עמידות','Resilience'],['Скрытность','חשאיות','Stealth'],['Скорость','מהירות','Speed'],['Штурм','הסתערות','Assault'],['Захват','לכידה','Capture'],['Разведка','סיור','Recon']];
+// what each characteristic is made of in the game (shown once, above the catalog)
+const CH_SUB=[
+  ['огонь всей группы: численность × меткость; чем больше, тем быстрее противник несёт потери','האש של כל הצוות: מספר הלוחמים × דיוק; ככל שגבוה יותר, האויב סופג אבדות מהר יותר','fire of the whole group: numbers × accuracy; the higher, the faster the enemy takes losses'],
+  ['как часто попадают по группе и как быстро падает её дух при потерях','באיזו תדירות פוגעים בצוות ועד כמה המורל שלו יורד עם אבדות','how often the group is hit and how fast its morale drops with losses'],
+  ['как легко группу замечают наблюдатели и патрули','באיזו קלות תצפיתנים וסיורים מבחינים בצוות','how easily lookouts and patrols spot the group'],
+  ['скорость передвижения пешком','מהירות התנועה ברגל','pace on foot'],
+  ['время зачистки здания, потери при входе, бой внутри здания','זמן טיהור מבנה, אבדות בכניסה, קרב בתוך מבנה','time to clear a building, losses at the entrance, fighting inside'],
+  ['шанс взять противника живым','הסיכוי לתפוס את האויב בחיים','chance of taking the enemy alive'],
+  ['как быстро группа ведёт скрытное наблюдение за зданием','כמה מהר הצוות מסיים תצפית חשאית על מבנה','how fast the group completes covert observation of a building']];
+// weights of the final power score
+const CH_W=[.3,.2,.1,.1,.15,.05,.1];
+//        fire res stl spd asl cap rec
+const CH={
+  ym:  [7,6,6,6,9,9,5], dv:[7,6,8,7,8,9,7], mg:[6,7,7,6,4,5,9], eg:[7,7,8,7,7,6,7], yh:[6,5,6,5,6,5,5],
+  sgol:[7,6,7,7,6,6,7], stz:[7,6,7,7,6,6,7], sgv:[7,6,7,7,6,6,7], snh:[7,6,7,7,6,6,7],
+  gol: [9,5,3,4,6,4,4], tz:[9,5,3,4,6,4,4], gv:[9,5,3,4,6,4,4], nh:[9,5,3,4,6,4,4], kf:[9,5,3,4,6,4,4],
+  // Russian Army (missions)
+  sso: [7,8,8,7,8,5,7], spn:[7,7,7,7,7,5,7], vdv:[10,6,3,6,7,4,4], mp:[9,5,3,5,7,4,4], msv:[9,5,3,4,5,4,4], isp:[6,5,5,5,5,4,5]};
+// special abilities: tags, not numbers; each adds a little to the final score (no more than +5)
+function chTags(t){const T=TU[t]||RUF[t]||{},a=[];
+  if(T.uc)a.push([['маскировка под местных','הסוואה כמקומיים','disguised as locals'],1]);if(T.veh)a.push([['машина','רכב','car'],1]);
+  if(T.atgm)a.push([['ракеты','טילים','missiles'],2]);if(T.optic)a.push([['оптика','אופטיקה','optics'],1]);if(T.sap)a.push([['сапёры','חבלנים','sappers'],2]);
+  if(T.ask)a.push([['опрос жителей','תחקור תושבים','questioning residents'],1]);if(T.cp)a.push([['блокпост','מחסום','checkpoint'],1]);if(T.amb)a.push([['засады','מארבים','ambushes'],1]);return a;}
+function chPower(t){const c=CH[t];if(!c)return 0;const b=Math.min(5,chTags(t).reduce((s,x)=>s+x[1],0));return Math.round(10*c.reduce((s,v,i)=>s+v*CH_W[i],0))+b;}
+// battle parameters from the table
+const fpOf=f=>.168*f*f; // fire of the whole group at full strength, in "rifle equivalents"
+function mechOf(t,men){const [f,r,s,v,a,c,k]=CH[t];return{q:+(fpOf(f)/men).toFixed(3),rk:+(1.6-.1*r).toFixed(2),mk:+(1.5-.1*r).toFixed(2),stl:+(2**((6-s)/3)).toFixed(2),
+  spd:+(.6+.08*v).toFixed(2),clr:+((1.5-.08*a)*(men>=12?.75:1)).toFixed(2),ent:+(1.5-.1*a).toFixed(2),cq:+(.7+.05*a).toFixed(2),cap:+(.1+.07*c).toFixed(2),rc:+(1.5-.1*k).toFixed(2)};}
+// catalog block: seven bars and the final score
+function chHTML(t){const c=CH[t];if(!c)return'';const tg=chTags(t);
+  return`<div class="chs">${c.map((v,i)=>`<span class="cn">${esc(L2(CH_K[i]))}</span><span class="cb"><i style="width:${v*10}%"></i></span><span class="cv">${v}</span>`).join('')}</div>`
+    +`<div class="cpw"><span>${tg.length?esc(tg.map(x=>L2(x[0])).join(' · ')):''}</span><b>${T3('Сила','עוצמה','Power')} ${chPower(t)}</b></div>`;}
+function chLegend(){return`<details class="chl"><summary>${T3('Что означают характеристики','מה המאפיינים אומרים','What the ratings mean')}</summary><ul>${CH_K.map((k,i)=>`<li><b>${esc(L2(k))}</b> (${Math.round(CH_W[i]*100)}%) — ${esc(L2(CH_SUB[i]))}</li>`).join('')}</ul><p>${T3('Сила — итог из семи характеристик, в скобках их вес; особые возможности добавляют до 5 очков. Шкала 1–10 и все числа — игровые условности.','עוצמה — סיכום שבעת המאפיינים, בסוגריים המשקל של כל אחד; יכולות מיוחדות מוסיפות עד 5 נקודות. הסולם 1–10 וכל המספרים — מוסכמות של המשחק.','Power is the total of the seven ratings, with each weight in brackets; special abilities add up to 5 points. The 1–10 scale and all the numbers are game conventions.')}</p></details>`;}
 /* ---------- missions: our forces against a regular army; "king of the hill" race to plant a charge in the town center ---------- */
 const MIS_KEY=HE?'reshet-mission-he':EN?'reshet-mission-en':'reshet-mission-ru';
 let MS=null;
 const T3=(ru,he,en)=>HE?he:EN?en:ru;
 // Russian Armed Forces, open sources only. Numbers are game conventions.
 const RUF={
- sso:{n:['ССО','כוחות מבצעים מיוחדים','SSO'],men:8,q:1.15,
+ sso:{n:['ССО','כוחות מבצעים מיוחדים','SSO'],men:8,
   pub:['Силы специальных операций ВС России. Управление создано в 2009 году на базе 322-го центра ГРУ, о создании ССО объявлено в марте 2013 года. По открытым данным, действовали в Крыму (2014) и в Сирии (с 2015).','כוחות המבצעים המיוחדים של צבא רוסיה. המפקדה הוקמה ב-2009 על בסיס מרכז 322 של ה-GRU, ועל הקמת הכוחות הוכרז במרץ 2013. לפי מקורות פתוחים פעלו בקרים (2014) ובסוריה (מ-2015).','Special Operations Forces of the Russian Armed Forces. The directorate was created in 2009 from the GRU 322nd center, and the forces were announced in March 2013. According to open sources they operated in Crimea (2014) and Syria (from 2015).'],
   gm:['Малая группа высокой выучки: самые точные и стойкие.','צוות קטן ומיומן מאוד: המדויקים והעמידים ביותר.','Small, highly trained team: the most accurate and resilient.'],src:'https://en.wikipedia.org/wiki/Special_Operations_Forces_(Russia)'},
- spn:{n:['Спецназ ГРУ','ספצנאז GRU','GRU Spetsnaz'],men:8,q:1.05,
+ spn:{n:['Спецназ ГРУ','ספצנאז GRU','GRU Spetsnaz'],men:8,
   pub:['Части специального назначения военной разведки России. По открытым данным, их задача — разведка и диверсии; их называют элитной пехотой, поддерживающей общевойсковые соединения.','יחידות המיוחדות של המודיעין הצבאי הרוסי. לפי מקורות פתוחים משימתן סיור וחבלה; מתארים אותן כחי״ר מובחר התומך בעוצבות.','Special purpose units of Russian military intelligence. According to open sources their task is reconnaissance and sabotage; they are described as elite infantry supporting conventional formations.'],
   gm:['Разведывательно-диверсионная группа: точный огонь, скрытное выдвижение.','צוות סיור וחבלה: אש מדויקת, תנועה חשאית.','Reconnaissance and sabotage team: accurate fire, stealthy movement.'],src:'https://en.wikipedia.org/wiki/Spetsnaz_GRU'},
- vdv:{n:['ВДВ','כוחות מוטסים','VDV'],men:16,q:.95,
+ vdv:{n:['ВДВ','כוחות מוטסים','VDV'],men:16,
   pub:['Воздушно-десантные войска России, образованы указом от 7 мая 1992 года. Роли по открытым данным: лёгкая, воздушно-десантная, аэромобильная и механизированная пехота; с 2013 года — ядро сил быстрого реагирования.','הכוחות המוטסים של רוסיה, הוקמו בצו מ-7 במאי 1992. לפי מקורות פתוחים: חי״ר קל, מוצנח, מוסק וממוכן; מ-2013 — הליבה של כוחות התגובה המהירה.','Russian Airborne Forces, established by decree of 7 May 1992. According to open sources: light, airborne, airmobile and mechanized infantry; since 2013 the core of the rapid reaction forces.'],
   gm:['Десантно-штурмовой взвод: напористый штурм.','מחלקת הסתערות מוטסת: הסתערות נמרצת.','Air assault platoon: aggressive assault.'],src:'https://en.wikipedia.org/wiki/Russian_Airborne_Forces'},
- mp:{n:['Морская пехота','חי״ר ימי','Naval Infantry'],men:16,q:.92,
+ mp:{n:['Морская пехота','חי״ר ימי','Naval Infantry'],men:16,
   pub:['Морская пехота — десантные войска ВМФ России; в советском флоте воссоздана в 1961 году. По открытым данным, исторически тесно связана с ВДВ.','החי״ר הימי — כוח הנחיתה של הצי הרוסי; הוקם מחדש בצי הסובייטי ב-1961. לפי מקורות פתוחים קשור היסטורית לכוחות המוטסים.','Naval Infantry — the amphibious force of the Russian Navy; re-formed in the Soviet Navy in 1961. According to open sources it has close historical ties with the VDV.'],
   gm:['Взвод морской пехоты: штурмовые действия.','מחלקת חי״ר ימי: פעולות הסתערות.','Naval infantry platoon: assault operations.'],src:'https://en.wikipedia.org/wiki/Russian_Naval_Infantry'},
- msv:{n:['Мотострелки','חי״ר ממוכן','Motor Riflemen'],men:16,q:.85,
+ msv:{n:['Мотострелки','חי״ר ממוכן','Motor Riflemen'],men:16,
   pub:['Мотострелковые войска — род сухопутных войск России, основа общевойсковых соединений.','חיל הרובאים הממוכן — זרוע של כוחות היבשה הרוסיים, הבסיס של העוצבות.','Motor Rifle Troops — a combat arm of the Russian Ground Forces and the core of combined-arms formations.'],
   gm:['Мотострелковый взвод: много стволов, удерживает позиции.','מחלקת חי״ר ממוכן: הרבה קני ירי, מחזיקה עמדות.','Motor rifle platoon: many rifles, holds positions.'],src:'https://en.wikipedia.org/wiki/Russian_Ground_Forces'},
- isp:{n:['Инженерно-сапёрные','הנדסה קרבית','Combat Engineers'],men:6,q:.85,sap:true,
+ isp:{n:['Инженерно-сапёрные','הנדסה קרבית','Combat Engineers'],men:6,sap:true,
   pub:['Инженерные войска России: инженерная разведка, разминирование, заграждения и подрывные работы.','כוחות ההנדסה של רוסיה: סיור הנדסי, פינוי מוקשים, מכשולים והריסות.','Russian Engineer Troops: engineer reconnaissance, mine clearing, obstacles and demolitions.'],
   gm:['Сапёры: быстрее ставят и обезвреживают заряд.','חבלנים: מציבים ומנטרלים מטען מהר יותר.','Sappers: plant and defuse charges faster.'],src:'https://en.wikipedia.org/wiki/Russian_Ground_Forces'}};
 // analogs: which Russian unit answers each of our units
@@ -1066,6 +1112,8 @@ function enemyOrder(o){const r=mulberry(o.seed*7+o.diff*3+11);let list=o.sel.map
   if(!list.length)list=['msv','spn'];if(o.diff===0&&list.length>=3)list.splice(list.findIndex(t=>t!=='isp'),1);
   if(o.diff>=2)list.push('msv');if(o.diff>=3)list.push('vdv');if(!list.includes('isp')&&r()<.6)list.push('isp');return list.slice(0,8);}
 const ourMen=sel=>sel.reduce((s,t)=>s+(TU[t].men||0),0);
+// power of a whole side: the sum of the units' scores (a smaller enemy team on the easy level counts proportionally less)
+const ourPow=sel=>sel.reduce((s,t)=>s+chPower(t),0),enPow=o=>Math.round(enemyOrder(o).reduce((s,t)=>s+chPower(t)*(o.diff===0?.8:1),0));
 const enMen=o=>enemyOrder(o).reduce((s,t)=>s+Math.round(RUF[t].men*(o.diff===0?.8:1)),0);
 function newMissionState(o){const st=newState({seed:o.seed,diff:o.diff,dens:o.dens,sel:o.sel});
   st.mission=true;st.train=false;st.city.g=3;st.opName=['Миссия','משימה','Mission'];st.traps={};st.ieds=[];st.decoy=0;st.alarm=true;st.alarmT0=0;st.mob=true;st.mobK=0;
@@ -1075,7 +1123,7 @@ function newMissionState(o){const st=newState({seed:o.seed,diff:o.diff,dens:o.de
   st.units.filter(u=>u.type==='inf').forEach((u,i)=>{u.pace='fast';u.x=st.ourBase.x-90+(i%4)*60;u.y=st.ourBase.y+Math.floor(i/4)*40;u.tx=u.x;u.ty=u.y;st.marks.own[u.id]={x:u.x,y:u.y};});
   const ya=st.units.find(u=>u.type==='uav');if(ya){ya.x=ox;ya.y=oy+200;}st.uav={x:ox,y:oy+200,tx:ox,ty:oy+200};
   const order=enemyOrder(o);const b0=BL[0].n;
-  st.enemies=order.map((t,i)=>{const R=RUF[t];const g=grp('a'+i,'army',Math.round(R.men*(o.diff===0?.8:1)),b0,{alert:true,rt:t,q:(R.q||1)+(o.diff>=3?.05:0),sap:!!R.sap,mode:'base',role:'',prog:0});
+  st.enemies=order.map((t,i)=>{const R=RUF[t];const g=grp('a'+i,'army',Math.round(R.men*(o.diff===0?.8:1)),b0,{alert:true,rt:t,...(m=>({q:m.q+(o.diff>=3?.05:0),rk:m.rk,stl:m.stl,spd:m.spd}))(mechOf(t,R.men)),sap:!!R.sap,mode:'base',role:'',prog:0});
     g.bld=0;g.x=st.enBase.x-90+(i%4)*60;g.y=st.enBase.y-Math.floor(i/4)*40;g.tx=g.x;g.ty=g.y;return g;});
   st.units=st.units.filter(u=>u.id!=='mo');st.mol.st='none';st.mol.ammo=0;st.mol.gun=0;st.mol.cover=null;
   st.charge={us:null,them:null};st.mres=null;st.enOrder=order;st.aiT=0;st.contact0=0;return st;}
@@ -1114,11 +1162,11 @@ function pauseReset(){PT=0;PTn=0;}
 function armyTick(dt){const O=S.obj,U=infs();
   for(const e of alive()){if(e.kind!=='army')continue;
     if(e.mode!=='withdraw'&&e.men<=Math.ceil(e.max*.35)){e.mode='withdraw';e.bld=0;const p=nearFree(S.enBase.x,S.enBase.y);e.tx=p[0]*NG;e.ty=p[1]*NG;e.pkey=null;if(e.role==='carrier')e.role='';}
-    if(e.mode==='withdraw'){if(moveAlong(e,ARMY_SPD*1.2*dt)){e.gone=true;S.enWithdrawn=(S.enWithdrawn||0)+e.men;}continue;}
+    if(e.mode==='withdraw'){if(moveAlong(e,ARMY_SPD*(e.spd||1)*1.2*dt)){e.gone=true;S.enWithdrawn=(S.enWithdrawn||0)+e.men;}continue;}
     if(e.cont.length){S.contact0=S.contact0||S.t;if(e.mode==='amove')strongpoint(e);if(e.mode==='plant'||e.mode==='defuse'){e.mode='hold';}continue;}
     if(e.mode==='amove'){if((e.sup||0)>60)continue;if(e.pause>0){e.pause-=dt;continue;}
-      if(moveAlong(e,ARMY_SPD*dt)){const atO=Math.hypot(e.x-O.x,e.y-O.y)<30;if(atO&&e.role==='carrier'&&!S.charge.them){e.mode='plant';e.prog=e.prog||0;}else if(atO&&e.role==='defuse'){e.mode='defuse';}else strongpoint(e);}
-      else{e.leg=(e.leg||0)+ARMY_SPD*dt;if(e.leg>110&&e.role!=='defuse'){e.leg=0;e.pause=15;}}}
+      if(moveAlong(e,ARMY_SPD*(e.spd||1)*dt)){const atO=Math.hypot(e.x-O.x,e.y-O.y)<30;if(atO&&e.role==='carrier'&&!S.charge.them){e.mode='plant';e.prog=e.prog||0;}else if(atO&&e.role==='defuse'){e.mode='defuse';}else strongpoint(e);}
+      else{e.leg=(e.leg||0)+ARMY_SPD*(e.spd||1)*dt;if(e.leg>110&&e.role!=='defuse'){e.leg=0;e.pause=15;}}}
     else if(e.mode==='plant'||e.mode==='defuse'){const busy=U.some(u=>u.men>0&&Math.hypot(u.x-e.x,u.y-e.y)<HOLD_R);if(busy)continue;e.prog=(e.prog||0)+dt;
       if(e.prog>=(e.sap?PLANT_SAP:PLANT_T)){e.prog=0;if(e.mode==='plant'&&!S.charge.them){S.charge.them={tDet:S.t+DET_T};e.mode='hold';say({call:T3('Разведка','מודיעין','Intel'),type:'x'},T3(`Кобра-6, я Разведка. Перехват: противник установил заряд на объекте. Подрыв примерно в ${fmt(S.t+DET_T)}. Приём.`,`צפע, כאן מודיעין. יירוט: האויב הציב מטען ביעד. פיצוץ בערך ב-${fmt(S.t+DET_T)}. עבור.`,`Cobra-6, this is Intel. Intercept: the enemy has planted a charge at the objective. Detonation at about ${fmt(S.t+DET_T)}. Over.`),[],{urgent:true});}
         else if(e.mode==='defuse'&&S.charge.us){S.charge.us=null;e.mode='hold';say({call:T3('Разведка','מודיעין','Intel'),type:'x'},T3('Кобра-6, я Разведка. Перехват: противник обезвредил наш заряд. Приём.','צפע, כאן מודיעין. יירוט: האויב נטרל את המטען שלנו. עבור.','Cobra-6, this is Intel. Intercept: the enemy has defused our charge. Over.'),[],{urgent:true});}}}}}
@@ -1177,14 +1225,14 @@ function showMission(){const sel=MS.sel,h=[];const ord=enemyOrder(MS);
   if(!M.classic)h.push(`<div class="tprev"><img id="tPrev" alt=""><div><b>${T3('Местность','שטח','Terrain')}:</b> ${esc(L2(TOWNL[M.type]))}<br><small>${T3('объект — в центре, мы — с юга, противник — с севера','היעד במרכז, אנחנו מדרום, האויב מצפון','objective in the center, we come from the south, the enemy from the north')}</small></div></div>`);
   h.push(`<p class="meta">${T3('Поддержка: беспилотник «Ястреб» и вертолёты эвакуации «Ангел». Ударного вертолёта и техники в этом режиме нет ни у одной стороны.','סיוע: הכטב״ם «זיק» ומסוקי הפינוי «ינשוף». מסוק קרב וכלי רכב אין לאף צד במצב הזה.','Support: the Hawk UAV and the Angel medevac helicopters. Neither side has an attack helicopter or vehicles in this mode.')}</p>`);
   h.push(`<h2>${T3('Противник (разведка)','האויב (מודיעין)','Enemy (intelligence)')}</h2><p>${T3('Отряды-аналоги ваших сил, по сложности — больше или меньше:','צוותים מקבילים לכוחות שלכם, לפי הקושי — יותר או פחות:','Counterparts of your forces, more or fewer by difficulty:')} <b>${esc(ord.map(t=>L2(RUF[t].n)).join(', '))}</b></p>`);
-  {const a=ourMen(sel),b=enMen(MS),r=a?b/a:0;h.push(`<div class="mcount"><span><small>${T3('Ваши силы','הכוחות שלכם','Your forces')}</small><b>${a}</b>${T3('бойцов','לוחמים','soldiers')}</span><span class="vs">${T3('против','מול','vs')}</span><span><small>${T3('Противник (разведка)','האויב (מודיעין)','Enemy (intelligence)')}</small><b>~${b}</b>${T3('солдат','חיילים','soldiers')}</span></div><p class="meta">${a?(r>1.15?T3(`Противник сильнее числом примерно в ${r.toFixed(1).replace('.',',')} раза.`,`האויב גדול יותר בערך פי ${r.toFixed(1)}.`,`The enemy outnumbers you about ${r.toFixed(1)} to 1.`):r<.87?T3(`Вы сильнее числом примерно в ${(1/r).toFixed(1).replace('.',',')} раза.`,`אתם גדולים יותר בערך פי ${(1/r).toFixed(1)}.`,`You outnumber the enemy about ${(1/r).toFixed(1)} to 1.`):T3('Силы примерно равны по численности.','הכוחות שקולים בערך במספרם.','The forces are roughly equal in numbers.')):T3('Выберите свои отряды ниже.','בחרו את הצוותים שלכם למטה.','Pick your teams below.')} ${T3('Выучка отрядов различается — см. описания.','רמת האימון שונה בין היחידות — ראו בתיאורים.','Training differs between units — see the descriptions.')}</p>`);}
+  {const a=ourMen(sel),b=enMen(MS),r=a?b/a:0;h.push(`<div class="mcount"><span><small>${T3('Ваши силы','הכוחות שלכם','Your forces')}</small><b>${a}</b>${T3('бойцов','לוחמים','soldiers')}<small class="pw">${T3('сила','עוצמה','power')} ${ourPow(sel)}</small></span><span class="vs">${T3('против','מול','vs')}</span><span><small>${T3('Противник (разведка)','האויב (מודיעין)','Enemy (intelligence)')}</small><b>~${b}</b>${T3('солдат','חיילים','soldiers')}<small class="pw">${T3('сила','עוצמה','power')} ~${enPow(MS)}</small></span></div><p class="meta">${a?(r>1.15?T3(`Противник сильнее числом примерно в ${r.toFixed(1).replace('.',',')} раза.`,`האויב גדול יותר בערך פי ${r.toFixed(1)}.`,`The enemy outnumbers you about ${r.toFixed(1)} to 1.`):r<.87?T3(`Вы сильнее числом примерно в ${(1/r).toFixed(1).replace('.',',')} раза.`,`אתם גדולים יותר בערך פי ${(1/r).toFixed(1)}.`,`You outnumber the enemy about ${(1/r).toFixed(1)} to 1.`):T3('Силы примерно равны по численности.','הכוחות שקולים בערך במספרם.','The forces are roughly equal in numbers.')):T3('Выберите свои отряды ниже.','בחרו את הצוותים שלכם למטה.','Pick your teams below.')} ${T3('Выучка отрядов различается — см. описания.','רמת האימון שונה בין היחידות — ראו בתיאורים.','Training differs between units — see the descriptions.')}</p>`);}
   h.push(`<h2>${T3(`Ваши силы · ${sel.length} из ${MAXG}`,`הכוחות שלכם · ${sel.length} מתוך ${MAXG}`,`Your forces · ${sel.length} of ${MAXG}`)}</h2>`+(sel.length?`<div class="selc">${sel.map((t,i)=>`<button data-mrm="${i}">${esc(L2(TU[t].n))} ✕</button>`).join('')}</div>`:''));
   h.push(`<button class="go" id="mGo"${!sel.length?' disabled':''}>${T3('К боевому приказу','לפקודת המבצע','To the operation order')}</button>`);
-  h.push(`<h2>${T3('Наши подразделения','היחידות שלנו','Our units')}</h2>`);
+  h.push(`<h2>${T3('Наши подразделения','היחידות שלנו','Our units')}</h2>`+chLegend());
   for(const [c,cn] of UCAT){if(c==='bdr')continue;h.push(`<h3>${L2(cn)}</h3>`);for(const t of Object.keys(TU).filter(k=>TU[k].c===c)){const T=TU[t];const n=sel.filter(x=>x===t).length;
-    h.push(`<div class="ucard"><div class="uh"><b>${esc(L2(T.n))}</b><button data-madd="${t}"${sel.length>=MAXG||n>=2?' disabled':''}>${n?`+ (${n})`:'+'}</button></div><div class="ug">${esc(L2(T.gm))} <small>${ABIL(t)} · ${T3('аналог у противника','המקבילה אצל האויב','enemy counterpart')}: ${esc(L2(RUF[ANALOG[t]].n))}</small></div></div>`);}}
+    h.push(`<div class="ucard"><div class="uh"><b>${esc(L2(T.n))}</b><button data-madd="${t}"${sel.length>=MAXG||n>=2?' disabled':''}>${n?`+ (${n})`:'+'}</button></div><div class="ug">${esc(L2(T.gm))} <small>${ABIL(t)} · ${T3('аналог у противника','המקבילה אצל האויב','enemy counterpart')}: ${esc(L2(RUF[ANALOG[t]].n))}</small></div>${chHTML(t)}</div>`);}}
   h.push(`<h2>${T3('Армия России: подразделения','צבא רוסיה: היחידות','Russian Army: units')}</h2><p class="meta">${T3('Сведения — только из открытых источников. Численность и характеристики в игре — игровые условности.','המידע — ממקורות פתוחים בלבד. מספר הלוחמים והמאפיינים במשחק — מוסכמות של המשחק.','Information comes only from open sources. Team sizes and ratings in the game are game conventions.')}</p>`);
-  for(const t of Object.keys(RUF)){const R=RUF[t];h.push(`<div class="ucard"><div class="uh"><b>${esc(L2(R.n))}</b><small>${R.men} ${T3('чел.','לוחמים','men')}</small></div><div class="ug"><b>${T3('В игре:','במשחק:','In the game:')}</b> ${esc(L2(R.gm))}</div><details><summary>${T3('Из открытых источников','ממקורות פתוחים','From open sources')}</summary><p>${esc(L2(R.pub))} <a href="${R.src}" target="_blank" rel="noopener">${T3('источник','מקור','source')}</a></p></details></div>`);}
+  for(const t of Object.keys(RUF)){const R=RUF[t];h.push(`<div class="ucard"><div class="uh"><b>${esc(L2(R.n))}</b><small>${R.men} ${T3('чел.','לוחמים','men')}</small></div><div class="ug"><b>${T3('В игре:','במשחק:','In the game:')}</b> ${esc(L2(R.gm))}</div>${chHTML(t)}<details><summary>${T3('Из открытых источников','ממקורות פתוחים','From open sources')}</summary><p>${esc(L2(R.pub))} <a href="${R.src}" target="_blank" rel="noopener">${T3('источник','מקור','source')}</a></p></details></div>`);}
   const d=$('#campDoc');d.innerHTML=h.join('');$('#camp').hidden=false;bindTabs();bindLang(d);
   const pv=$('#tPrev');if(pv&&mapCv){const c=document.createElement('canvas');c.width=220;c.height=Math.round(220*H/W);c.getContext('2d').drawImage(mapCv,0,0,c.width,c.height);pv.src=c.toDataURL('image/jpeg',.82);}
   const ch=(city)=>{if(city)setCity(MS.seed,MS.dens,true);S=newMissionState(MS);resetView();saveMS();showMission();};
@@ -1573,7 +1621,7 @@ function tick(dt){
   // contacts
   for(const u of U){if(u.men<=0)continue;for(const e of alive()){const d=hyp(e,u);let mode=null;
     if(u.inB&&e.bld===u.inB&&e.mode!=='move'){if(e.alert)mode='close';}
-    else if(!u.inB){if(outside(e)&&d<150&&e.alert&&losUE(u,e))mode='street';else if(e.bld&&e.alert&&d<100&&losUE(u,e))mode='window';}
+    else if(!u.inB){if(outside(e)&&d<150*(e.stl<1?Math.sqrt(e.stl):1)&&e.alert&&losUE(u,e))mode='street';else if(e.bld&&e.alert&&d<100&&losUE(u,e))mode='window';}
     else if(u.inB&&outside(e)&&d<120&&e.alert&&losUE(u,e))mode='street';
     if(mode){u.cont.push(e.id);e.cont.push(u.id);(u.cm||(u.cm={}))[e.id]=mode;if(mode!=='close'&&e.bld&&!e.mv)u.pidB=e.bld;}}}
   // react to contact: return fire, get to cover out of the shooter's sight, report with direction/distance
@@ -1586,11 +1634,11 @@ function tick(dt){
     else{u.st='incover';u.cvK=.6;u.decT=S.t+12;say(u,(HE?(`צפע, כאן ${u.call}. ${dm?'ירדנו מהרכב. ':''}אין מחסה קרוב, נלחמים במקום. האויב ${DIRS[dirIdx(e0.x-u.x,e0.y-u.y)]}, ${Math.max(20,Math.round(Math.hypot(e0.x-u.x,e0.y-u.y)/10)*10)} מטר, ${cnt(e0.men)}.`):((EN?(`Cobra-6, this is ${u.call}. ${dm?'Dismounted. ':''}No cover nearby, fighting where we are. Enemy to the ${DIRS[dirIdx(e0.x-u.x,e0.y-u.y)]}, ${Math.max(20,Math.round(Math.hypot(e0.x-u.x,e0.y-u.y)/10)*10)} meters, ${cnt(e0.men)}.`):(`Кобра-6, я ${u.call}. ${dm?'Спешились. ':''}Укрытия рядом нет, ведём бой на месте. Противник на ${DIRS[dirIdx(e0.x-u.x,e0.y-u.y)]}, метров ${Math.max(20,Math.round(Math.hypot(e0.x-u.x,e0.y-u.y)/10)*10)}, ${cnt(e0.men)}.`)))),[],{urgent:true,known:'st'});}}
   // combat
   for(const u of U){if(!u.cont.length||u.men<=0)continue;const sh=1/u.cont.length;
-    for(const id of u.cont){const e=E_(id),m=u.cm[id];const cov=m==='close'?.8:m==='window'?bcov(e.bld):e.roof?.6:(debCov(e.x,e.y)||.9);if(m==='window'&&!e.roof)wpnFire(u,e.bld,sh,dt,e);e.sup=Math.min(100,(e.sup||0)+u.men*sh*dt*1.8*(u.uc?1.3:1));e.acc+=(m==='close'?.008:.0045)*(u.uc?1.3:1)*(u.q||1)*(sk(u,'fire')?1.15:1)*(u.sup>60?.5:1)*(u.st==='incover'?.8:1)*u.men*(u.ammo>0?1:.2)*sh*cov*dt;
+    for(const id of u.cont){const e=E_(id),m=u.cm[id];const cov=m==='close'?.8:m==='window'?bcov(e.bld):e.roof?.6:(debCov(e.x,e.y)||.9);if(m==='window'&&!e.roof)wpnFire(u,e.bld,sh,dt,e);e.sup=Math.min(100,(e.sup||0)+u.men*sh*dt*1.8*(u.uc?1.3:1));e.acc+=(m==='close'?.008*(u.cq||1):.0045)*(e.rk||1)*(u.uc?1.3:1)*(u.q||1)*(sk(u,'fire')?1.15:1)*(u.sup>60?.5:1)*(u.st==='incover'?.8:1)*u.men*(u.ammo>0?1:.2)*sh*cov*dt;
       if(m==='close'&&S.civ[u.inB]>0&&Math.random()<.0012*S.civ[u.inB]*dt){addCivW(u.inB);u.civHit=(u.civHit||0)+1;}}
     u.ammo=Math.max(0,u.ammo-.07*dt);noise(u.x,u.y,u.loud?300:70);}
   for(const e of alive()){if(!e.cont.length||e.mode==='flee')continue;if(!e.fired){e.fired=true;enemyShot(e);}const sh=1/e.cont.length;
-    for(const id of e.cont){const u=U_(id),m=u.cm[e.id];const cov=m==='close'?1:u.inB?bcov(u.inB):u.st==='cover'?1.1:Math.min(debCov(u.x,u.y)||1,u.st==='incover'?(u.cvK||.6):(u.st==='hold'||u.st==='cordon')?.6:1);if(u.inB&&m!=='close')wpnFire(e,u.inB,sh,dt,u);u.sup=Math.min(100,(u.sup||0)+e.men*sh*cov*dt*2.2);u.acc+=(m==='close'?.0065*(u.surpT>0?.5:1)*(u.dogBonus?.65:1):.0028)*e.men*sh*cov*(u.uc?.8:1)*(2-(u.q||1))*(e.q||1)*(e.sup>60?.5:1)*dt;}}
+    for(const id of e.cont){const u=U_(id),m=u.cm[e.id];const cov=m==='close'?1:u.inB?bcov(u.inB):u.st==='cover'?1.1:Math.min(debCov(u.x,u.y)||1,u.st==='incover'?(u.cvK||.6):(u.st==='hold'||u.st==='cordon')?.6:1);if(u.inB&&m!=='close')wpnFire(e,u.inB,sh,dt,u);u.sup=Math.min(100,(u.sup||0)+e.men*sh*cov*dt*2.2);u.acc+=(m==='close'?.0065*(u.surpT>0?.5:1)*(u.dogBonus?.65:1):.0028)*e.men*sh*cov*(u.uc?.8:1)*(u.rk||(2-(u.q||1)))*(e.q||1)*(e.sup>60?.5:1)*dt;}}
   for(const e of alive()){while(e.acc>=1&&e.men>0){e.acc-=1;
       if(e.leader&&(e.men===1||Math.random()<(e.cont.some(id=>U_(id).cm[e.id]==='close')?1:.35)/e.men)){e.leader=false;if(S.leader==='free'){S.leader='killed';S.body={x:e.x,y:e.y,rubble:false};const u=U_(e.cont[0]);if(u)say(u,(HE?(`צפע, כאן ${u.call}. «המהנדס» נוטרל. חוזר: «המהנדס» — חוסל.`):((EN?(`Cobra-6, this is ${u.call}. Objective "the Engineer" neutralized. I say again: "the Engineer" — killed.`):(`Кобра-6, я ${u.call}. Объект «Инженер» нейтрализован. Повторяю: «Инженер» — ликвидирован.`)))),[],{urgent:true,kobj:['eng',(HE?('חוסל'):((EN?("killed"):('ликвидирован'))))]});}}
       e.men--;S.stats.ek++;e.unrep=(e.unrep||0)+1;if(e.cont.length){const k=U_(e.cont[Math.floor(Math.random()*e.cont.length)]);e.lastK=k.id;k.kills=(k.kills||0)+1;if(k.inB&&k.inB===e.bld)k.bldEK=(k.bldEK||0)+1;}}
@@ -1600,7 +1648,7 @@ function tick(dt){
   for(const u of U){while(u.acc>=1&&u.men>0){u.acc-=1;casualty(u);}}
   // own movement
   for(const u of U){if(u.men<=0||!['move','assault','cordon','retreat','snipe','recon','exfil','cover'].includes(u.st))continue;
-    const tw=inTown(u.x,u.y);let sp=u.veh?(tw?7:10):u.pace==='fast'?(tw?1.6:2):(tw?.7:.9);if(u.st==='cover')sp=2.2;else if((u.sup||0)>60&&u.st!=='retreat'&&u.st!=='exfil')sp*=.5;if(u.cont.length){if(u.st==='move'||u.st==='cordon'||u.st==='snipe'||u.st==='recon')sp=0;else if(u.st==='assault')sp*=.4;else if(u.st==='exfil')sp*=.7;}if(u.wounded>u.men)sp*=.7;
+    const tw=inTown(u.x,u.y);let sp=u.veh?(tw?7:10):u.pace==='fast'?(tw?1.6:2):(tw?.7:.9);if(u.st==='cover')sp=2.2;else if((u.sup||0)>60&&u.st!=='retreat'&&u.st!=='exfil')sp*=.5;if(u.cont.length){if(u.st==='move'||u.st==='cordon'||u.st==='snipe'||u.st==='recon')sp=0;else if(u.st==='assault')sp*=.4;else if(u.st==='exfil')sp*=.7;}if(u.wounded>u.men)sp*=.7;if(!u.veh)sp*=u.spd||1;
     if(sp>0&&u.pace==='fast'&&!u.veh)noise(u.x,u.y,30);
     if(sp>0&&moveAlong(u,sp*dt)){
       if(u.mountOn){u.mountOn=false;u.veh=true;S.car=null;u.st='hold';delete S.marks.ord[u.id];say(u,(HE?(`צפע, כאן ${u.call}. עלינו לרכב.`):((EN?(`Cobra-6, this is ${u.call}. In the car.`):(`Кобра-6, я ${u.call}. Сели в машину.`)))),[],{known:'st',act:{k:'car',x:null}});continue;}
@@ -1608,7 +1656,7 @@ function tick(dt){
       if(u.st==='exfil'){const w=u.wounded;S.stats.evac+=w;u.wounded=0;evacMen(u);u.wT=0;u.ammo=100;u.lowAmmo=false;u.morale=Math.min(90,u.morale+20);u.drones=3;u.st='hold';u.pace='stealth';let pr=false;if(S.pris&&S.pris.uid===u.id&&S.pris.st==='held'){S.pris.st='evac';S.pris.tR=S.t+1500;pr=true;}if(u.veh){u.veh=false;S.car={x:u.x,y:u.y};}say(u,(HE?(`צפע, כאן ${u.call}. הגענו לבסיס.${w?` פצועים הועברו לרפואה: ${w}.`:''}${pr?' העצור הועבר לשב״כ.':''} התחמשנו, מוכנים לצאת.`):((EN?(`Cobra-6, this is ${u.call}. Back at base.${w?` Wounded handed to the medics: ${w}.`:''}${pr?' Detainee handed over to the Shin Bet.':''} Ammo replenished, ready to go.`):(`Кобра-6, я ${u.call}. Прибыли на базу.${w?` Раненых передали медикам: ${w}.`:''}${pr?' Задержанного передали ШАБАК.':''} БК пополнили, готовы к выходу.`)))),[posChip(u)],{known:'full'});continue;}
       if(u.searchOn){u.searchOn=false;u.st='search';u.searchT=S.body&&S.body.rubble?600:120;if(u.veh){u.veh=false;S.car={x:u.x,y:u.y};}say(u,(S.body.rubble?(HE?(`צפע, כאן ${u.call}. גופת «המהנדס» מתחת להריסות, מפנים, זה ייקח זמן.`):((EN?(`Cobra-6, this is ${u.call}. The Engineer's body is under the rubble, digging it out will take a while.`):(`Кобра-6, я ${u.call}. Тело «Инженера» под завалами, разбираем, это надолго.`)))):(HE?(`צפע, כאן ${u.call}. ליד גופת «המהנדס», מחפשים.`):((EN?(`Cobra-6, this is ${u.call}. At the Engineer's body, searching.`):(`Кобра-6, я ${u.call}. У тела «Инженера», обыскиваем.`))))),[],{known:'st'});continue;}
       if(u.veh){u.veh=false;S.car={x:u.x,y:u.y};say(u,(HE?(`צפע, כאן ${u.call}. ירדנו מהרכב: ${placeTxt(u.x,u.y)}. הרכב נשאר שם.`):((EN?(`Cobra-6, this is ${u.call}. Dismounted: ${placeTxt(u.x,u.y)}. The car is there.`):(`Кобра-6, я ${u.call}. Высадились: ${placeTxt(u.x,u.y)}. Машина там.`)))),[posChip(u)],{known:'st',act:{k:'car',x:u.x,y:u.y}});}
-      if(u.st==='recon'){u.st='obs';u.obsT=u.askOn?240:(u.uc?90:120)*(sk(u,'recon')?.67:1);if(u.askOn)say(u,ASK_ARR(u),[],{known:'st',act:{k:'clrOrd',uid:u.id}});else say(u,(HE?(`צפע, כאן ${u.call}. ליד מבנה ${u.tb}, בתצפית חשאית.`):((EN?(`Cobra-6, this is ${u.call}. At building ${u.tb}, observing covertly.`):(`Кобра-6, я ${u.call}. У здания ${u.tb}, ведём скрытное наблюдение.`)))),[],{known:'st',act:{k:'clrOrd',uid:u.id}});}
+      if(u.st==='recon'){u.st='obs';u.obsT=u.askOn?240:(u.uc?90:120)*(sk(u,'recon')?.67:1)*(u.rc||1);if(u.askOn)say(u,ASK_ARR(u),[],{known:'st',act:{k:'clrOrd',uid:u.id}});else say(u,(HE?(`צפע, כאן ${u.call}. ליד מבנה ${u.tb}, בתצפית חשאית.`):((EN?(`Cobra-6, this is ${u.call}. At building ${u.tb}, observing covertly.`):(`Кобра-6, я ${u.call}. У здания ${u.tb}, ведём скрытное наблюдение.`)))),[],{known:'st',act:{k:'clrOrd',uid:u.id}});}
       else if(u.st==='snipe'){u.st='aim';u.aimT=20;say(u,(HE?(`צפע, כאן ${u.call}. בעמדה, הצלף עובד על גג מבנה ${u.tb}.`):((EN?(`Cobra-6, this is ${u.call}. In position, sniper working on the roof of building ${u.tb}.`):(`Кобра-6, я ${u.call}. На позиции, снайпер работает по крыше здания ${u.tb}.`)))),[],{known:'st',act:{k:'clrOrd',uid:u.id}});}
       else if(u.st==='assault'){u.st='breach';u.breachT=u.method==='wall'?(sk(u,'charge')?54:90):u.method==='dog'?45:u.method==='sapper'?(sk(u,'fastdis')?72:120):4;const mt={door:(HE?('נכנסים'):((EN?("going in"):('входим')))),wall:(HE?('מפוצצים את הקיר'):((EN?("breaching the wall"):('подрываем стену')))),dog:(HE?('משחררים את הכלב'):((EN?("sending in the dog"):('запускаем собаку')))),sapper:(HE?('החבלנים עובדים בכניסה'):((EN?("sappers working at the entrance"):('сапёры работают на входе'))))}[u.method];say(u,(HE?(`צפע, כאן ${u.call}. ליד מבנה ${u.tb}, ${mt}.`):((EN?(`Cobra-6, this is ${u.call}. At building ${u.tb}, ${mt}.`):(`Кобра-6, я ${u.call}. У здания ${u.tb}, ${mt}.`)))),[],{known:'st',act:{k:'clrOrd',uid:u.id}});}
       else if(u.st==='cordon'){u.st='hold';say(u,(HE?(`צפע, כאן ${u.call}. בעמדה, מבנה ${u.tb} מכותר, היציאות בתצפית.`):((EN?(`Cobra-6, this is ${u.call}. In position, building ${u.tb} cordoned off, exits under observation.`):(`Кобра-6, я ${u.call}. На позиции, здание ${u.tb} оцеплено, выходы под наблюдением.`)))),[posChip(u)],{known:'st',act:{k:'clrOrd',uid:u.id}});u.cordon=u.tb;}
@@ -1817,7 +1865,7 @@ function labBlast(b){const B=BN(b);S.lab='destroyed';S.destroyed[b]=true;raiseAl
   S.civHarm+=S.civ[b];S.civDead+=S.civ[b];S.civ[b]=0;killCivIn(b);
   for(const u of infs()){const d=Math.hypot(u.x-B.cx,u.y-B.cy);if(d<45&&u.men>0){const n=u.men;for(let i=0;i<n;i++)if(Math.random()<(u.inB===b?.35:.15))casualty(u);}}
   for(const o of BL){if(o.n===b)continue;if(Math.hypot(o.cx-B.cx,o.cy-B.cy)<45)for(let i=S.civ[o.n];i>0;i--)if(Math.random()<.4)addCivW(o.n);}}
-function casualty(u){u.tccc=false;u.men--;const w=Math.random()<.7;if(w){u.wounded++;u.newW++;S.stats.wia++;}else{S.stats.kia++;u.newK++;}u.morale-=9;hitMan(u,w?'w':'k');}
+function casualty(u){u.tccc=false;u.men--;const w=Math.random()<.7;if(w){u.wounded++;u.newW++;S.stats.wia++;}else{S.stats.kia++;u.newK++;}u.morale-=9*(u.mk||1);hitMan(u,w?'w':'k');}
 
 // buildings our teams hold as cover, as known from their reports
 function occSet(uid,b,st){S.occ=S.occ||{};for(const k in S.occ){delete S.occ[k][uid];if(!Object.keys(S.occ[k]).length)delete S.occ[k];}if(b&&st)(S.occ[b]=S.occ[b]||{})[uid]=st;}
@@ -1831,7 +1879,7 @@ function occTick(){for(const u of infs()){if(u.st!=='occupy'||!u.occTrapT||S.t<u
     say(u,T3(`Кобра-6, я ${u.call}! Подрыв внутри здания ${u.inB}! Есть потери! Дом не был проверен. Приём.`,`צפע, כאן ${u.call}! פיצוץ בתוך מבנה ${u.inB}! יש נפגעים! הבית לא נבדק. עבור.`,`Cobra-6, this is ${u.call}! Explosion inside building ${u.inB}! We have casualties! The house was not checked. Over.`),[bChip(u.inB,'ied')],{urgent:true,known:'full'});}
   for(const e of alive())if(e.wakeT&&S.t>=e.wakeT){e.wakeT=0;e.alert=true;wakeInHeldHouse(e);}}
 function entryAmbush(u){const en=alive().filter(e=>e.bld===u.tb&&!e.mv&&!e.roof&&e.alert&&!e.wakeT);if(!en.length||u.men<=0)return;
-  const p=u.method==='wall'?.05:u.occupy?(u.pace==='fast'?.5:.25):.12;let k=0;for(let i=u.men;i>0&&k<6;i--)if(Math.random()<p){casualty(u);k++;}raiseAlarm();if(!k)return;
+  const p=(u.method==='wall'?.05:u.occupy?(u.pace==='fast'?.5:.25):.12)*(u.ent||1);let k=0;for(let i=u.men;i>0&&k<6;i--)if(Math.random()<p){casualty(u);k++;}raiseAlarm();if(!k)return;
   say(u,T3(`Кобра-6, я ${u.call}! Нас встретили огнём на входе в здание ${u.tb}! ${k===1?'Один выбыл':'Потери: '+k}! Ведём бой!`,`צפע, כאן ${u.call}! קיבלו אותנו באש בכניסה למבנה ${u.tb}! ${k===1?'נפגע אחד':'נפגעים: '+k}! בקרב!`,`Cobra-6, this is ${u.call}! We were met with fire at the entrance to building ${u.tb}! ${k===1?'One down':'Casualties: '+k}! Engaging!`),[bChip(u.tb,'hos')],{urgent:true,known:'full',pid:u.tb});}
 // shooting from a held house wakes whoever sleeps upstairs within 30–60 s; half the time our men hear them first
 function upstairsTick(){for(const u of infs()){if(!u.inB||!u.cont.length||u.men<=0)continue;
