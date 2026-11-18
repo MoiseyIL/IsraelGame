@@ -55,7 +55,8 @@ function render(){
   // staging
   if(S.mol.cover&&S.mol.st==='station'){const [sx,sy]=toS(S.mol.cover.x,S.mol.cover.y-250);c.font='700 11px "Rubik", "Roboto Condensed", sans-serif';c.textAlign='center';c.textBaseline='middle';halo(c,(HE?('חיפוי «שרף»'):((EN?("Hammer cover"):('прикрытие «Молота»')))),sx,sy-8,'#a01818');}
   if(S.marks.labArea){const [sx,sy]=toS(S.marks.labArea.x+CELL/2,S.marks.labArea.y+5);c.font='700 11px "Rubik", "Roboto Condensed", sans-serif';c.textAlign='center';c.textBaseline='middle';halo(c,(HE?('אזור המעבדה (מודיעין)'):((EN?("workshop area (intel)"):('район мастерской (разведка)')))),sx,sy+10,'#9a5300');}
-  {const [sx,sy]=toS(STAGE.x,STAGE.y);c.font=(HE?('700 12px "Rubik", sans-serif'):('700 11px "Roboto Condensed", sans-serif'));c.textAlign='center';halo(c,(HE?('נק״כ «ארז»'):((EN?("Staging \"Cedar\""):('ТС «Кедр»')))),sx,sy+28,'#14324a');}
+  if(S.mission&&S.ourBase){const [sx,sy]=toS(S.ourBase.x,S.ourBase.y);c.font=(HE?('700 12px "Rubik", sans-serif'):('700 11px "Roboto Condensed", sans-serif'));c.textAlign='center';halo(c,T3('Исходный рубеж','קו היציאה','Start line'),sx,sy+52,'#14324a');}
+  else {const [sx,sy]=toS(STAGE.x,STAGE.y);c.font=(HE?('700 12px "Rubik", sans-serif'):('700 11px "Roboto Condensed", sans-serif'));c.textAlign='center';halo(c,(HE?('נק״כ «ארז»'):((EN?("Staging \"Cedar\""):('ТС «Кедр»')))),sx,sy+28,'#14324a');}
   // building marks
   for(const n in S.marks.b){const b=BN(+n),[sx,sy]=toS(b.cx,b.cy),k=S.marks.b[n];const ox=sx+14,oy=sy-12;if(k==='hos')symHos(c,ox,oy,10,bStale(n)?'?':'',bStale(n));else if(k==='unk')symUnk(c,ox,oy);else if(k==='civ')symCiv(c,ox,oy);else if(k==='tun')symTun(c,ox,oy);}
   for(const n in (S.marks.bied||{})){const b=BN(+n),[sx,sy]=toS(b.cx,b.cy);symIed(c,sx-15,sy-12,9);}

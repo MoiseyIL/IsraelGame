@@ -41,7 +41,7 @@ function newMissionState(o){const st=newState({seed:o.seed,diff:o.diff,dens:o.de
   const d=Math.max(500,Math.min(oy-60,1150,2100-oy));const ours=nearFree(ox,oy+d)||[ox/NG|0,(oy+d)/NG|0],theirs=nearFree(ox,oy-d)||[ox/NG|0,(oy-d)/NG|0];
   st.ourBase={x:ours[0]*NG,y:ours[1]*NG};st.enBase={x:theirs[0]*NG,y:theirs[1]*NG};
   st.units.filter(u=>u.type==='inf').forEach((u,i)=>{u.pace='fast';u.x=st.ourBase.x-90+(i%4)*60;u.y=st.ourBase.y+Math.floor(i/4)*40;u.tx=u.x;u.ty=u.y;st.marks.own[u.id]={x:u.x,y:u.y};});
-  const ya=st.units.find(u=>u.type==='uav');if(ya){ya.x=ox;ya.y=oy+200;}st.uav={x:ox,y:oy+200,tx:ox,ty:oy+200};
+  const ya=st.units.find(u=>u.type==='uav');if(ya){ya.x=ox;ya.y=oy+200;}st.uav={x:ox,y:oy+200,tx:ox,ty:oy+200};st.marks.own.ya={x:ox,y:oy+200};
   const order=enemyOrder(o);const b0=BL[0].n;
   st.enemies=order.map((t,i)=>{const R=RUF[t];const g=grp('a'+i,'army',Math.round(R.men*(o.diff===0?.8:1)),b0,{alert:true,rt:t,...(m=>({q:m.q+(o.diff>=3?.05:0),rk:m.rk,stl:m.stl,spd:m.spd}))(mechOf(t,R.men)),sap:!!R.sap,mode:'base',role:'',prog:0});
     g.bld=0;g.x=st.enBase.x-90+(i%4)*60;g.y=st.enBase.y-Math.floor(i/4)*40;g.tx=g.x;g.ty=g.y;return g;});
