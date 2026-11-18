@@ -209,3 +209,5 @@ html[lang=he] .doc ul{padding-inline-start:18px;padding-left:unset}
 .cpw b{font-family:var(--f-head);font-size:16px;color:#2c3a48;white-space:nowrap}
 .chl{margin:4px 0 10px;font-size:13px}.chl ul{margin:6px 0;padding-inline-start:18px}.chl li{margin:3px 0}
 .mcount small.pw{font-size:12px;color:#2c3a48;font-weight:700;margin-top:2px}
+/* long unit lists: cards off screen are not laid out until scrolled to (keeps taps in the HQ menu quick) */
+.ucard{content-visibility:auto;contain-intrinsic-size:auto 300px}

@@ -31,7 +31,7 @@ function unitIco(u){if(u.type!=='inf')return'';const F='<rect x=\"2\" y=\"3\" wi
   if(u.cls==='rec')return'<svg class="ico" viewBox="0 0 30 22">'+F+'<path d="M2 19L28 3" stroke="#14324a" stroke-width="1.2"/></svg>';
   return'<svg class="ico" viewBox="0 0 30 22">'+F+(u.uc?'<path d="M2 19L28 3" stroke="#14324a" stroke-width="1.2"/>':'<path d="M2 3l26 16M28 3L2 19" stroke="#14324a" stroke-width="1.2"/>')+S2+'</svg>';}
 function render(){
-  if(!dirty||!mapCv)return;dirty=false;const c=ctx;
+  if(!dirty||!$('#camp').hidden||!BL.length)return;if(!mapCv)mapCv=drawMap();dirty=false;const c=ctx;
   c.setTransform(dpr,0,0,dpr,0,0);c.fillStyle='#15181c';c.fillRect(0,0,cw,ch);
   c.save();c.translate(V.ox,V.oy);c.scale(V.s*K,V.s*K);
   c.drawImage(mapCv,0,0,MWm,MHm);

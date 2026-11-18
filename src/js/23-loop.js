@@ -20,7 +20,7 @@ async function start(data){
   S=S0||(MODE==='train'?newState(TR):MODE==='mission'?newMissionState(MS):newState());
   if(!S.civW){S.civW=[];S.civDead=0;S.civAid=0;S.civEvac=0;S.amb=[];infs().forEach(u=>{for(let i=0;i<(u.civHit||0)&&u.inB;i++)S.civW.push(newCivW(u.inB));});}
   try{await Promise.race([Promise.all([(HE?('700 16px "Rubik"'):('700 16px "Roboto Condensed"')),(HE?('16px "Heebo"'):('16px "PT Mono"'))].map(f=>document.fonts.load(f,(HE?('דיר 214'):((EN?("Deir 214"):('Дейр 214'))))))),new Promise(r=>setTimeout(r,2500))]);}catch(e){}
-  mapCv=drawMap();$('#loading').hidden=true;showSplash();
+  $("#loading").hidden=true;showSplash();
   rebuildLog();updUnits();updObj();setSpeedUI();
   setBriefHead();if(S.over)showDebrief();else if(!S.started)(S.mission?showMission():S.train?showTrain():showCamp());else if(saved){S.speed=0;setSpeedUI();$('#bGo').textContent=(HE?('להמשיך את המבצע · '):((EN?("Continue the operation ·"):('Продолжить операцию · '))))+fmt(S.t);$('#bEnd').hidden=false;$('#brief').hidden=false;}else{S.speed=0;setSpeedUI();}
   if(S.truth)$('#truthPill').hidden=false;

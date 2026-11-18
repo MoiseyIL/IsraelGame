@@ -221,6 +221,8 @@ html[lang=he] .doc ul{padding-inline-start:18px;padding-left:unset}
 .cpw b{font-family:var(--f-head);font-size:16px;color:#2c3a48;white-space:nowrap}
 .chl{margin:4px 0 10px;font-size:13px}.chl ul{margin:6px 0;padding-inline-start:18px}.chl li{margin:3px 0}
 .mcount small.pw{font-size:12px;color:#2c3a48;font-weight:700;margin-top:2px}
+/* long unit lists: cards off screen are not laid out until scrolled to (keeps taps in the HQ menu quick) */
+.ucard{content-visibility:auto;contain-intrinsic-size:auto 300px}
 </style>
 </head>
 <body>
@@ -689,8 +691,9 @@ const cell=(x,y)=>COLS[clamp(Math.floor(x/CELL),0,6)]+(clamp(Math.floor(y/CELL),
 function placeTxt(x,y){const b=bldAt(x,y,45);return b?(HE?(`ליד מבנה ${b.n}, משבצת ${cell(x,y)}`):((EN?(`near building ${b.n}, grid ${cell(x,y)}`):(`у здания ${b.n}, квадрат ${cell(x,y)}`)))):(HE?(`משבצת ${cell(x,y)}`):((EN?(`grid ${cell(x,y)}`):(`квадрат ${cell(x,y)}`))));}
 const inTown=(x,y)=>M.classic?((x-700)/500)**2+((y-860)/640)**2<1:((x-M.cx)/M.rx)**2+((y-M.cy)/M.ry)**2<M.edge(x,y)**2;
 
-function drawMap(){
-  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');g.scale(K,K);
+// o.w: width in pixels (a small preview when set); o.mini: no lettering, which is the slow part
+function drawMap(o){o=o||{};const pw=o.w||W;
+  const cv=document.createElement('canvas');cv.width=pw;cv.height=Math.round(pw*H/W);const g=cv.getContext('2d');g.scale(K*pw/W,K*pw/W);
   const r=mulberry(77);
   if(M.classic){
   g.fillStyle='#d9d6c4';g.fillRect(0,0,MWm,MHm);
@@ -704,6 +707,7 @@ function drawMap(){
   for(const b of BLOCKS){if(b.road)continue;g.fillStyle=b.lot?'#d8d5c2':'#e3dfd2';g.fillRect(b.x0,b.y0,b.x1-b.x0,b.y1-b.y0);g.strokeStyle='rgba(120,112,95,.5)';g.lineWidth=1;g.strokeRect(b.x0,b.y0,b.x1-b.x0,b.y1-b.y0);}
   for(const b of BL){g.fillStyle=b.prot?'#c9d3df':'#bdb6a6';g.fillRect(b.x0,b.y0,b.x1-b.x0,b.y1-b.y0);g.strokeStyle='#3f3b33';g.lineWidth=1.6;g.strokeRect(b.x0,b.y0,b.x1-b.x0,b.y1-b.y0);
     g.fillStyle='rgba(63,59,51,.18)';g.fillRect(b.x0+2,b.y1-4,b.x1-b.x0-2,4);}
+  if(o.mini)return cv;
   g.textAlign='center';g.textBaseline='middle';
   for(const b of BL){const fs=clamp(Math.min(b.x1-b.x0,b.y1-b.y0)*.55,13,20);g.font=(HE?(`700 ${fs}px "Rubik", Arial, sans-serif`):(`700 ${fs}px "Roboto Condensed", "Arial Narrow", sans-serif`));g.lineWidth=3.5;g.strokeStyle='rgba(244,242,236,.9)';g.strokeText(b.n,b.cx,b.cy);g.fillStyle='#14171b';g.fillText(b.n,b.cx,b.cy);
     if(b.prot){g.font=(HE?('700 14px "Rubik", sans-serif'):('700 14px "Roboto Condensed", sans-serif'));g.strokeText(b.prot.toUpperCase(),b.cx,b.y1+12);g.fillStyle='#24467a';g.fillText(b.prot.toUpperCase(),b.cx,b.y1+12);}}
@@ -713,6 +717,10 @@ function drawMap(){
   return cv;
 }
 
+
+// preview of the map on the setup screens: small, without lettering, made once per map
+let MINI={k:'',src:''};
+function miniSrc(){const k=DSEED+'|'+BL.length+'|'+Math.round(M.cx||0)+'|'+Math.round(M.cy||0);if(MINI.k!==k)MINI={k,src:drawMap({w:220,mini:true}).toDataURL('image/jpeg',.82)};return MINI.src;}
 /* ---------- words ---------- */
 const DIRS=[(HE?('בצפון'):((EN?("north"):('севере')))),(HE?('בצפון-מזרח'):((EN?("northeast"):('северо-востоке')))),(HE?('במזרח'):((EN?("east"):('востоке')))),(HE?('בדרום-מזרח'):((EN?("southeast"):('юго-востоке')))),(HE?('בדרום'):((EN?("south"):('юге')))),(HE?('בדרום-מערב'):((EN?("southwest"):('юго-западе')))),(HE?('במערב'):((EN?("west"):('западе')))),(HE?('בצפון-מערב'):((EN?("northwest"):('северо-западе'))))];
 const DIRS_TO=[(HE?('צפון'):((EN?("north"):('север')))),(HE?('צפון-מזרח'):((EN?("northeast"):('северо-восток')))),(HE?('מזרח'):((EN?("east"):('восток')))),(HE?('דרום-מזרח'):((EN?("southeast"):('юго-восток')))),(HE?('דרום'):((EN?("south"):('юг')))),(HE?('דרום-מערב'):((EN?("southwest"):('юго-запад')))),(HE?('מערב'):((EN?("west"):('запад')))),(HE?('צפון-מערב'):((EN?("northwest"):('северо-запад'))))];
@@ -944,7 +952,7 @@ const powerOf=t=>{const T=TU[t];return fpOf(CH[t][0])*(T.uc?1.3:1)+(T.atgm?2:0);
 function loadTR(){let d=null;try{d=JSON.parse(localStorage.getItem(TRAIN_KEY)||'null');}catch(e){}
   if(!d||!d.seed)d={seed:1000+rnd(9000),diff:1,dens:'normal',sel:[],limit:false};d.sel=(d.sel||[]).filter(t=>TU[t]&&!TU[t].off);return d;}
 function saveTR(){try{localStorage.setItem(TRAIN_KEY,JSON.stringify(TR));localStorage.setItem(MODE_KEY,MODE);}catch(e){}}
-function setCity(seed,dens,g2){genCity(seed,dens,g2);buildNav();for(const k in AVC)delete AVC[k];if(mapCv)mapCv=drawMap();}
+function setCity(seed,dens,g2){genCity(seed,dens,g2);buildNav();for(const k in AVC)delete AVC[k];mapCv=null;dirty=true;}
 // units of a training operation, in the order they were chosen
 function mkTrainUnits(sel){const cnt={};return sel.map((t,i)=>{const T=TU[t];cnt[t]=(cnt[t]||0)+1;const multi=sel.filter(x=>x===t).length>1;
   const call=L2(T.n)+(multi?(HE?' ':'-')+cnt[t]:''),sh=L2(T.sh)+(multi?cnt[t]:'');
@@ -1003,7 +1011,7 @@ function showTrain(){const I=S.intel,sel=TR.sel,h=[];const rec=recommend(I);cons
       if(!T.off)h.push(chHTML(t)+`<div class="ug"><b>${HE?'במשחק:':(EN?("In the game:"):('В игре:'))}</b> ${esc(L2(T.gm))} <small>${ABIL(t)}</small></div>`);
       h.push(`<details><summary>${HE?'ממקורות פתוחים':(EN?("From open sources"):('Из открытых источников'))}</summary><p>${esc(L2(T.pub))} <a href="${T.src}" target="_blank" rel="noopener">${HE?'מקור':(EN?("source"):('источник'))}</a></p></details></div>`);}}
   const d=$('#campDoc');d.innerHTML=h.join('');$('#camp').hidden=false;bindTabs();bindLang(d);
-  const pv=$('#tPrev');if(pv&&mapCv){const c=document.createElement('canvas');c.width=220;c.height=Math.round(220*H/W);c.getContext('2d').drawImage(mapCv,0,0,c.width,c.height);pv.src=c.toDataURL('image/jpeg',.82);}
+  const pv=$('#tPrev');if(pv)pv.src=miniSrc();
   const sv=$('#tSeed');sv.onchange=()=>{const v=parseInt(sv.value.replace(/\D/g,''),10);if(v>=1000&&v<=9999&&v!==TR.seed){TR.seed=v;trainParamsChanged(true);}else sv.value=TR.seed;};
   $('#tNewSeed').onclick=()=>{TR.seed=1000+rnd(9000);trainParamsChanged(true);};
   d.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{TR.diff=+b.dataset.d;trainParamsChanged(false);});
@@ -1234,7 +1242,7 @@ function showMission(){const sel=MS.sel,h=[];const ord=enemyOrder(MS);
   h.push(`<h2>${T3('Армия России: подразделения','צבא רוסיה: היחידות','Russian Army: units')}</h2><p class="meta">${T3('Сведения — только из открытых источников. Численность и характеристики в игре — игровые условности.','המידע — ממקורות פתוחים בלבד. מספר הלוחמים והמאפיינים במשחק — מוסכמות של המשחק.','Information comes only from open sources. Team sizes and ratings in the game are game conventions.')}</p>`);
   for(const t of Object.keys(RUF)){const R=RUF[t];h.push(`<div class="ucard"><div class="uh"><b>${esc(L2(R.n))}</b><small>${R.men} ${T3('чел.','לוחמים','men')}</small></div><div class="ug"><b>${T3('В игре:','במשחק:','In the game:')}</b> ${esc(L2(R.gm))}</div>${chHTML(t)}<details><summary>${T3('Из открытых источников','ממקורות פתוחים','From open sources')}</summary><p>${esc(L2(R.pub))} <a href="${R.src}" target="_blank" rel="noopener">${T3('источник','מקור','source')}</a></p></details></div>`);}
   const d=$('#campDoc');d.innerHTML=h.join('');$('#camp').hidden=false;bindTabs();bindLang(d);
-  const pv=$('#tPrev');if(pv&&mapCv){const c=document.createElement('canvas');c.width=220;c.height=Math.round(220*H/W);c.getContext('2d').drawImage(mapCv,0,0,c.width,c.height);pv.src=c.toDataURL('image/jpeg',.82);}
+  const pv=$('#tPrev');if(pv)pv.src=miniSrc();
   const ch=(city)=>{if(city)setCity(MS.seed,MS.dens,true);S=newMissionState(MS);resetView();saveMS();showMission();};
   const sv=$('#mSeed');sv.onchange=()=>{const v=parseInt(sv.value.replace(/\D/g,''),10);if(v>=1000&&v<=9999&&v!==MS.seed){MS.seed=v;ch(true);}else sv.value=MS.seed;};
   $('#mNewSeed').onclick=()=>{MS.seed=1000+rnd(9000);ch(true);};
@@ -2017,7 +2025,7 @@ function unitIco(u){if(u.type!=='inf')return'';const F='<rect x=\"2\" y=\"3\" wi
   if(u.cls==='rec')return'<svg class="ico" viewBox="0 0 30 22">'+F+'<path d="M2 19L28 3" stroke="#14324a" stroke-width="1.2"/></svg>';
   return'<svg class="ico" viewBox="0 0 30 22">'+F+(u.uc?'<path d="M2 19L28 3" stroke="#14324a" stroke-width="1.2"/>':'<path d="M2 3l26 16M28 3L2 19" stroke="#14324a" stroke-width="1.2"/>')+S2+'</svg>';}
 function render(){
-  if(!dirty||!mapCv)return;dirty=false;const c=ctx;
+  if(!dirty||!$('#camp').hidden||!BL.length)return;if(!mapCv)mapCv=drawMap();dirty=false;const c=ctx;
   c.setTransform(dpr,0,0,dpr,0,0);c.fillStyle='#15181c';c.fillRect(0,0,cw,ch);
   c.save();c.translate(V.ox,V.oy);c.scale(V.s*K,V.s*K);
   c.drawImage(mapCv,0,0,MWm,MHm);
@@ -2226,7 +2234,7 @@ async function start(data){
   S=S0||(MODE==='train'?newState(TR):MODE==='mission'?newMissionState(MS):newState());
   if(!S.civW){S.civW=[];S.civDead=0;S.civAid=0;S.civEvac=0;S.amb=[];infs().forEach(u=>{for(let i=0;i<(u.civHit||0)&&u.inB;i++)S.civW.push(newCivW(u.inB));});}
   try{await Promise.race([Promise.all([(HE?('700 16px "Rubik"'):('700 16px "Roboto Condensed"')),(HE?('16px "Heebo"'):('16px "PT Mono"'))].map(f=>document.fonts.load(f,(HE?('דיר 214'):((EN?("Deir 214"):('Дейр 214'))))))),new Promise(r=>setTimeout(r,2500))]);}catch(e){}
-  mapCv=drawMap();$('#loading').hidden=true;showSplash();
+  $("#loading").hidden=true;showSplash();
   rebuildLog();updUnits();updObj();setSpeedUI();
   setBriefHead();if(S.over)showDebrief();else if(!S.started)(S.mission?showMission():S.train?showTrain():showCamp());else if(saved){S.speed=0;setSpeedUI();$('#bGo').textContent=(HE?('להמשיך את המבצע · '):((EN?("Continue the operation ·"):('Продолжить операцию · '))))+fmt(S.t);$('#bEnd').hidden=false;$('#brief').hidden=false;}else{S.speed=0;setSpeedUI();}
   if(S.truth)$('#truthPill').hidden=false;

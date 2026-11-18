@@ -101,8 +101,9 @@ const cell=(x,y)=>COLS[clamp(Math.floor(x/CELL),0,6)]+(clamp(Math.floor(y/CELL),
 function placeTxt(x,y){const b=bldAt(x,y,45);return b?(HE?(`ליד מבנה ${b.n}, משבצת ${cell(x,y)}`):((EN?(`near building ${b.n}, grid ${cell(x,y)}`):(`у здания ${b.n}, квадрат ${cell(x,y)}`)))):(HE?(`משבצת ${cell(x,y)}`):((EN?(`grid ${cell(x,y)}`):(`квадрат ${cell(x,y)}`))));}
 const inTown=(x,y)=>M.classic?((x-700)/500)**2+((y-860)/640)**2<1:((x-M.cx)/M.rx)**2+((y-M.cy)/M.ry)**2<M.edge(x,y)**2;
 
-function drawMap(){
-  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');g.scale(K,K);
+// o.w: width in pixels (a small preview when set); o.mini: no lettering, which is the slow part
+function drawMap(o){o=o||{};const pw=o.w||W;
+  const cv=document.createElement('canvas');cv.width=pw;cv.height=Math.round(pw*H/W);const g=cv.getContext('2d');g.scale(K*pw/W,K*pw/W);
   const r=mulberry(77);
   if(M.classic){
   g.fillStyle='#d9d6c4';g.fillRect(0,0,MWm,MHm);
@@ -116,6 +117,7 @@ function drawMap(){
   for(const b of BLOCKS){if(b.road)continue;g.fillStyle=b.lot?'#d8d5c2':'#e3dfd2';g.fillRect(b.x0,b.y0,b.x1-b.x0,b.y1-b.y0);g.strokeStyle='rgba(120,112,95,.5)';g.lineWidth=1;g.strokeRect(b.x0,b.y0,b.x1-b.x0,b.y1-b.y0);}
   for(const b of BL){g.fillStyle=b.prot?'#c9d3df':'#bdb6a6';g.fillRect(b.x0,b.y0,b.x1-b.x0,b.y1-b.y0);g.strokeStyle='#3f3b33';g.lineWidth=1.6;g.strokeRect(b.x0,b.y0,b.x1-b.x0,b.y1-b.y0);
     g.fillStyle='rgba(63,59,51,.18)';g.fillRect(b.x0+2,b.y1-4,b.x1-b.x0-2,4);}
+  if(o.mini)return cv;
   g.textAlign='center';g.textBaseline='middle';
   for(const b of BL){const fs=clamp(Math.min(b.x1-b.x0,b.y1-b.y0)*.55,13,20);g.font=(HE?(`700 ${fs}px "Rubik", Arial, sans-serif`):(`700 ${fs}px "Roboto Condensed", "Arial Narrow", sans-serif`));g.lineWidth=3.5;g.strokeStyle='rgba(244,242,236,.9)';g.strokeText(b.n,b.cx,b.cy);g.fillStyle='#14171b';g.fillText(b.n,b.cx,b.cy);
     if(b.prot){g.font=(HE?('700 14px "Rubik", sans-serif'):('700 14px "Roboto Condensed", sans-serif'));g.strokeText(b.prot.toUpperCase(),b.cx,b.y1+12);g.fillStyle='#24467a';g.fillText(b.prot.toUpperCase(),b.cx,b.y1+12);}}
@@ -125,3 +127,7 @@ function drawMap(){
   return cv;
 }
 
+
+// preview of the map on the setup screens: small, without lettering, made once per map
+let MINI={k:'',src:''};
+function miniSrc(){const k=DSEED+'|'+BL.length+'|'+Math.round(M.cx||0)+'|'+Math.round(M.cy||0);if(MINI.k!==k)MINI={k,src:drawMap({w:220,mini:true}).toDataURL('image/jpeg',.82)};return MINI.src;}

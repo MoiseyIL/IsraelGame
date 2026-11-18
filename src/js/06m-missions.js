@@ -154,7 +154,7 @@ function showMission(){const sel=MS.sel,h=[];const ord=enemyOrder(MS);
   h.push(`<h2>${T3('Армия России: подразделения','צבא רוסיה: היחידות','Russian Army: units')}</h2><p class="meta">${T3('Сведения — только из открытых источников. Численность и характеристики в игре — игровые условности.','המידע — ממקורות פתוחים בלבד. מספר הלוחמים והמאפיינים במשחק — מוסכמות של המשחק.','Information comes only from open sources. Team sizes and ratings in the game are game conventions.')}</p>`);
   for(const t of Object.keys(RUF)){const R=RUF[t];h.push(`<div class="ucard"><div class="uh"><b>${esc(L2(R.n))}</b><small>${R.men} ${T3('чел.','לוחמים','men')}</small></div><div class="ug"><b>${T3('В игре:','במשחק:','In the game:')}</b> ${esc(L2(R.gm))}</div>${chHTML(t)}<details><summary>${T3('Из открытых источников','ממקורות פתוחים','From open sources')}</summary><p>${esc(L2(R.pub))} <a href="${R.src}" target="_blank" rel="noopener">${T3('источник','מקור','source')}</a></p></details></div>`);}
   const d=$('#campDoc');d.innerHTML=h.join('');$('#camp').hidden=false;bindTabs();bindLang(d);
-  const pv=$('#tPrev');if(pv&&mapCv){const c=document.createElement('canvas');c.width=220;c.height=Math.round(220*H/W);c.getContext('2d').drawImage(mapCv,0,0,c.width,c.height);pv.src=c.toDataURL('image/jpeg',.82);}
+  const pv=$('#tPrev');if(pv)pv.src=miniSrc();
   const ch=(city)=>{if(city)setCity(MS.seed,MS.dens,true);S=newMissionState(MS);resetView();saveMS();showMission();};
   const sv=$('#mSeed');sv.onchange=()=>{const v=parseInt(sv.value.replace(/\D/g,''),10);if(v>=1000&&v<=9999&&v!==MS.seed){MS.seed=v;ch(true);}else sv.value=MS.seed;};
   $('#mNewSeed').onclick=()=>{MS.seed=1000+rnd(9000);ch(true);};

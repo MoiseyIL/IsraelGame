@@ -66,7 +66,7 @@ const powerOf=t=>{const T=TU[t];return fpOf(CH[t][0])*(T.uc?1.3:1)+(T.atgm?2:0);
 function loadTR(){let d=null;try{d=JSON.parse(localStorage.getItem(TRAIN_KEY)||'null');}catch(e){}
   if(!d||!d.seed)d={seed:1000+rnd(9000),diff:1,dens:'normal',sel:[],limit:false};d.sel=(d.sel||[]).filter(t=>TU[t]&&!TU[t].off);return d;}
 function saveTR(){try{localStorage.setItem(TRAIN_KEY,JSON.stringify(TR));localStorage.setItem(MODE_KEY,MODE);}catch(e){}}
-function setCity(seed,dens,g2){genCity(seed,dens,g2);buildNav();for(const k in AVC)delete AVC[k];if(mapCv)mapCv=drawMap();}
+function setCity(seed,dens,g2){genCity(seed,dens,g2);buildNav();for(const k in AVC)delete AVC[k];mapCv=null;dirty=true;}
 // units of a training operation, in the order they were chosen
 function mkTrainUnits(sel){const cnt={};return sel.map((t,i)=>{const T=TU[t];cnt[t]=(cnt[t]||0)+1;const multi=sel.filter(x=>x===t).length>1;
   const call=L2(T.n)+(multi?(HE?' ':'-')+cnt[t]:''),sh=L2(T.sh)+(multi?cnt[t]:'');
@@ -125,7 +125,7 @@ function showTrain(){const I=S.intel,sel=TR.sel,h=[];const rec=recommend(I);cons
       if(!T.off)h.push(chHTML(t)+`<div class="ug"><b>${HE?'במשחק:':(EN?("In the game:"):('В игре:'))}</b> ${esc(L2(T.gm))} <small>${ABIL(t)}</small></div>`);
       h.push(`<details><summary>${HE?'ממקורות פתוחים':(EN?("From open sources"):('Из открытых источников'))}</summary><p>${esc(L2(T.pub))} <a href="${T.src}" target="_blank" rel="noopener">${HE?'מקור':(EN?("source"):('источник'))}</a></p></details></div>`);}}
   const d=$('#campDoc');d.innerHTML=h.join('');$('#camp').hidden=false;bindTabs();bindLang(d);
-  const pv=$('#tPrev');if(pv&&mapCv){const c=document.createElement('canvas');c.width=220;c.height=Math.round(220*H/W);c.getContext('2d').drawImage(mapCv,0,0,c.width,c.height);pv.src=c.toDataURL('image/jpeg',.82);}
+  const pv=$('#tPrev');if(pv)pv.src=miniSrc();
   const sv=$('#tSeed');sv.onchange=()=>{const v=parseInt(sv.value.replace(/\D/g,''),10);if(v>=1000&&v<=9999&&v!==TR.seed){TR.seed=v;trainParamsChanged(true);}else sv.value=TR.seed;};
   $('#tNewSeed').onclick=()=>{TR.seed=1000+rnd(9000);trainParamsChanged(true);};
   d.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{TR.diff=+b.dataset.d;trainParamsChanged(false);});
