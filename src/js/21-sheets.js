@@ -93,5 +93,6 @@ $('#cYes').onclick=()=>{const t=UI.target;if(!t||!t.pt)return;const u=U_(t.uid);
 $('#bFit').onclick=()=>{V.s=minS();clampView();};
 // all stations: check the targets on the map
 $('#bSweep').onclick=()=>{if(!S.started||S.over)return;if(S.radio.q.some(m=>m.act&&m.act.k==='sweep'))return;hq(SWEEP_TXT(),{k:'sweep'});};
+$('#bJr').onclick=openJournal;
 $('#bExpand').onclick=()=>{const a=$('#app');a.classList.toggle('big');$('#bExpand').textContent=a.classList.contains('big')?(HE?('צמצם'):((EN?("Less"):('Уже')))):(HE?('הרחב'):((EN?("More"):('Шире'))));};
 

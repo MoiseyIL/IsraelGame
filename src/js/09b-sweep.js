@@ -10,7 +10,7 @@ function seesPt(x,y,e){for(const u of infs()){if(u.men<=0)continue;const p=uPos(
 function sweep(){const rep=new Map(),add=(u,t)=>{if(!rep.has(u))rep.set(u,[]);rep.get(u).push(t);};const A=alive();const seen=new Set();
   // enemy marks in the street: still there — moved to where they are now; nobody there — removed; not visible — grey
   for(const m of [...S.marks.m]){const e=A.find(e=>outside(e)&&!seen.has(e)&&Math.hypot(e.x-m.x,e.y-m.y)<45&&seesPt(e.x,e.y,e));
-    if(e){seen.add(e);m.x=e.x;m.y=e.y;m.t=S.t;m.n=cnt(e.men);m.uc=false;add(seesPt(e.x,e.y,e),T3(`противник ${placeTxt(e.x,e.y)} на месте, ${cnt(e.men)}`,`האויב ${placeTxt(e.x,e.y)} עדיין שם, ${cnt(e.men)}`,`enemy ${placeTxt(e.x,e.y)} still there, ${cnt(e.men)}`));continue;}
+    if(e){seen.add(e);m.x=e.x;m.y=e.y;m.t=S.t;m.n=cnt(e.men);m.uc=false;m.no=tgtNo(e);add(seesPt(e.x,e.y,e),T3(`противник ${placeTxt(e.x,e.y)} на месте, ${cnt(e.men)}`,`האויב ${placeTxt(e.x,e.y)} עדיין שם, ${cnt(e.men)}`,`enemy ${placeTxt(e.x,e.y)} still there, ${cnt(e.men)}`));continue;}
     const ob=seesPt(m.x,m.y);if(ob){S.marks.m.splice(S.marks.m.indexOf(m),1);add(ob,T3(`${placeTxt(m.x,m.y)}: противника нет, метку снимаем`,`${placeTxt(m.x,m.y)}: אין אויב, מורידים את הסימון`,`${placeTxt(m.x,m.y)}: no enemy, mark removed`));}
     else m.uc=true;}
   // enemy marks on buildings: fire from it confirms; inside a building nobody can be seen, so a quiet one is only "unconfirmed"
@@ -19,7 +19,7 @@ function sweep(){const rep=new Map(),add=(u,t)=>{if(!rep.has(u))rep.set(u,[]);re
     else (S.marks.bu||(S.marks.bu={}))[n]=1;}
   // new targets: groups in the open that someone sees, and buildings that fire at us
   for(const e of A){if(seen.has(e))continue;
-    if(outside(e)){const ob=seesPt(e.x,e.y,e);if(!ob||S.marks.m.some(m=>Math.hypot(m.x-e.x,m.y-e.y)<45))continue;S.marks.m.push({id:S.nid++,x:e.x,y:e.y,t:S.t,n:cnt(e.men)});seen.add(e);
+    if(outside(e)){const ob=seesPt(e.x,e.y,e);if(!ob||S.marks.m.some(m=>Math.hypot(m.x-e.x,m.y-e.y)<45))continue;S.marks.m.push({id:S.nid++,x:e.x,y:e.y,t:S.t,n:cnt(e.men),no:tgtNo(e)});seen.add(e);
       add(ob,T3(`новая цель: ${cnt(e.men)} ${e.roof?'на крыше здания '+e.bld:placeTxt(e.x,e.y)}`,`מטרה חדשה: ${cnt(e.men)} ${e.roof?'על גג מבנה '+e.bld:placeTxt(e.x,e.y)}`,`new target: ${cnt(e.men)} ${e.roof?'on the roof of building '+e.bld:placeTxt(e.x,e.y)}`));}
     else if(e.bld&&e.cont.length&&S.marks.b[e.bld]!=='hos'){markB(e.bld,'hos',S.t);add(U_(e.cont[0]),T3(`новая цель: огонь из здания ${e.bld}`,`מטרה חדשה: אש ממבנה ${e.bld}`,`new target: fire from building ${e.bld}`));}}
   const grey=S.marks.m.filter(m=>m.uc).length+Object.keys(S.marks.bu||{}).filter(n=>S.marks.b[n]==='hos').length;
@@ -36,10 +36,10 @@ function uavScanStart(x,y){S.uav.tx=x;S.uav.ty=y;S.uav.scan={x,y,t:0};const ya=U
 function uavScanTick(dt){const sc=S.uav.scan;if(!sc)return;if(Math.hypot(S.uav.x-sc.x,S.uav.y-sc.y)>8)return;sc.t+=dt;if(sc.t<SCAN_T)return;S.uav.scan=null;uavScan(sc.x,sc.y);}
 function uavScan(cx,cy){const ya=U_('ya'),A=alive(),inR=(x,y)=>Math.hypot(x-cx,y-cy)<SCAN_R,seen=new Set();let ok=0,gone=0;const nw=[];
   for(const m of [...S.marks.m]){if(!inR(m.x,m.y))continue;const e=A.find(e=>outside(e)&&!seen.has(e)&&inR(e.x,e.y)&&Math.hypot(e.x-m.x,e.y-m.y)<45);
-    if(e){seen.add(e);m.x=e.x;m.y=e.y;m.t=S.t;m.n=cnt(e.men);m.uc=false;ok++;}else{S.marks.m.splice(S.marks.m.indexOf(m),1);gone++;}}
+    if(e){seen.add(e);m.x=e.x;m.y=e.y;m.t=S.t;m.n=cnt(e.men);m.uc=false;m.no=tgtNo(e);ok++;}else{S.marks.m.splice(S.marks.m.indexOf(m),1);gone++;}}
   for(const e of A){if(seen.has(e)||!outside(e)||!inR(e.x,e.y))continue;if(e.roof&&Math.random()<.2)continue; // a man lying on a roof is easy to miss
     if(e.roof&&e.bld){markB(e.bld,'hos',S.t);nw.push(T3(`${cnt(e.men)} на крыше здания ${e.bld}`,`${cnt(e.men)} על גג מבנה ${e.bld}`,`${cnt(e.men)} on the roof of building ${e.bld}`));continue;}
-    if(S.marks.m.some(m=>Math.hypot(m.x-e.x,m.y-e.y)<45))continue;S.marks.m.push({id:S.nid++,x:e.x,y:e.y,t:S.t,n:cnt(e.men)});nw.push(T3(`${cnt(e.men)} ${placeTxt(e.x,e.y)}`,`${cnt(e.men)} ${placeTxt(e.x,e.y)}`,`${cnt(e.men)} ${placeTxt(e.x,e.y)}`));}
+    if(S.marks.m.some(m=>Math.hypot(m.x-e.x,m.y-e.y)<45))continue;S.marks.m.push({id:S.nid++,x:e.x,y:e.y,t:S.t,n:cnt(e.men),no:tgtNo(e)});nw.push(T3(`${cnt(e.men)} ${placeTxt(e.x,e.y)}`,`${cnt(e.men)} ${placeTxt(e.x,e.y)}`,`${cnt(e.men)} ${placeTxt(e.x,e.y)}`));}
   const nb=Object.keys(S.marks.b).filter(n=>S.marks.b[n]==='hos'&&inR(BN(+n).cx,BN(+n).cy)).length;
   say(ya,T3(`Кобра-6, я Ястреб. Район квадрат ${cell(cx,cy)} осмотрен. Метки на улицах: подтверждено ${ok}, снято ${gone}. ${nw.length?'Новые цели: '+nw.join('; ')+'.':'Новых целей нет.'}${nb?` Отмеченных зданий в районе: ${nb}, внутрь не вижу.`:''} Приём.`,
     `צפע, כאן זיק. סרקתי את האזור, משבצת ${cell(cx,cy)}. סימונים ברחובות: אומתו ${ok}, הוסרו ${gone}. ${nw.length?'מטרות חדשות: '+nw.join('; ')+'.':'אין מטרות חדשות.'}${nb?` מבנים מסומנים באזור: ${nb}, לתוכם אני לא רואה.`:''} עבור.`,

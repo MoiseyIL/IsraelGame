@@ -8,8 +8,9 @@ function flushSpots(){const B=S.spotBuf;if(!B)return;for(const k in B){const b=B
     const list=b.items.map((it,i)=>`${i+1}) ${it.d}`).join('; ');const quiet=S.alarm?'':T3(' Нас не обнаружили, огонь не открываем.',' לא זיהו אותנו, לא פותחים באש.',' We have not been spotted, holding fire.');
     const chips=[].concat(...b.items.map(it=>it.chips));b.items.forEach(it=>{if(it.pid)S.pidT[it.pid]=S.t;});
     say(b.u,T3(`Кобра-6, я ${b.u.call}. Наблюдаю противника, групп: ${b.items.length}. ${list}.${quiet} Приём.`,`צפע, כאן ${b.u.call}. רואים אויב, חוליות: ${b.items.length}. ${list}.${quiet} עבור.`,`Cobra-6, this is ${b.u.call}. Enemy in sight, groups: ${b.items.length}. ${list}.${quiet} Over.`),chips,{known:b.u.type==='inf'?'st':undefined,noSpot:true});}}
-function say(u,text,chips,o){o=o||{};if(o.spot&&!o.noSpot){const R=(S.repE=S.repE||{}),r0=R[o.eid];if(r0&&S.t-r0.t<180&&Math.hypot(r0.x-o.ex,r0.y-o.ey)<60)return;R[o.eid]={t:S.t,x:o.ex,y:o.ey};const B=(S.spotBuf=S.spotBuf||{});const k=u.id||u.call;(B[k]=B[k]||{u:{id:u.id,call:u.call,type:u.type},t0:S.t,items:[]}).items.push({text,chips:chips||[],pid:o.pid||0,d:o.spot});return;}
-  if(o.known&&u.id&&!u.men&&u.type==='inf'){const uu=U_(u.id);if(uu)u=uu;}if(S.mission)text=text.replace(/боевиков/g,'солдат противника').replace(/מחבלים/g,'חיילי אויב').replace(/מחבל/g,'חייל אויב');const m={from:u.call,uid:u.id||null,text,note:o.note||'',chips:chips||[],urgent:!!o.urgent,act:o.act||null,kobj:o.kobj||null,pid:o.pid||0,ek:o.ek||0,det:o.det||0};
+function say(u,text,chips,o){o=o||{};if(o.eid&&!o.noSpot){const tg=tgtNote(o);if(!tg)return;text=insTag(text,tg.tag);numChips(chips,tg.no);if(o.spot)o.spot=tg.d+' — '+o.spot;}
+  if(o.spot&&!o.noSpot){const B=(S.spotBuf=S.spotBuf||{});const k=u.id||u.call;(B[k]=B[k]||{u:{id:u.id,call:u.call,type:u.type},t0:S.t,items:[]}).items.push({text,chips:chips||[],pid:o.pid||0,d:o.spot});return;}
+  if(o.known&&u.id&&!u.men&&u.type==='inf'){const uu=U_(u.id);if(uu)u=uu;}if(S.mission)text=text.replace(/боевиков/g,'солдат противника').replace(/מחבלים/g,'חיילי אויב').replace(/מחבל/g,'חייל אויב');const m={from:u.call,uid:u.id||null,eid:o.eid||'',text,note:o.note||'',chips:chips||[],urgent:!!o.urgent,act:o.act||null,kobj:o.kobj||null,pid:o.pid||0,ek:o.ek||0,det:o.det||0};
   if(o.known&&u.type==='inf')m.known=o.known==='full'?{men:u.men,wounded:u.wounded,ammo:Math.round(u.ammo/10)*10,st:stLabel(u),full:true}:{st:stLabel(u)};
   if(m.urgent||o.front){m.front=!!o.front;const i=S.radio.q.findIndex(x=>!x.urgent&&!x.front);if(i<0)S.radio.q.push(m);else S.radio.q.splice(i,0,m);}else S.radio.q.push(m);}
 // the commander's own transmissions go ahead of routine reports already waiting (urgent ones still come first)
@@ -21,7 +22,7 @@ function salute(e,act){const where=e.bld&&e.mode!=='move'&&e.mode!=='patrol'?(HE
   return(HE?(`דיווח: כמות — ${cnt(e.men)}; פעילות — ${act}; מיקום — ${where}; זיהוי — ${e.kind==='army'?'במדי צבא רוסיה':'ללא מדים, חמושים'}; שעה — ${fmt(S.t)}; נשק — ${pick(WEAP)}.`):((EN?(`SALUTE: size — ${cnt(e.men)}; activity — ${act}; location — ${where}; unit — ${e.kind==='army'?'Russian Army uniform':'no uniforms, armed'}; time — ${fmt(S.t)}; equipment — ${pick(WEAP)}.`):(`SALUTE: численность — ${cnt(e.men)}; действия — ${act}; место — ${where}; принадлежность — ${e.kind==='army'?'в форме армии России':'без формы, вооружены'}; время — ${fmt(S.t)}; оружие — ${pick(WEAP)}.`))));}
 
 function deliver(m){
-  m.id=S.nid++;S.log.push(m);if(S.log.length>220)S.log.shift();
+  m.id=S.nid++;S.log.push(m);if(S.log.length>220)S.log.shift();jrAdd(m);
   if(m.known&&m.uid){const k=S.known[m.uid];k.st=m.known.st;if(m.known.full){k.men=m.known.men;k.wounded=m.known.wounded;k.ammo=m.known.ammo;k.t=m.t;}}
   if(m.kobj)S.kobj[m.kobj[0]]=m.kobj[1];
   if(m.pid)S.pidT[m.pid]=m.t;

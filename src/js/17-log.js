@@ -15,7 +15,7 @@ function useChip(m,c,b){let p;
   if(c.k==='ied'){if(c.b){(S.marks.bied||(S.marks.bied={}))[c.b]=1;p={x:BN(c.b).cx,y:BN(c.b).cy};}else{S.marks.ied=S.marks.ied||[];if(!(c.mid&&S.marks.ied.find(e=>e.id===c.mid))){c.mid=S.nid++;S.marks.ied.push({id:c.mid,x:c.x,y:c.y,t:m.t});}p=c;}c.used=true;b.classList.add('used');b.textContent='✓ '+c.label;dirty=true;if(p)ensureVisible(p.x,p.y);return;}
   if(c.k==='pos'){S.marks.own[c.uid]={x:c.x,y:c.y};p=c;}
   else if(c.b){markB(c.b,c.k,m.t);p={x:BN(c.b).cx,y:BN(c.b).cy};}
-  else{const ex=c.mid&&S.marks.m.find(e=>e.id===c.mid);if(ex){ex.x=c.x;ex.y=c.y;ex.t=m.t;ex.uc=false;}else{c.mid=S.nid++;S.marks.m.push({id:c.mid,x:c.x,y:c.y,t:m.t,n:c.n});}p=c;}
+  else{const ex=(c.mid&&S.marks.m.find(e=>e.id===c.mid))||(c.no&&S.marks.m.find(e=>e.no===c.no));if(ex){ex.x=c.x;ex.y=c.y;ex.t=m.t;ex.uc=false;}else{c.mid=S.nid++;S.marks.m.push({id:c.mid,x:c.x,y:c.y,t:m.t,n:c.n,no:c.no||0});}p=c;}
   c.used=true;b.classList.add('used');b.textContent='✓ '+c.label;dirty=true;if(p)ensureVisible(p.x,p.y);}
 function lamp(k){$('#lamp').className='lamp'+(k?' '+k:'');}
 
