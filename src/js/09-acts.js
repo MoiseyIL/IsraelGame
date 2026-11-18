@@ -1,10 +1,10 @@
 /* ---------- acts ---------- */
-function doAct(a){if(a.k==='sweep'){sweep();return;}const u=a.uid?U_(a.uid):null;
+function doAct(a){if(a.k==='sweep'){sweep();return;}if(a.k==='scan'){uavScanStart(a.x,a.y);return;}const u=a.uid?U_(a.uid):null;
   if(a.k==='order')orderExec(u,a);else if(a.k==='rep')sayReport(u);else if(a.k==='strike')strikeExec(a);else if(a.k==='med')medExec(a);
   else if(a.k==='atgm')atgmExec(u,a.b);
   else if(a.k==='mplant'||a.k==='mdefuse')missionAct(u,a);
   else if(a.k==='clearB'){if(u.st!=='occupy'){say(u,T3(`Кобра-6, я ${u.call}. Мы не в здании.`,`צפע, כאן ${u.call}. אנחנו לא בתוך מבנה.`,`Cobra-6, this is ${u.call}. We're not in a building.`),[],{front:true});}else{u.st='clearing';u.occTrapT=0;alive().forEach(e=>{if(e.bld===u.inB&&e.wakeT){e.wakeT=0;e.alert=true;}});occSet(u.id,u.inB,'clearing');say(u,T3(`Я ${u.call}. Принял, зачищаем здание ${u.inB}, около ${Math.max(1,Math.round(u.clearT/60))} мин.`,`כאן ${u.call}. רות, מטהרים את מבנה ${u.inB}, בערך ${Math.max(1,Math.round(u.clearT/60))} דק׳.`,`This is ${u.call}. Roger, clearing building ${u.inB}, about ${Math.max(1,Math.round(u.clearT/60))} min.`),[],{front:true,known:'st'});}}
-  else if(a.k==='uav'){S.uav.tx=a.x;S.uav.ty=a.y;say(U_('ya'),(HE?('צפע, כאן זיק. רות, עובר לגזרה החדשה, אהיה שם בעוד דקה.'):((EN?("Cobra-6, this is Hawk. Roger, moving to the new area, on station in one minute."):('Кобра-6, я Ястреб. Принял, перехожу в новый район, буду через минуту.')))),[],{front:true});}
+  else if(a.k==='uav'){S.uav.tx=a.x;S.uav.ty=a.y;S.uav.scan=null;say(U_('ya'),(HE?('צפע, כאן זיק. רות, עובר לגזרה החדשה, אהיה שם בעוד דקה.'):((EN?("Cobra-6, this is Hawk. Roger, moving to the new area, on station in one minute."):('Кобра-6, я Ястреб. Принял, перехожу в новый район, буду через минуту.')))),[],{front:true});}
   else if(a.k==='occ'){delete S.marks.ord[a.uid];occSet(a.uid,a.b,a.st);}
   else if(a.k==='cleared'){if(S.occ)delete S.occ[a.b];if(S.marks.bied)delete S.marks.bied[a.b];if(a.b===S.T)S.marks.b[a.b]='tun';else if(a.civ)S.marks.b[a.b]='civ';else delete S.marks.b[a.b];}
   else if(a.k==='clrOrd')delete S.marks.ord[a.uid];else if(a.k==='clrLz')S.marks.lz=S.marks.lz.filter(z=>z.id!==a.id);

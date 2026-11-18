@@ -29,3 +29,18 @@ function sweep(){const rep=new Map(),add=(u,t)=>{if(!rep.has(u))rep.set(u,[]);re
     +(grey?T3(`Не подтверждено и показано серым: ${grey}.`,`לא אומתו ומוצגים באפור: ${grey}.`,`Unconfirmed, shown in grey: ${grey}.`):T3('Все метки на карте подтверждены.','כל הסימונים במפה אומתו.','Every mark on the map is confirmed.')),[],{});
   dirty=true;}
 const SWEEP_TXT=()=>T3('Всем станциям сети «Кобра», я Кобра-6. Доложить цели: что видите сейчас, по старым меткам — подтвердить или снять. Приём.','כל התחנות ברשת «צפע», כאן צפע. דווחו מטרות: מה אתם רואים עכשיו, ולגבי הסימונים הישנים — לאמת או להוריד. עבור.','All stations on the Cobra net, this is Cobra-6. Report targets: what you see now; confirm or clear the old marks. Over.');
+// ---- the UAV scans an area: flies there, looks for about a minute, updates every enemy mark in its circle ----
+const SCAN_R=320,SCAN_T=60;
+function uavScanStart(x,y){S.uav.tx=x;S.uav.ty=y;S.uav.scan={x,y,t:0};const ya=U_('ya');
+  say(ya,T3(`Кобра-6, я Ястреб. Принял, выхожу в район, квадрат ${cell(x,y)}. Осмотр займёт около минуты, потом доложу. Приём.`,`צפע, כאן זיק. רות, יוצא לאזור, משבצת ${cell(x,y)}. הסריקה תיקח בערך דקה, אחר כך אדווח. עבור.`,`Cobra-6, this is Hawk. Roger, heading for the area, grid ${cell(x,y)}. The scan takes about a minute, then I'll report. Over.`),[],{});}
+function uavScanTick(dt){const sc=S.uav.scan;if(!sc)return;if(Math.hypot(S.uav.x-sc.x,S.uav.y-sc.y)>8)return;sc.t+=dt;if(sc.t<SCAN_T)return;S.uav.scan=null;uavScan(sc.x,sc.y);}
+function uavScan(cx,cy){const ya=U_('ya'),A=alive(),inR=(x,y)=>Math.hypot(x-cx,y-cy)<SCAN_R,seen=new Set();let ok=0,gone=0;const nw=[];
+  for(const m of [...S.marks.m]){if(!inR(m.x,m.y))continue;const e=A.find(e=>outside(e)&&!seen.has(e)&&inR(e.x,e.y)&&Math.hypot(e.x-m.x,e.y-m.y)<45);
+    if(e){seen.add(e);m.x=e.x;m.y=e.y;m.t=S.t;m.n=cnt(e.men);m.uc=false;ok++;}else{S.marks.m.splice(S.marks.m.indexOf(m),1);gone++;}}
+  for(const e of A){if(seen.has(e)||!outside(e)||!inR(e.x,e.y))continue;if(e.roof&&Math.random()<.2)continue; // a man lying on a roof is easy to miss
+    if(e.roof&&e.bld){markB(e.bld,'hos',S.t);nw.push(T3(`${cnt(e.men)} на крыше здания ${e.bld}`,`${cnt(e.men)} על גג מבנה ${e.bld}`,`${cnt(e.men)} on the roof of building ${e.bld}`));continue;}
+    if(S.marks.m.some(m=>Math.hypot(m.x-e.x,m.y-e.y)<45))continue;S.marks.m.push({id:S.nid++,x:e.x,y:e.y,t:S.t,n:cnt(e.men)});nw.push(T3(`${cnt(e.men)} ${placeTxt(e.x,e.y)}`,`${cnt(e.men)} ${placeTxt(e.x,e.y)}`,`${cnt(e.men)} ${placeTxt(e.x,e.y)}`));}
+  const nb=Object.keys(S.marks.b).filter(n=>S.marks.b[n]==='hos'&&inR(BN(+n).cx,BN(+n).cy)).length;
+  say(ya,T3(`Кобра-6, я Ястреб. Район квадрат ${cell(cx,cy)} осмотрен. Метки на улицах: подтверждено ${ok}, снято ${gone}. ${nw.length?'Новые цели: '+nw.join('; ')+'.':'Новых целей нет.'}${nb?` Отмеченных зданий в районе: ${nb}, внутрь не вижу.`:''} Приём.`,
+    `צפע, כאן זיק. סרקתי את האזור, משבצת ${cell(cx,cy)}. סימונים ברחובות: אומתו ${ok}, הוסרו ${gone}. ${nw.length?'מטרות חדשות: '+nw.join('; ')+'.':'אין מטרות חדשות.'}${nb?` מבנים מסומנים באזור: ${nb}, לתוכם אני לא רואה.`:''} עבור.`,
+    `Cobra-6, this is Hawk. Area around grid ${cell(cx,cy)} scanned. Street marks: ${ok} confirmed, ${gone} removed. ${nw.length?'New targets: '+nw.join('; ')+'.':'No new targets.'}${nb?` Marked buildings in the area: ${nb}, I can't see inside.`:''} Over.`),nw.length?[]:[],{known:'st'});dirty=true;}
