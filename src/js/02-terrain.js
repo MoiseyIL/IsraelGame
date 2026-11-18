@@ -6,7 +6,7 @@ const TOWNL={grid:['город с прямыми улицами','עיר עם ר
 function segDist(px,py,ax,ay,bx,by){const dx=bx-ax,dy=by-ay,l=dx*dx+dy*dy||1;const t=clamp(((px-ax)*dx+(py-ay)*dy)/l,0,1);return Math.hypot(px-ax-t*dx,py-ay-t*dy);}
 function lineDist(x,y,pts){let d=1e9;for(let i=1;i<pts.length;i++)d=Math.min(d,segDist(x,y,pts[i-1][0],pts[i-1][1],pts[i][0],pts[i][1]));return d;}
 // our groups outside the town are harder to spot in orchards and in the wadi bed
-function coverAt(x,y){if(M.classic||inTown(x,y))return false;if(M.orch.some(o=>x>o.x0&&x<o.x1&&y>o.y0&&y<o.y1))return true;return!!(M.wadi&&lineDist(x,y,M.wadi)<16);}
+function coverAt(x,y){if(debNear(x,y,4))return true;if(M.classic||inTown(x,y))return false;if(M.orch.some(o=>x>o.x0&&x<o.x1&&y>o.y0&&y<o.y1))return true;return!!(M.wadi&&lineDist(x,y,M.wadi)<16);}
 function genCity2(seed,dens){const r=mulberry(seed*31+7),rb=mulberry(seed*131+(dens==='dense'?3:dens==='sparse'?1:2));BL=[];BLOCKS=[];
   const type=['grid','old','camp','village','mixed'][Math.floor(r()*5)];const dn=dens==='dense'?1:dens==='sparse'?-1:0;
   let rx,ry;if(type==='camp'){rx=250+r()*120;ry=290+r()*150;}else if(type==='village'){rx=400+r()*150;ry=430+r()*190;}else{rx=340+r()*210;ry=400+r()*240;}

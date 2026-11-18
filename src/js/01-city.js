@@ -1,7 +1,7 @@
 /* ---------- city ---------- */
 let BL=[],BLOCKS=[];
 const BN=n=>BL[n-1];
-function genCity(seed,dens,g2){if(g2){genCity2(seed,dens);return;}M=M_CLASSIC;seed=seed||SEED;const LOT=dens==='sparse'?.17:dens==='dense'?.03:.07,SPL=dens==='dense'?.35:dens==='sparse'?.75:.55;
+function genCity(seed,dens,g2){DSEED=seed||SEED;if(g2){genCity2(seed,dens);return;}M=M_CLASSIC;seed=seed||SEED;const LOT=dens==='sparse'?.17:dens==='dense'?.03:.07,SPL=dens==='dense'?.35:dens==='sparse'?.75:.55;
   const r=mulberry(seed);BL=[];BLOCKS=[];
   const xs=[700];for(let x=700;x>260;){x-=125+r()*45;xs.unshift(Math.max(240,x));}for(let x=700;x<1140;){x+=125+r()*45;xs.push(Math.min(1160,x));}
   const ys=[860];for(let y=860;y>270;){y-=110+r()*40;ys.unshift(Math.max(250,y));}for(let y=860;y<1440;){y+=110+r()*40;ys.push(Math.min(1460,y));}
