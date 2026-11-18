@@ -1334,7 +1334,8 @@ function deliver(m){
   if(m.ek)S.kek=(S.kek||0)+m.ek;if(m.det)S.kdet=(S.kdet||0)+m.det;
   if(m.act)doAct(m.act);
   liveEnd(m);updUnits();updObj();
-  if(m.urgent){try{navigator.vibrate&&navigator.vibrate(90);}catch(e){}}
+  // a short buzz for urgent traffic: only while the game runs and the sound is on, at most once in 4 s
+  if(m.urgent&&soundOn&&S.speed>0&&!document.hidden&&performance.now()-(window.__vibT||0)>4000){window.__vibT=performance.now();try{navigator.vibrate&&navigator.vibrate(90);}catch(e){}}
   dirty=true;
 }
 function radioStep(rdt){
@@ -2348,7 +2349,7 @@ let last=performance.now(),lastSec=-1;
 function frame(now){const rdt=Math.min(.1,(now-last)/1000);last=now;
   if(S.started&&!S.over&&S.speed===0&&S.mission)pauseThink(rdt);else pauseReset();
   if(S.started&&!S.over&&S.speed>0){S.acc+=rdt*RATE*S.speed;let n=0;while(S.acc>=1&&n<240&&!S.over){tick(1);S.acc-=1;n++;}}
-  radioStep(rdt);
+  if($('#brief').hidden&&$('#camp').hidden)radioStep(rdt); // the radio waits while the order or the HQ screen is open
   if(now-lastSave>10000){lastSave=now;saveGame();}
   if(S.alarm&&!S.alarmKnown&&S.log.some(m=>m.urgent)){S.alarmKnown=true;updObj();}
   const sec=Math.floor(S.t/15);if(sec!==lastSec){lastSec=sec;$('#clock').textContent=fmt(S.t);updUnits();dirty=true;}

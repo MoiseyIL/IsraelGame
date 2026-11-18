@@ -33,7 +33,8 @@ function deliver(m){
   if(m.ek)S.kek=(S.kek||0)+m.ek;if(m.det)S.kdet=(S.kdet||0)+m.det;
   if(m.act)doAct(m.act);
   liveEnd(m);updUnits();updObj();
-  if(m.urgent){try{navigator.vibrate&&navigator.vibrate(90);}catch(e){}}
+  // a short buzz for urgent traffic: only while the game runs and the sound is on, at most once in 4 s
+  if(m.urgent&&soundOn&&S.speed>0&&!document.hidden&&performance.now()-(window.__vibT||0)>4000){window.__vibT=performance.now();try{navigator.vibrate&&navigator.vibrate(90);}catch(e){}}
   dirty=true;
 }
 function radioStep(rdt){
