@@ -46,3 +46,14 @@ function fightNote(u,e,m,first){const T=(S.tg=S.tg||{n:0,by:{}});const no=tgtNo(
   if(first)say(u,T3(`Кобра-6, я ${u.call}. Веду бой с целью ${no}, ${where}.`,`צפע, כאן ${u.call}. בקרב עם מטרה ${no}, ${where}.`,`Cobra-6, this is ${u.call}. Engaging target ${no}, ${where}.`),[],{known:'st'});
   else say(u,T3(`Кобра-6, я ${u.call}! Ещё противник: цель ${no}, ${where}, ${cnt(e.men)}. Ведём бой.`,`צפע, כאן ${u.call}! עוד אויב: מטרה ${no}, ${where}, ${cnt(e.men)}. בקרב.`,`Cobra-6, this is ${u.call}! More enemy: target ${no}, ${where}, ${cnt(e.men)}. Engaging.`),e.bld&&!outside(e)?[bChip(e.bld,'hos')]:[Object.assign(ptChip(e),{no,label:T3(`цель ${no}: ${cell(e.x,e.y)}`,`מטרה ${no}: ${cell(e.x,e.y)}`,`target ${no}: ${cell(e.x,e.y)}`)})],{urgent:true,known:'st'});
   return true;}
+
+const dstM=(u,e)=>Math.max(20,Math.round(Math.hypot(e.x-u.x,e.y-u.y)/10)*10);
+// company HQ keeps the target list while there is fighting: every 5 minutes a summary of who is engaging which target
+// (a staff note in the log, it does not take air time)
+function battleSum(){const U=infs().filter(u=>u.inFight&&u.men>0);if(!U.length){S.sumT=0;return;}if(!S.sumT){S.sumT=S.t;S.sum0={k:S.kek||0,c:S.stats.kia+S.stats.wia};return;}if(S.t-S.sumT<300)return;
+  const by={};for(const u of U)for(const id of Object.keys(u.fightE||{})){const e=E_(id);if(!e||e.gone||e.men<=0)continue;const no=tgtNo(e);(by[no]=by[no]||{e,u:[]}).u.push(u.call);}
+  const nos=Object.keys(by).sort((a,b)=>a-b);const w=e=>e.bld&&!outside(e)?T3(`здание ${e.bld}`,`מבנה ${e.bld}`,`building ${e.bld}`):cell(e.x,e.y);
+  const list=nos.map(n=>T3(`цель ${n} (${w(by[n].e)}) — ${by[n].u.join(', ')}`,`מטרה ${n} (${w(by[n].e)}) — ${by[n].u.join(', ')}`,`target ${n} (${w(by[n].e)}) — ${by[n].u.join(', ')}`)).join('; ');
+  const k=(S.kek||0)-S.sum0.k,c=S.stats.kia+S.stats.wia-S.sum0.c;S.sumT=S.t;S.sum0={k:S.kek||0,c:S.stats.kia+S.stats.wia};
+  const m={from:T3('Штаб роты','מפקדת הפלוגה','Company HQ'),uid:null,text:T3(`Сводка ${fmt(S.t)}. Бой: ${list||'цели не уточнены'}. За 5 минут: противник — ${k} нейтрализовано, у нас — ${c} потерь.`,`סיכום ${fmt(S.t)}. קרב: ${list||'המטרות לא מוגדרות'}. ב־5 הדקות האחרונות: אויב — ${k} נוטרלו, אצלנו — ${c} נפגעים.`,`Summary ${fmt(S.t)}. In action: ${list||'targets not identified'}. Last 5 minutes: enemy — ${k} neutralized, ours — ${c} casualties.`),note:'',chips:[],t:S.t};
+  deliver(m);}
