@@ -73,10 +73,8 @@ function bState(b){if(S.destroyed[b])return 4;return dmgSt((S.bdmg||{})[b]||0);}
 function bcov(b){if(S.destroyed[b])return .6;return .35+Math.min(99,(S.bdmg||{})[b]||0)*.004;}
 const isOur=s=>s.type==='inf';
 // heavy weapons: 2 = machine guns and launchers (infantry platoons, army platoons), 1 = machine gun, 0 = rifles only
-function hwOf(s){if(isOur(s))return s.cls?(s.cls==='inf'?2:1):(s.id==='k1'||s.id==='k2'?2:1);
-  if(s.kind==='army')return({vdv:2,mp:2,msv:2,sso:1,spn:1,shturm:2,stormv:2,bars:2,sobr:1,razv:1,za_inf:2,za_para:2,za_sf:1,za_pf:1,za_stf:1,za_eng:1})[s.rt]||0;return(s.kind==='leader'||s.kind==='rest')&&s.max>=3?1:0;}
-function lawOf(s){if(isOur(s))return hwOf(s)>=2?3:s.cls==='sf'||s.cls==='rec'||s.id==='dv'?1:0;
-  if(s.kind==='army')return({vdv:3,mp:3,msv:3,sso:1,spn:1,shturm:3,stormv:1,bars:2,razv:1,za_inf:3,za_para:3,za_sf:1,za_pf:1})[s.rt]||0;return(s.kind==='leader'||s.kind==='rest')&&s.max>=3?1:0;}
+function hwOf(s){const k=kitOf(s);return k.mg?(k.rk||k.gl?2:1):0;}
+const lawOf=s=>kitOf(s).rk;
 const dmgCount=()=>Object.keys(S.bdmg||{}).filter(n=>!S.destroyed[n]&&S.bdmg[n]>=20).length;
 // fire at a building someone is shooting from: rifles break windows, machine guns more, launchers punch holes
 function wpnFire(s,b,sh,dt,tgt){const B=BN(b);if(!B||S.destroyed[b]||s.men<=0)return;const hw=hwOf(s);

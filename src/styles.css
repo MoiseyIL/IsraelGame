@@ -217,3 +217,5 @@ html[lang=he] .doc ul{padding-inline-start:18px;padding-left:unset}
 .jrdoc textarea{width:100%;height:52vh;font-family:var(--f-mono);font-size:11px;line-height:1.35;border:1px solid #c9c4b6;border-radius:6px;padding:6px;background:#fbfaf6;color:#22262b;resize:vertical;direction:ltr;text-align:left}
 html[lang=he] .jrdoc textarea{direction:rtl;text-align:right}
 .jrb{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.jrb .go{flex:1 1 30%;margin:0}
+/* weapons line in the unit catalog */
+.arms{font-size:12px;color:#3b4652;margin:2px 0 4px}

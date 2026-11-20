@@ -229,6 +229,8 @@ html[lang=he] .doc ul{padding-inline-start:18px;padding-left:unset}
 .jrdoc textarea{width:100%;height:52vh;font-family:var(--f-mono);font-size:11px;line-height:1.35;border:1px solid #c9c4b6;border-radius:6px;padding:6px;background:#fbfaf6;color:#22262b;resize:vertical;direction:ltr;text-align:left}
 html[lang=he] .jrdoc textarea{direction:rtl;text-align:right}
 .jrb{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.jrb .go{flex:1 1 30%;margin:0}
+/* weapons line in the unit catalog */
+.arms{font-size:12px;color:#3b4652;margin:2px 0 4px}
 </style>
 </head>
 <body>
@@ -1093,8 +1095,60 @@ function mechOf(t,men){const [f,r,s,v,a,c,k]=CH[t];return{q:+(fpOf(f)/men).toFix
 // catalog block: seven bars and the final score
 function chHTML(t){const c=CH[t];if(!c)return'';const tg=chTags(t);
   return`<div class="chs">${c.map((v,i)=>`<span class="cn">${esc(L2(CH_K[i]))}</span><span class="cb"><i style="width:${v*10}%"></i></span><span class="cv">${v}</span>`).join('')}</div>`
-    +`<div class="cpw"><span>${tg.length?esc(tg.map(x=>L2(x[0])).join(' · ')):''}</span><b>${T3('Сила','עוצמה','Power')} ${chPower(t)}</b></div>`;}
+    +armsHTML(t)+`<div class="cpw"><span>${tg.length?esc(tg.map(x=>L2(x[0])).join(' · ')):''}</span><b>${T3('Сила','עוצמה','Power')} ${chPower(t)}</b></div>`;}
 function chLegend(){return`<details class="chl"><summary>${T3('Что означают характеристики','מה המאפיינים אומרים','What the ratings mean')}</summary><ul>${CH_K.map((k,i)=>`<li><b>${esc(L2(k))}</b> (${Math.round(CH_W[i]*100)}%) — ${esc(L2(CH_SUB[i]))}</li>`).join('')}</ul><p>${T3('Сила — итог из семи характеристик, в скобках их вес; особые возможности добавляют до 5 очков. Шкала 1–10 и все числа — игровые условности.','עוצמה — סיכום שבעת המאפיינים, בסוגריים המשקל של כל אחד; יכולות מיוחדות מוסיפות עד 5 נקודות. הסולם 1–10 וכל המספרים — מוסכמות של המשחק.','Power is the total of the seven ratings, with each weight in brackets; special abilities add up to 5 points. The 1–10 scale and all the numbers are game conventions.')}</p></details>`;}
+/* ---------- weapons of each unit, and how each country's army fights ---------- */
+// Kit, per group: mg — machine guns; rk — rockets (RPG-7, Matador); gl — 40 mm grenade volleys (GP-25/30 under the barrel,
+// Milkor MGL); mk — a marksman or sniper. The weapon names in ARMS come from open sources; the counts are game conventions.
+const KIT={
+  // ours. Infantry platoons: Tavor X95, Negev, Matador; snipers in each company
+  gol:{mg:2,rk:3,gl:0,mk:1},tz:{mg:2,rk:3,gl:0,mk:1},gv:{mg:2,rk:3,gl:0,mk:1},nh:{mg:2,rk:3,gl:0,mk:1},kf:{mg:2,rk:3,gl:0,mk:1},
+  sgol:{mg:1,rk:1,gl:0,mk:1},stz:{mg:1,rk:1,gl:0,mk:1},sgv:{mg:1,rk:1,gl:0,mk:1},snh:{mg:1,rk:1,gl:0,mk:1},
+  eg:{mg:1,rk:1,gl:0,mk:1},mg:{mg:1,rk:0,gl:0,mk:1},dv:{mg:0,rk:0,gl:0,mk:0},ym:{mg:0,rk:0,gl:0,mk:1},yh:{mg:1,rk:0,gl:0,mk:0},
+  csq:{mg:1,rk:1,gl:0,mk:0}, // campaign squads Cobra-1/2 (8 men)
+  // Russia: AK-74M, PKP/PKM or RPK-74M, RPG-7, GP-25/30 under the barrel, SVD
+  msv:{mg:2,rk:4,gl:3,mk:1},vdv:{mg:2,rk:4,gl:3,mk:1},mp:{mg:2,rk:4,gl:3,mk:1},shturm:{mg:2,rk:4,gl:3,mk:1},
+  stormv:{mg:1,rk:2,gl:1,mk:0},bars:{mg:1,rk:2,gl:2,mk:0},sso:{mg:1,rk:1,gl:1,mk:1},spn:{mg:1,rk:1,gl:1,mk:1},
+  razv:{mg:1,rk:1,gl:1,mk:1},snip:{mg:0,rk:0,gl:0,mk:1},sobr:{mg:0,rk:0,gl:0,mk:1},isp:{mg:0,rk:0,gl:0,mk:0},
+  // South Africa: R4 rifles, SS-77 machine guns, Milkor MGL six-shot 40 mm launchers
+  za_inf:{mg:2,rk:0,gl:4,mk:0},za_para:{mg:2,rk:0,gl:4,mk:0},za_sf:{mg:1,rk:0,gl:2,mk:1},za_pf:{mg:1,rk:0,gl:1,mk:1},za_stf:{mg:0,rk:0,gl:0,mk:1},za_eng:{mg:1,rk:0,gl:0,mk:0},
+  // insurgents: a bigger group has a machine gun and an RPG
+  ins3:{mg:1,rk:1,gl:0,mk:0},ins:{mg:0,rk:0,gl:0,mk:0}};
+// named weapons, only where open sources name them
+const ARMS={
+  idf:['Tavor X95, Negev, «Матадор»','Tavor X95, נגב, «מטאדור»','Tavor X95, Negev, Matador'],
+  idfr:['Tavor X95, Negev','Tavor X95, נגב','Tavor X95, Negev'],
+  ru:['АК-74М, ПКП/ПКМ или РПК-74М, РПГ-7, ГП-25/30, СВД','AK-74M, PKP/PKM או RPK-74M, RPG-7, GP-25/30, SVD','AK-74M, PKP/PKM or RPK-74M, RPG-7, GP-25/30, SVD'],
+  ru2:['АК-74М, ПКП/ПКМ или РПК-74М, РПГ-7, ГП-25/30','AK-74M, PKP/PKM או RPK-74M, RPG-7, GP-25/30','AK-74M, PKP/PKM or RPK-74M, RPG-7, GP-25/30'],
+  za:['R4, SS-77, Milkor MGL','R4, SS-77, Milkor MGL','R4, SS-77, Milkor MGL']};
+const ARMS_OF={gol:'idf',tz:'idf',gv:'idf',nh:'idf',kf:'idf',sgol:'idfr',stz:'idfr',sgv:'idfr',snh:'idfr',eg:'idfr',
+  msv:'ru',vdv:'ru',mp:'ru',shturm:'ru',stormv:'ru2',bars:'ru2',razv:'ru',za_inf:'za',za_para:'za',za_pf:'za'};
+function kitKey(s){if(s.type==='inf')return s.tt||({k1:'csq',k2:'csq',k3:'yh',dv:'dv'})[s.id]||'csq';if(s.kind==='army')return s.rt;return(s.kind==='leader'||s.kind==='rest')&&s.max>=3?'ins3':'ins';}
+const kitOf=s=>KIT[kitKey(s)]||KIT.ins;
+// catalog line: what the group carries
+function armsHTML(t){const k=KIT[t];if(!k)return'';const a=[];
+  if(k.mg)a.push(T3(`пулемётов ${k.mg}`,`מקלעים: ${k.mg}`,`machine guns ${k.mg}`));if(k.rk)a.push(TU[t]?T3(`выстрелов «Матадор» ${k.rk}`,`רקטות מטאדור: ${k.rk}`,`Matador rounds ${k.rk}`):T3(`выстрелов РПГ ${k.rk}`,`רקטות RPG: ${k.rk}`,`RPG rounds ${k.rk}`));
+  if(k.gl)a.push(T3(`залпов 40-мм гранатомёта ${k.gl}`,`מטחי מטול 40 מ״מ: ${k.gl}`,`40 mm grenade volleys ${k.gl}`));if(k.mk)a.push(T3('снайпер','צלף','sniper'));
+  const nm=ARMS_OF[t]?L2(ARMS[ARMS_OF[t]])+' · ':'';return`<div class="arms"><b>${T3('Оружие:','נשק:','Weapons:')}</b> ${esc(nm)}${a.length?esc(a.join(' · ')):T3('только стрелковое','נשק קל בלבד','small arms only')}</div>`;}
+// 40 mm grenades: lobbed over cover and into windows, so they reach a group that rifles cannot
+function glFire(s,tgt,dt,b){const k=kitOf(s);if(!k.gl||s.men<2)return;if(s.glN==null)s.glN=k.gl;if(s.glN<=0)return;
+  s.glT=(s.glT==null?10+Math.random()*20:s.glT)-dt;if(s.glT>0)return;s.glT=35+Math.random()*20;s.glN--;
+  tgt.acc+=.3+(b?.15:0);tgt.sup=Math.min(100,(tgt.sup||0)+25);if(b&&!(isOur(s)&&BN(b)&&BN(b).prot))bHit(b,6,45,s);}
+
+// ---- how each country fights (missions) ----
+// Russia, from open analyses of the war in Ukraine: troops are split into line, assault, specialised and expendable ones;
+// expendable groups go first and reveal the defence, assault groups follow; heavy losses are accepted; small groups
+// try to slip through gaps. South Africa: a small professional army; the infantry section works as machine-gun groups
+// and a rifle group with a grenade launcher (fire and movement); here it is played cautiously — reconnaissance first,
+// bounds near the enemy, losses avoided. The South African part is a game interpretation: open sources describe the
+// weapons and the units, not a detailed doctrine.
+const TAC={
+  ru:{wd:.25,wdX:.1,boundM:150,boundS:8,near:250,supStop:80,lead:["stormv","bars"]},
+  za:{wd:.4,wdX:.4,boundM:100,boundS:15,near:350,supStop:85,lead:["za_pf","za_sf"]}};
+const tacOf=()=>TAC[(S&&S.nation)||'ru']||TAC.ru;
+const ARMY_BASE=1.6; // the same walking pace as our teams at the fast pace in town
+// near our teams the army moves by bounds; far from them it simply walks
+const armyNearUs=(e,T)=>infs().some(u=>u.men>0&&Math.hypot(u.x-e.x,u.y-e.y)<T.near);
 /* ---------- missions: our forces against a regular army; "king of the hill" race to plant a charge in the town center ---------- */
 const MIS_KEY=HE?'reshet-mission-he':EN?'reshet-mission-en':'reshet-mission-ru';
 let MS=null;
@@ -1197,10 +1251,9 @@ function newMissionState(o){const st=newState({seed:o.seed,diff:o.diff,dens:o.de
   st.units=st.units.filter(u=>u.id!=='mo');st.mol.st='none';st.mol.ammo=0;st.mol.gun=0;st.mol.cover=null;
   st.charge={us:null,them:null};st.mres=null;st.enOrder=order;st.aiT=0;st.contact0=0;return st;}
 // ---- army AI: fire and maneuver, bounding overwatch, strongpoints, flanking, reserve, orderly withdrawal ----
-const ARMY_SPD=1.45;
 function armyGoTo(e,x,y,role){const p=nearFree(x,y);if(!p)return;e.mode='amove';e.role=role||e.role;e.bld=0;e.tx=p[0]*NG+NG/2;e.ty=p[1]*NG+NG/2;e.leg=0;e.pause=0;e.pkey=null;}
 function strongpoint(e){const b=BL.filter(b=>!S.destroyed[b.n]&&!S.enemies.some(o=>o!==e&&!o.gone&&o.bld===b.n)).reduce((a,b)=>!a||Math.hypot(b.cx-e.x,b.cy-e.y)<Math.hypot(a.cx-e.x,a.cy-e.y)?b:a,null);
-  if(b&&Math.hypot(b.cx-e.x,b.cy-e.y)<70){e.bld=b.n;e.x=b.cx;e.y=b.cy;}e.mode='hold';}
+  if(b&&Math.hypot(b.cx-e.x,b.cy-e.y)<70){e.bld=b.n;e.x=b.cx;e.y=b.cy;}e.mode='hold';e.holdT=S.t;}
 function ringPoints(n,r0,r1,side){const O=S.obj,out=[];for(let i=0;i<n;i++){const a=(side<0?Math.PI:0)+(-.9+1.8*(i+.5)/n)*Math.PI/2-Math.PI/2*(side<0?-1:1);const r=r0+(r1-r0)*((i*37)%10)/10;out.push([O.x+Math.cos(a)*r,O.y+Math.sin(a)*r*(side<0?1:1)]);}return out;}
 function armyCommand(){const O=S.obj,A=alive().filter(e=>e.kind==='army'&&e.mode!=='withdraw');if(!A.length)return;const U=infs().filter(u=>u.men>0);
   const free=e=>!e.cont.length&&e.mode!=='plant'&&e.mode!=='defuse';
@@ -1210,15 +1263,19 @@ function armyCommand(){const O=S.obj,A=alive().filter(e=>e.kind==='army'&&e.mode
     for(const e of A){if(!free(e))continue;if(e===def){if(nearO(e)>25)armyGoTo(e,O.x,O.y,'defuse');else{e.mode='defuse';e.role='defuse';}}else if(nearO(e)>140)armyGoTo(e,O.x+(e.x-O.x)*.3,O.y+(e.y-O.y)*.3,'support');}return;}
   // their charge is ticking: hold strongpoints around the objective
   if(S.charge.them){const pts=ringPoints(A.length,60,150,-1);A.forEach((e,i)=>{if(!free(e))return;if(e.mode==='hold'&&nearO(e)<190)return;armyGoTo(e,pts[i][0],pts[i][1],'defend');});return;}
-  // race: carrier with escort to the objective, overwatch takes buildings on the near side, one reserve held back
-  let carrier=A.find(e=>e.role==='carrier');if(!carrier){carrier=A.filter(e=>e.sap)[0]||A.reduce((a,e)=>!a||e.men*e.q>a.men*a.q?e:a,null);carrier.role='carrier';}
-  const others=A.filter(e=>e!==carrier);const reserve=others.length>=3?others.reduce((a,e)=>!a||e.men<a.men?e:a,null):null;
+  // race: a lead element goes first, then the carrier with escort to the objective, overwatch takes buildings on the near side, one reserve held back
+  const T=tacOf(),za=S.nation==='za';let leads=A.filter(e=>T.lead.includes(e.rt)&&e.role!=='carrier');if(leads.length>=A.length)leads=leads.slice(0,A.length-1);
+  for(const e of leads){if(!free(e)||e.mode!=='base')continue;if(za){const dx=S.enBase.x-O.x,dy=S.enBase.y-O.y,l=Math.hypot(dx,dy)||1;armyGoTo(e,O.x+dx/l*150,O.y+dy/l*150,'scout');}else armyGoTo(e,O.x,O.y,'probe');}
+  const ready=!leads.length||za||S.contact0||S.t-T0>30; // Russia: the main body follows the expendable groups half a minute later; South Africa's scouts are simply faster than the main body
+  let carrier=A.find(e=>e.role==='carrier');if(!carrier){const pool=A.filter(e=>!leads.includes(e));const tOf=e=>nearO(e)/(ARMY_BASE*(e.spd||1))+(e.sap?PLANT_SAP:PLANT_T);carrier=pool.reduce((a,e)=>!a||tOf(e)<tOf(a)?e:a,null);carrier.role='carrier';/* whoever gets there and plants soonest */}
+  const others=A.filter(e=>e!==carrier&&!leads.includes(e));const reserve=others.length>=3?others.reduce((a,e)=>!a||e.men<a.men?e:a,null):null;
   const escort=others.filter(e=>e!==reserve).sort((a,b)=>nearO(a)-nearO(b))[0];
   const ow=others.filter(e=>e!==reserve&&e!==escort);const pts=ringPoints(Math.max(1,ow.length),90,170,-1);
-  if(free(carrier)&&carrier.mode!=='hold'||carrier.mode==='base'){if(nearO(carrier)>25)armyGoTo(carrier,O.x,O.y,'carrier');}
+  // the carrier keeps going: after a firefight it leaves its cover once the shooting stops (Russia at once, South Africa after a pause)
+  if(ready&&(free(carrier)&&(carrier.mode!=='hold'||S.t-(carrier.holdT||0)>(za?20:5))||carrier.mode==='base')){if(nearO(carrier)>25)armyGoTo(carrier,O.x,O.y,'carrier');}
   if(carrier.mode==='hold'&&nearO(carrier)<30&&!carrier.cont.length){carrier.mode='plant';carrier.prog=carrier.prog||0;}
-  if(escort&&free(escort)&&(escort.mode==='base'||escort.mode==='hold'&&nearO(escort)>120))armyGoTo(escort,(carrier.tx+carrier.x)/2,(carrier.ty+carrier.y)/2+20,'escort');
-  ow.forEach((e,i)=>{if(free(e)&&(e.mode==='base'||e.mode==='hold'&&e.role!=='overwatch'))armyGoTo(e,pts[i][0],pts[i][1],'overwatch');});
+  if(ready&&escort&&free(escort)&&(escort.mode==='base'||escort.mode==='hold'&&nearO(escort)>120))armyGoTo(escort,(carrier.tx+carrier.x)/2,(carrier.ty+carrier.y)/2+20,'escort');
+  ow.forEach((e,i)=>{if(ready&&free(e)&&(e.mode==='base'||e.mode==='hold'&&e.role!=='overwatch'))armyGoTo(e,pts[i][0],pts[i][1],'overwatch');});
   if(reserve&&free(reserve)&&reserve.mode==='base'&&(S.t-T0>480||S.contact0))armyGoTo(reserve,O.x,O.y-120,'reserve');
   // a group in contact is supported by a neighbour that flanks the enemy
   for(const e of A){if(!e.cont.length||e.flankCalled&&S.t-e.flankCalled<120)continue;const u=U_(e.cont[0]);if(!u)continue;
@@ -1228,14 +1285,21 @@ function armyCommand(){const O=S.obj,A=alive().filter(e=>e.kind==='army'&&e.mode
 // while the game is paused the enemy commander still makes one or two decisions (no movement): after 1 s and after 4 s of pause
 let PT=0,PTn=0;function pauseThink(rdt){PT+=rdt;if(PTn<2&&PT>=(PTn?4:1)){PTn++;armyCommand();}}
 function pauseReset(){PT=0;PTn=0;}
-function armyTick(dt){const O=S.obj,U=infs();
+function armyTick(dt){const O=S.obj,U=infs(),T=tacOf();
   for(const e of alive()){if(e.kind!=='army')continue;
-    if(e.mode!=='withdraw'&&e.men<=Math.ceil(e.max*.35)){e.mode='withdraw';e.bld=0;const p=nearFree(S.enBase.x,S.enBase.y);e.tx=p[0]*NG;e.ty=p[1]*NG;e.pkey=null;if(e.role==='carrier')e.role='';}
-    if(e.mode==='withdraw'){if(moveAlong(e,ARMY_SPD*(e.spd||1)*1.2*dt)){e.gone=true;S.enWithdrawn=(S.enWithdrawn||0)+e.men;}continue;}
-    if(e.cont.length){S.contact0=S.contact0||S.t;if(e.mode==='amove')strongpoint(e);if(e.mode==='plant'||e.mode==='defuse'){e.mode='hold';}continue;}
-    if(e.mode==='amove'){if((e.sup||0)>60)continue;if(e.pause>0){e.pause-=dt;continue;}
-      if(moveAlong(e,ARMY_SPD*(e.spd||1)*dt)){const atO=Math.hypot(e.x-O.x,e.y-O.y)<30;if(atO&&e.role==='carrier'&&!S.charge.them){e.mode='plant';e.prog=e.prog||0;}else if(atO&&e.role==='defuse'){e.mode='defuse';}else strongpoint(e);}
-      else{e.leg=(e.leg||0)+ARMY_SPD*(e.spd||1)*dt;if(e.leg>110&&e.role!=='defuse'){e.leg=0;e.pause=15;}}}
+    // when a group pulls back: Russia accepts heavy losses (expendable groups almost never pull back), South Africa preserves its men
+    if(e.mode!=='withdraw'&&e.men<=Math.ceil(e.max*(T===TAC.ru&&T.lead.includes(e.rt)?T.wdX:T.wd))){e.mode='withdraw';e.bld=0;const p=nearFree(S.enBase.x,S.enBase.y);e.tx=p[0]*NG;e.ty=p[1]*NG;e.pkey=null;if(e.role==='carrier')e.role='';}
+    if(e.mode==='withdraw'){if(moveAlong(e,ARMY_BASE*(e.spd||1)*1.2*dt)){e.gone=true;S.enWithdrawn=(S.enWithdrawn||0)+e.men;}continue;}
+    if(e.cont.length){S.contact0=S.contact0||S.t;
+      // Russia pushes on under fire with the groups that matter for the race; everyone else (and South Africa always) goes to ground in a building
+      // South Africa: fire and movement — from cover the group fires for 25 s, then, while it still has half its men, rushes forward for 12 s
+      if(T===TAC.za&&['carrier','defuse'].includes(e.role)&&e.mode==='hold'&&S.t-(e.holdT||0)>25&&e.men>e.max*.5){armyGoTo(e,O.x,O.y,e.role);e.boundT=S.t+12;}
+      const push=(T===TAC.ru&&['carrier','probe','defuse'].includes(e.role)&&e.men>e.max*.4||T===TAC.za&&e.boundT>S.t)&&e.mode==='amove'; /* in a firefight everyone is under suppressive fire; what stops a push is losses */
+      if(push){if(moveAlong(e,ARMY_BASE*(e.spd||1)*.6*dt)){const atO=Math.hypot(e.x-O.x,e.y-O.y)<30;if(atO&&e.role==='carrier'&&!S.charge.them){e.mode='plant';e.prog=e.prog||0;}else strongpoint(e);}continue;}
+      if(e.mode==='amove')strongpoint(e);if(e.mode==='plant'||e.mode==='defuse'){e.mode='hold';}continue;}
+    if(e.mode==='amove'){if((e.sup||0)>T.supStop)continue;if(e.pause>0){e.pause-=dt;continue;}
+      if(moveAlong(e,ARMY_BASE*(e.spd||1)*dt)){const atO=Math.hypot(e.x-O.x,e.y-O.y)<30;if(atO&&e.role==='carrier'&&!S.charge.them){e.mode='plant';e.prog=e.prog||0;}else if(atO&&e.role==='defuse'){e.mode='defuse';}else strongpoint(e);}
+      else if(armyNearUs(e,T)){e.leg=(e.leg||0)+ARMY_BASE*(e.spd||1)*dt;if(e.leg>T.boundM&&e.role!=='defuse'){e.leg=0;e.pause=T.boundS;}}}
     else if(e.mode==='plant'||e.mode==='defuse'){const busy=U.some(u=>u.men>0&&Math.hypot(u.x-e.x,u.y-e.y)<HOLD_R);if(busy)continue;e.prog=(e.prog||0)+dt;
       if(e.prog>=(e.sap?PLANT_SAP:PLANT_T)){e.prog=0;if(e.mode==='plant'&&!S.charge.them){S.charge.them={tDet:S.t+DET_T};e.mode='hold';say({call:T3('Разведка','מודיעין','Intel'),type:'x'},T3(`Кобра-6, я Разведка. Перехват: противник установил заряд на объекте. Подрыв примерно в ${fmt(S.t+DET_T)}. Приём.`,`צפע, כאן מודיעין. יירוט: האויב הציב מטען ביעד. פיצוץ בערך ב-${fmt(S.t+DET_T)}. עבור.`,`Cobra-6, this is Intel. Intercept: the enemy has planted a charge at the objective. Detonation at about ${fmt(S.t+DET_T)}. Over.`),[],{urgent:true});}
         else if(e.mode==='defuse'&&S.charge.us){S.charge.us=null;e.mode='hold';say({call:T3('Разведка','מודיעין','Intel'),type:'x'},T3('Кобра-6, я Разведка. Перехват: противник обезвредил наш заряд. Приём.','צפע, כאן מודיעין. יירוט: האויב נטרל את המטען שלנו. עבור.','Cobra-6, this is Intel. Intercept: the enemy has defused our charge. Over.'),[],{urgent:true});}}}}}
@@ -1772,10 +1836,8 @@ function bState(b){if(S.destroyed[b])return 4;return dmgSt((S.bdmg||{})[b]||0);}
 function bcov(b){if(S.destroyed[b])return .6;return .35+Math.min(99,(S.bdmg||{})[b]||0)*.004;}
 const isOur=s=>s.type==='inf';
 // heavy weapons: 2 = machine guns and launchers (infantry platoons, army platoons), 1 = machine gun, 0 = rifles only
-function hwOf(s){if(isOur(s))return s.cls?(s.cls==='inf'?2:1):(s.id==='k1'||s.id==='k2'?2:1);
-  if(s.kind==='army')return({vdv:2,mp:2,msv:2,sso:1,spn:1,shturm:2,stormv:2,bars:2,sobr:1,razv:1,za_inf:2,za_para:2,za_sf:1,za_pf:1,za_stf:1,za_eng:1})[s.rt]||0;return(s.kind==='leader'||s.kind==='rest')&&s.max>=3?1:0;}
-function lawOf(s){if(isOur(s))return hwOf(s)>=2?3:s.cls==='sf'||s.cls==='rec'||s.id==='dv'?1:0;
-  if(s.kind==='army')return({vdv:3,mp:3,msv:3,sso:1,spn:1,shturm:3,stormv:1,bars:2,razv:1,za_inf:3,za_para:3,za_sf:1,za_pf:1})[s.rt]||0;return(s.kind==='leader'||s.kind==='rest')&&s.max>=3?1:0;}
+function hwOf(s){const k=kitOf(s);return k.mg?(k.rk||k.gl?2:1):0;}
+const lawOf=s=>kitOf(s).rk;
 const dmgCount=()=>Object.keys(S.bdmg||{}).filter(n=>!S.destroyed[n]&&S.bdmg[n]>=20).length;
 // fire at a building someone is shooting from: rifles break windows, machine guns more, launchers punch holes
 function wpnFire(s,b,sh,dt,tgt){const B=BN(b);if(!B||S.destroyed[b]||s.men<=0)return;const hw=hwOf(s);
@@ -1876,11 +1938,11 @@ function tick(dt){
     else{u.st='incover';u.cvK=.6;u.decT=S.t+12;u.coverTxt=T3(`${dm?'Спешились. ':''}Укрытия рядом нет, ведём бой на месте.`,`${dm?'ירדנו מהרכב. ':''}אין מחסה קרוב, נלחמים במקום.`,`${dm?'Dismounted. ':''}No cover nearby, fighting where we are.`);}}
   // combat
   for(const u of U){if(!u.cont.length||u.men<=0)continue;const sh=1/u.cont.length;
-    for(const id of u.cont){const e=E_(id),m=u.cm[id];const cov=m==='close'?.8:m==='window'?bcov(e.bld):e.roof?.6:(debCov(e.x,e.y)||.9);if(m==='window'&&!e.roof)wpnFire(u,e.bld,sh,dt,e);e.sup=Math.min(100,(e.sup||0)+u.men*sh*dt*1.8*(u.uc?1.3:1));e.acc+=(m==='close'?.008*(u.cq||1):.0045)*(e.rk||1)*(u.uc?1.3:1)*(u.q||1)*(sk(u,'fire')?1.15:1)*(u.sup>60?.5:1)*(u.st==='incover'?.8:1)*u.men*(u.ammo>0?1:.2)*sh*cov*dt;
+    for(const id of u.cont){const e=E_(id),m=u.cm[id];const cov=m==='close'?.8:m==='window'?bcov(e.bld):e.roof?.6:(debCov(e.x,e.y)||.9);if(m==='window'&&!e.roof)wpnFire(u,e.bld,sh,dt,e);e.sup=Math.min(100,(e.sup||0)+u.men*sh*dt*1.8*(u.uc?1.3:1)*(1+.2*kitOf(u).mg));if(m!=='close')glFire(u,e,dt,m==='window'?e.bld:0);e.acc+=(m==='close'?.008*(u.cq||1):.0045)*(e.rk||1)*(u.uc?1.3:1)*(u.q||1)*(sk(u,'fire')?1.15:1)*(u.sup>60?.5:1)*(u.st==='incover'?.8:1)*u.men*(u.ammo>0?1:.2)*sh*cov*(m!=='close'&&kitOf(u).mk?1.12:1)*dt;
       if(m==='close'&&S.civ[u.inB]>0&&Math.random()<.0012*S.civ[u.inB]*dt){addCivW(u.inB);u.civHit=(u.civHit||0)+1;}}
     u.ammo=Math.max(0,u.ammo-.07*dt);noise(u.x,u.y,u.loud?300:70);}
   for(const e of alive()){if(!e.cont.length||e.mode==='flee')continue;if(!e.fired){e.fired=true;enemyShot(e);}const sh=1/e.cont.length;
-    for(const id of e.cont){const u=U_(id),m=u.cm[e.id];const cov=m==='close'?1:u.inB?bcov(u.inB):u.st==='cover'?1.1:Math.min(debCov(u.x,u.y)||1,u.st==='incover'?(u.cvK||.6):(u.st==='hold'||u.st==='cordon')?.6:1);if(u.inB&&m!=='close')wpnFire(e,u.inB,sh,dt,u);u.sup=Math.min(100,(u.sup||0)+e.men*sh*cov*dt*2.2);u.acc+=(m==='close'?.0065*(u.surpT>0?.5:1)*(u.dogBonus?.65:1):.0028)*e.men*sh*cov*(u.uc?.8:1)*(u.rk||(2-(u.q||1)))*(e.q||1)*(e.sup>60?.5:1)*dt;}}
+    for(const id of e.cont){const u=U_(id),m=u.cm[e.id];const cov=m==='close'?1:u.inB?bcov(u.inB):u.st==='cover'?1.1:Math.min(debCov(u.x,u.y)||1,u.st==='incover'?(u.cvK||.6):(u.st==='hold'||u.st==='cordon')?.6:1);if(u.inB&&m!=='close')wpnFire(e,u.inB,sh,dt,u);u.sup=Math.min(100,(u.sup||0)+e.men*sh*cov*dt*2.2*(1+.2*kitOf(e).mg));if(m!=='close')glFire(e,u,dt,u.inB||0);u.acc+=(m==='close'?.0065*(u.surpT>0?.5:1)*(u.dogBonus?.65:1):.0028)*e.men*sh*cov*(u.uc?.8:1)*(u.rk||(2-(u.q||1)))*(e.q||1)*(e.sup>60?.5:1)*(m!=='close'&&kitOf(e).mk?1.12:1)*dt;}}
   for(const e of alive()){while(e.acc>=1&&e.men>0){e.acc-=1;
       if(e.leader&&(e.men===1||Math.random()<(e.cont.some(id=>U_(id).cm[e.id]==='close')?1:.35)/e.men)){e.leader=false;if(S.leader==='free'){S.leader='killed';S.body={x:e.x,y:e.y,rubble:false};const u=U_(e.cont[0]);if(u)say(u,(HE?(`צפע, כאן ${u.call}. «המהנדס» נוטרל. חוזר: «המהנדס» — חוסל.`):((EN?(`Cobra-6, this is ${u.call}. Objective "the Engineer" neutralized. I say again: "the Engineer" — killed.`):(`Кобра-6, я ${u.call}. Объект «Инженер» нейтрализован. Повторяю: «Инженер» — ликвидирован.`)))),[],{urgent:true,kobj:['eng',(HE?('חוסל'):((EN?("killed"):('ликвидирован'))))]});}}
       e.men--;S.stats.ek++;e.unrep=(e.unrep||0)+1;if(e.cont.length){const k=U_(e.cont[Math.floor(Math.random()*e.cont.length)]);e.lastK=k.id;k.kills=(k.kills||0)+1;if(k.inB&&k.inB===e.bld)k.bldEK=(k.bldEK||0)+1;}}
