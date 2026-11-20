@@ -1,5 +1,5 @@
 /* ---------- acts ---------- */
-function doAct(a){if(a.k==='sweep'){sweep();return;}if(a.k==='scan'){uavScanStart(a.x,a.y);return;}const u=a.uid?U_(a.uid):null;
+function doAct(a){if(a.k==='scan'){uavScanStart(a.x,a.y);return;}const u=a.uid?U_(a.uid):null;
   if(a.k==='order')orderExec(u,a);else if(a.k==='rep')sayReport(u);else if(a.k==='strike')strikeExec(a);else if(a.k==='med')medExec(a);
   else if(a.k==='atgm')atgmExec(u,a.b);
   else if(a.k==='mplant'||a.k==='mdefuse')missionAct(u,a);

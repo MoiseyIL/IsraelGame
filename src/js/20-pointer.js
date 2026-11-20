@@ -3,6 +3,7 @@ const ptrs=new Map();let gest=null;
 function pos(e){const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};}
 function hitMark(x,y){for(const u of [...S.units].reverse()){const m=S.marks.own[u.id];const [sx,sy]=toS(m.x,m.y);if(Math.abs(sx-x)<20&&Math.abs(sy-y)<16)return{kind:'own',id:u.id,drag:(u.type==='inf')&&!UI.target};}
   for(const m of (S.marks.ied||[])){const [sx,sy]=toS(m.x,m.y);if(Math.hypot(sx-x,sy-y)<16)return{kind:'ied',id:m.id,drag:!UI.target};}
+  {const r=hitTgt(x,y);if(r)return{kind:'tg',id:r.no,drag:false};}
   for(let i=S.marks.m.length-1;i>=0;i--){const m=S.marks.m[i];const [sx,sy]=toS(m.x,m.y);if(Math.hypot(sx-x,sy-y)<16)return{kind:'pt',id:m.id,drag:!UI.target};}return null;}
 cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);const p=pos(e);ptrs.set(e.pointerId,p);
   if(ptrs.size===1)gest={type:'pan',sx:p.x,sy:p.y,ox:V.ox,oy:V.oy,t:performance.now(),moved:false,mark:hitMark(p.x,p.y)};
@@ -18,7 +19,7 @@ cv.addEventListener('wheel',e=>{e.preventDefault();const p=pos(e);const wx=(p.x-
 function onTap(x,y,mark){const [mx,my]=toM(x,y);if(mx<0||my<0||mx>MWm||my>MHm)return;
   const t=UI.target;
   if(t){if(t.needB){const b=bldAt(mx,my,25);if(!b)return;t.b=b.n;t.pt={x:b.cx,y:b.cy};}else{t.pt={x:mx,y:my};}updTarget();dirty=true;return;}
-  if(mark){if(mark.kind==='own')selectUnit(mark.id,false);else if(mark.kind==='ied')openIedSheet(mark.id);else openPtSheet(mark.id);return;}
+  if(mark){if(mark.kind==='own')selectUnit(mark.id,false);else if(mark.kind==='ied')openIedSheet(mark.id);else if(mark.kind==='tg')openTgtSheet(mark.id);else openPtSheet(mark.id);return;}
   const b=bldAt(mx,my,0);if(b){openBldSheet(b.n);return;}
   if(selId){selId=null;updUnits();dirty=true;}}
 

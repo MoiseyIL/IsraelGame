@@ -7,7 +7,7 @@ function tgtNote(o){const T=(S.tg=S.tg||{n:0,by:{}});let r=T.by[o.eid],isNew=fal
   if(!r||r.t<-1e8){isNew=!r||r.t<-1e8;r=T.by[o.eid]=r||{no:++T.n};}
   else{const moved=Math.hypot(r.x-o.ex,r.y-o.ey)>60;if(o.spot&&(!moved&&S.t-r.t<600||moved&&S.t-r.t<90))return null;r.mv=moved;}
   r.x=o.ex;r.y=o.ey;r.t=S.t;const no=r.no;
-  const tag=isNew?T3(`Новая цель ${no}.`,`מטרה חדשה ${no}.`,`New target ${no}.`):r.mv?T3(`Цель ${no} сместилась.`,`מטרה ${no} זזה.`,`Target ${no} has moved.`):T3(`Цель ${no}.`,`מטרה ${no}.`,`Target ${no}.`);
+  const tag=isNew?T3(`Новая цель ${no}.`,`מטרה חדשה ${no}.`,`New target ${no}.`):T3(`Цель ${no}.`,`מטרה ${no}.`,`Target ${no}.`); // movement is shown on the map
   const d=isNew?T3(`цель ${no}, новая`,`מטרה ${no}, חדשה`,`target ${no}, new`):T3(`цель ${no}, сместилась`,`מטרה ${no}, זזה`,`target ${no}, moved`);
   return{no,tag,d};}
 // the tag goes right after the call sign ("Cobra-6, this is Egoz.")

@@ -91,8 +91,6 @@ $('#cYes').onclick=()=>{const t=UI.target;if(!t||!t.pt)return;const u=U_(t.uid);
     hq((HE?(`${u.call}, כאן צפע. ${txt}. עבור.`):((EN?(`${u.call}, this is Cobra-6. ${txt}. Over.`):(`${u.call}, я Кобра-6. ${txt}. Приём.`)))),{k:'order',uid:u.id,kind:t.kind,x,y,b:t.b,method:t.method});}
   UI.target=null;updTarget();dirty=true;};
 $('#bFit').onclick=()=>{V.s=minS();clampView();};
-// all stations: check the targets on the map
-$('#bSweep').onclick=()=>{if(!S.started||S.over)return;if(S.radio.q.some(m=>m.act&&m.act.k==='sweep'))return;hq(SWEEP_TXT(),{k:'sweep'});};
 $('#bJr').onclick=openJournal;
 $('#bExpand').onclick=()=>{const a=$('#app');a.classList.toggle('big');$('#bExpand').textContent=a.classList.contains('big')?(HE?('צמצם'):((EN?("Less"):('Уже')))):(HE?('הרחב'):((EN?("More"):('Шире'))));};
 

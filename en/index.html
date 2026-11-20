@@ -246,7 +246,7 @@ html[lang=he] .jrdoc textarea{direction:rtl;text-align:right}
   <div id="obj"></div>
   <main id="mapwrap">
     <canvas id="map"></canvas>
-    <div class="mapbtns" id="mapbtns"><button class="mb" id="bFit">Вся карта</button><button class="mb" id="bSweep">Доклад целей</button></div>
+    <div class="mapbtns" id="mapbtns"><button class="mb" id="bFit">Вся карта</button></div>
     <div id="banner" hidden></div>
     <div id="confirm" hidden><div id="cTxt"></div><button id="cNo">Отмена</button><button id="cYes">Передать</button></div>
     <div id="truthPill" hidden>Реальная обстановка</div>
@@ -351,7 +351,7 @@ html[lang=he] .jrdoc textarea{direction:rtl;text-align:right}
   <div id="obj"></div>
   <main id="mapwrap">
     <canvas id="map"></canvas>
-    <div class="mapbtns" id="mapbtns"><button class="mb" id="bFit">כל המפה</button><button class="mb" id="bSweep">דיווח מטרות</button></div>
+    <div class="mapbtns" id="mapbtns"><button class="mb" id="bFit">כל המפה</button></div>
     <div id="banner" hidden></div>
     <div id="confirm" hidden><div id="cTxt"></div><button id="cNo">ביטול</button><button id="cYes">שדר</button></div>
     <div id="truthPill" hidden>המצב האמיתי</div>
@@ -457,7 +457,7 @@ html[lang=he] .jrdoc textarea{direction:rtl;text-align:right}
   <div id="obj"></div>
   <main id="mapwrap">
     <canvas id="map"></canvas>
-    <div class="mapbtns" id="mapbtns"><button class="mb" id="bFit">Whole map</button><button class="mb" id="bSweep">Report targets</button></div>
+    <div class="mapbtns" id="mapbtns"><button class="mb" id="bFit">Whole map</button></div>
     <div id="banner" hidden></div>
     <div id="confirm" hidden><div id="cTxt"></div><button id="cNo">Cancel</button><button id="cYes">Send</button></div>
     <div id="truthPill" hidden>Actual situation</div>
@@ -1328,9 +1328,9 @@ function flushSpots(){const B=S.spotBuf;if(!B)return;for(const k in B){const b=B
     const list=b.items.map((it,i)=>`${i+1}) ${it.d}`).join('; ');const quiet=S.alarm?'':T3(' Нас не обнаружили, огонь не открываем.',' לא זיהו אותנו, לא פותחים באש.',' We have not been spotted, holding fire.');
     const chips=[].concat(...b.items.map(it=>it.chips));b.items.forEach(it=>{if(it.pid)S.pidT[it.pid]=S.t;});
     say(b.u,T3(`Кобра-6, я ${b.u.call}. Наблюдаю противника, групп: ${b.items.length}. ${list}.${quiet} Приём.`,`צפע, כאן ${b.u.call}. רואים אויב, חוליות: ${b.items.length}. ${list}.${quiet} עבור.`,`Cobra-6, this is ${b.u.call}. Enemy in sight, groups: ${b.items.length}. ${list}.${quiet} Over.`),chips,{known:b.u.type==='inf'?'st':undefined,noSpot:true});}}
-function say(u,text,chips,o){o=o||{};if(o.eid&&!o.noSpot){const tg=tgtNote(o);if(!tg)return;text=insTag(text,tg.tag);numChips(chips,tg.no);if(o.spot)o.spot=tg.d+' — '+o.spot;}
+function say(u,text,chips,o){o=o||{};chips=(chips||[]).filter(c=>!(c.k==='hos'&&(c.x!=null&&!c.b||o.eid)));if(o.eid&&!o.noSpot){const tg=tgtNote(o);if(!tg)return;text=insTag(text,tg.tag);numChips(chips,tg.no);if(o.spot)o.spot=tg.d+' — '+o.spot;}
   if(o.spot&&!o.noSpot){const B=(S.spotBuf=S.spotBuf||{});const k=u.id||u.call;(B[k]=B[k]||{u:{id:u.id,call:u.call,type:u.type},t0:S.t,items:[]}).items.push({text,chips:chips||[],pid:o.pid||0,d:o.spot});return;}
-  if(o.known&&u.id&&!u.men&&u.type==='inf'){const uu=U_(u.id);if(uu)u=uu;}if(S.mission)text=text.replace(/боевиков/g,'солдат противника').replace(/מחבלים/g,'חיילי אויב').replace(/מחבל/g,'חייל אויב');const m={from:u.call,uid:u.id||null,eid:o.eid||'',text,note:o.note||'',chips:chips||[],urgent:!!o.urgent,act:o.act||null,kobj:o.kobj||null,pid:o.pid||0,ek:o.ek||0,det:o.det||0};
+  if(o.known&&u.id&&!u.men&&u.type==='inf'){const uu=U_(u.id);if(uu)u=uu;}if(S.mission)text=text.replace(/боевиков/g,'солдат противника').replace(/מחבלים/g,'חיילי אויב').replace(/מחבל/g,'חייל אויב');const m={from:u.call,uid:u.id||null,eid:o.eid||'',qt:S.t,text,note:o.note||'',chips:chips||[],urgent:!!o.urgent,act:o.act||null,kobj:o.kobj||null,pid:o.pid||0,ek:o.ek||0,det:o.det||0};
   if(o.known&&u.type==='inf')m.known=o.known==='full'?{men:u.men,wounded:u.wounded,ammo:Math.round(u.ammo/10)*10,st:stLabel(u),full:true}:{st:stLabel(u)};
   if(S.radio.q.some(x=>x.uid&&x.uid===m.uid&&x.text===m.text))return; // the same message already waiting
   m.front=!!o.front;m.pr=o.pr!=null?o.pr:m.urgent?0:o.front?1:o.noSpot?2:3;qPut(m);}
@@ -1373,7 +1373,7 @@ function tgtNote(o){const T=(S.tg=S.tg||{n:0,by:{}});let r=T.by[o.eid],isNew=fal
   if(!r||r.t<-1e8){isNew=!r||r.t<-1e8;r=T.by[o.eid]=r||{no:++T.n};}
   else{const moved=Math.hypot(r.x-o.ex,r.y-o.ey)>60;if(o.spot&&(!moved&&S.t-r.t<600||moved&&S.t-r.t<90))return null;r.mv=moved;}
   r.x=o.ex;r.y=o.ey;r.t=S.t;const no=r.no;
-  const tag=isNew?T3(`Новая цель ${no}.`,`מטרה חדשה ${no}.`,`New target ${no}.`):r.mv?T3(`Цель ${no} сместилась.`,`מטרה ${no} זזה.`,`Target ${no} has moved.`):T3(`Цель ${no}.`,`מטרה ${no}.`,`Target ${no}.`);
+  const tag=isNew?T3(`Новая цель ${no}.`,`מטרה חדשה ${no}.`,`New target ${no}.`):T3(`Цель ${no}.`,`מטרה ${no}.`,`Target ${no}.`); // movement is shown on the map
   const d=isNew?T3(`цель ${no}, новая`,`מטרה ${no}, חדשה`,`target ${no}, new`):T3(`цель ${no}, сместилась`,`מטרה ${no}, זזה`,`target ${no}, moved`);
   return{no,tag,d};}
 // the tag goes right after the call sign ("Cobra-6, this is Egoz.")
@@ -1423,8 +1423,77 @@ function battleSum(){const U=infs().filter(u=>u.inFight&&u.men>0);if(!U.length){
   const k=(S.kek||0)-S.sum0.k,c=S.stats.kia+S.stats.wia-S.sum0.c;S.sumT=S.t;S.sum0={k:S.kek||0,c:S.stats.kia+S.stats.wia};
   const m={from:T3('Штаб роты','מפקדת הפלוגה','Company HQ'),uid:null,text:T3(`Сводка ${fmt(S.t)}. Бой: ${list||'цели не уточнены'}. За 5 минут: противник — ${k} нейтрализовано, у нас — ${c} потерь.`,`סיכום ${fmt(S.t)}. קרב: ${list||'המטרות לא מוגדרות'}. ב־5 הדקות האחרונות: אויב — ${k} נוטרלו, אצלנו — ${c} נפגעים.`,`Summary ${fmt(S.t)}. In action: ${list||'targets not identified'}. Last 5 minutes: enemy — ${k} neutralized, ours — ${c} casualties.`),note:'',chips:[],t:S.t};
   deliver(m);}
+/* ---------- the picture: every enemy group our side has seen, kept on the map by itself ---------- */
+// One group = one target card. A card is updated by whoever sees the group (teams, the UAV, a firefight); nobody has
+// to tap anything. Only what changes decisions goes on the air: a new target close to our teams or the objective,
+// or a known target closing in. Everything else appears on the map quietly.
+// Age: fresh for 3 min, turns grey by 10 min, disappears after 30 min without being seen.
+const TG_FRESH=180,TG_GREY=600,TG_GONE=1800,TG_DEAD=120,TG_NEAR=300;
+function tgRec(e){tgtNo(e);return S.tg.by[e.id];}
+const tgAge=r=>S.t-r.ls;
+const tgShown=r=>r.ls!=null&&!r.hide&&(r.dead?S.t-r.dead<TG_DEAD:tgAge(r)<TG_GONE);
+function tgWhere(r){return r.roof?T3(`на крыше здания ${r.bld}`,`על גג מבנה ${r.bld}`,`on the roof of building ${r.bld}`):r.bld?T3(`в здании ${r.bld}`,`במבנה ${r.bld}`,`in building ${r.bld}`):placeTxt(r.lx,r.ly);}
+const tgDir=r=>r.mv&&(r.dx||r.dy)?DIRS_TO[dirIdx(r.dx,r.dy)]:'';
+// is this group a threat right now: close to one of our teams, close to the objective, or coming at us
+function tgDanger(e){let best=null;for(const u of infs()){if(u.men<=0)continue;const d=Math.hypot(u.x-e.x,u.y-e.y);if(!best||d<best.d)best={u,d};}
+  if(best&&best.d<TG_NEAR)return best;
+  if(S.mission&&S.obj&&Math.hypot(S.obj.x-e.x,S.obj.y-e.y)<250)return{obj:true,d:Math.hypot(S.obj.x-e.x,S.obj.y-e.y)};
+  if(best&&e.mv&&best.d<500&&e.tx!=null){const vx=e.tx-e.x,vy=e.ty-e.y,wx=best.u.x-e.x,wy=best.u.y-e.y,l=Math.hypot(vx,vy)*Math.hypot(wx,wy)||1;if((vx*wx+vy*wy)/l>.7)return Object.assign({toward:true},best);}
+  return null;}
+// someone of ours sees the group now
+function seeTgt(e,ob,o){o=o||{};const r=tgRec(e);const isNew=r.ls==null||r.hide;
+  if(e.mv&&e.tx!=null){r.dx=e.tx-e.x;r.dy=e.ty-e.y;}else{r.dx=0;r.dy=0;}
+  r.lx=e.x;r.ly=e.y;r.bld=(e.bld&&(!outside(e)||e.roof))?e.bld:0;r.roof=!!e.roof;r.men=e.men;r.mv=!!e.mv;r.ls=S.t;r.by=ob.call;r.army=e.kind==='army';r.hide=false;r.dead=0;
+  r.act=e.roof?T3('наблюдают с крыши','מתצפתים מהגג','watching from a roof'):e.mv?T3(`идут на ${tgDir(r)}`,`נעים ${tgDir(r)}`,`moving ${tgDir(r)}`):r.bld?T3('в здании','במבנה','inside a building'):T3('стоят','עומדים','standing');
+  if(isNew){r.first=S.t;r.warned=false;jrAdd({t:S.t,from:T3('Карта','מפה','Map'),text:T3(`Цель ${r.no}: ${cnt(e.men)}, ${tgWhere(r)} (видит ${ob.call}).`,`מטרה ${r.no}: ${cnt(e.men)}, ${tgWhere(r)} (רואה: ${ob.call}).`,`Target ${r.no}: ${cnt(e.men)}, ${tgWhere(r)} (seen by ${ob.call}).`),eid:e.id});}
+  if(!o.quiet&&!o.contact&&!r.warned){const dg=tgDanger(e);if(dg){r.warned=true;tgSay(e,r,ob,dg,isNew);}}
+  dirty=true;return isNew;}
+function tgSay(e,r,ob,dg,isNew){const mv=r.mv?T3(`, идут на ${tgDir(r)}`,`, נעים ${tgDir(r)}`,`, moving ${tgDir(r)}`):'';
+  const why=dg.obj?T3(`, у объекта`,`, ליד היעד`,`, near the objective`):dg.u&&dg.u!==ob?T3(`; ближе всех ${dg.u.call}, ${Math.round(dg.d/10)*10} м`,`; הכי קרוב: ${dg.u.call}, ${Math.round(dg.d/10)*10} מ׳`,`; nearest is ${dg.u.call}, ${Math.round(dg.d/10)*10} m`):dg.u?T3(`, ${Math.round(dg.d/10)*10} м от нас`,`, ${Math.round(dg.d/10)*10} מ׳ מאיתנו`,`, ${Math.round(dg.d/10)*10} m from us`):'';
+  const head=isNew?T3(`Новая цель ${r.no}`,`מטרה חדשה ${r.no}`,`New target ${r.no}`):T3(`Цель ${r.no} приближается`,`מטרה ${r.no} מתקרבת`,`Target ${r.no} closing in`);
+  say(ob,T3(`Кобра-6, я ${ob.call}. ${head}: ${cnt(e.men)}, ${tgWhere(r)}${mv}${why}. Приём.`,`צפע, כאן ${ob.call}. ${head}: ${cnt(e.men)}, ${tgWhere(r)}${mv}${why}. עבור.`,`Cobra-6, this is ${ob.call}. ${head}: ${cnt(e.men)}, ${tgWhere(r)}${mv}${why}. Over.`),[],{pr:2,known:ob.type==='inf'?'st':undefined});
+  r.t=S.t;} // counts as reported on the air (target numbers in later reports say "target N", not "new")
+// who of ours sees a known group now: a team in contact with it, a team with a line of sight to it in the open, or the UAV over it
+function tgSeenBy(e){for(const u of infs())if(u.men>0&&u.cont.includes(e.id))return u;
+  if(!outside(e))return null;
+  for(const u of infs()){if(u.men<=0)continue;const d=Math.hypot(u.x-e.x,u.y-e.y);if(d>(u.optic?420:260))continue;if(e.roof||losUE(u,e))return u;}
+  const ya=U_('ya');if(ya&&S.uav&&Math.hypot(S.uav.x-e.x,S.uav.y-e.y)<320)return ya;return null;}
+// every few seconds: keep tracking known groups, add groups that opened fire on us, cross out groups that were destroyed in front of us
+function pictureTick(){if((S.t|0)%3)return;const T=(S.tg=S.tg||{n:0,by:{}});
+  for(const e of alive()){const r=T.by[e.id],known=r&&r.ls!=null&&!r.hide&&!r.dead;
+    if(known){const ob=tgSeenBy(e);if(ob)seeTgt(e,ob,{track:true});}
+    else{const u=infs().find(u=>u.men>0&&u.cont.includes(e.id));if(u)seeTgt(e,u,{contact:true});}}
+  for(const e of S.enemies){const r=T.by[e.id];if(!r||r.ls==null||r.dead||r.hide)continue;if(e.men<=0&&S.t-r.ls<60){r.dead=S.t;r.men=0;dirty=true;}}}
+// map: one symbol per target. Red = seen in the last 3 min, then fading to grey by 10 min; an arrow while it moves; a cross when destroyed
+function tgPos(r){if(r.bld){const b=BN(r.bld);const [sx,sy]=toS(b.cx,b.cy);return[sx+14,sy-12];}return toS(r.lx,r.ly);}
+function drawPicture(c){const T=S.tg;if(!T)return;for(const id in T.by){const r=T.by[id];if(!tgShown(r))continue;const [x,y]=tgPos(r);
+  if(r.dead){c.save();c.globalAlpha=.8;c.strokeStyle='#7a1010';c.lineWidth=3;c.beginPath();c.moveTo(x-8,y-8);c.lineTo(x+8,y+8);c.moveTo(x+8,y-8);c.lineTo(x-8,y+8);c.stroke();c.restore();continue;}
+  const a=tgAge(r),k=clamp((a-TG_FRESH)/(TG_GREY-TG_FRESH),0,1);const mix=(p,q)=>'#'+[0,1,2].map(i=>Math.round(parseInt(p.substr(1+i*2,2),16)*(1-k)+parseInt(q.substr(1+i*2,2),16)*k).toString(16).padStart(2,'0')).join('');
+  if(a<30){c.save();c.strokeStyle='rgba(200,30,30,.55)';c.lineWidth=2;c.beginPath();c.arc(x,y,19,0,7);c.stroke();c.restore();} // just appeared
+  if(r.mv&&a<TG_FRESH&&(r.dx||r.dy)){const l=Math.hypot(r.dx,r.dy)||1,ux=r.dx/l,uy=r.dy/l;c.save();c.strokeStyle='#a01818';c.fillStyle='#a01818';c.lineWidth=2.4;c.beginPath();c.moveTo(x+ux*12,y+uy*12);c.lineTo(x+ux*30,y+uy*30);c.stroke();
+    c.beginPath();c.moveTo(x+ux*36,y+uy*36);c.lineTo(x+ux*28-uy*6,y+uy*28+ux*6);c.lineTo(x+ux*28+uy*6,y+uy*28-ux*6);c.closePath();c.fill();c.restore();}
+  const R=11;c.beginPath();c.moveTo(x,y-R);c.lineTo(x+R,y);c.lineTo(x,y+R);c.lineTo(x-R,y);c.closePath();c.fillStyle=mix('#ff9b9b','#d2d0cc');c.fill();c.strokeStyle=mix('#7a1010','#77736c');c.lineWidth=1.8;c.stroke();
+  c.fillStyle=k>.5?'#3d3a35':'#5a0b0b';c.font=(HE?('700 10px "Rubik", sans-serif'):('700 10px "Roboto Condensed", sans-serif'));c.textAlign='center';c.textBaseline='middle';c.fillText(String(r.no),x,y+.5);
+  if(a>=TG_FRESH){c.font=(HE?('10px "Heebo", sans-serif'):('10px "PT Mono", monospace'));halo(c,fmt(r.ls),x,y+19,'#6b6863');}}}
+function hitTgt(x,y){const T=S.tg;if(!T)return null;let best=null,bd=17;for(const id in T.by){const r=T.by[id];if(!tgShown(r))continue;const [sx,sy]=tgPos(r),d=Math.hypot(sx-x,sy-y);if(d<bd){bd=d;best=r;}}return best;}
+// card of a target: everything the reports said, without taking air time
+function openTgtSheet(no){const T=S.tg;const id=Object.keys(T.by).find(k=>T.by[k].no===no);if(!id)return;const r=T.by[id],e=E_(id);
+  const st=r.dead?T3('уничтожена','הושמדה','destroyed'):tgAge(r)<TG_FRESH?T3('видят сейчас','רואים עכשיו','in sight now'):T3(`потеряна, последний раз ${fmt(r.ls)}`,`אבדה, נראתה לאחרונה ב־${fmt(r.ls)}`,`lost, last seen ${fmt(r.ls)}`);
+  const fight=infs().filter(u=>u.men>0&&u.cont.includes(id)).map(u=>u.call);
+  const lines=[T3(`Состояние: ${st}.`,`מצב: ${st}.`,`Status: ${st}.`),
+    T3(`Численность: ${cnt(r.men)}. Где: ${tgWhere(r)}. Действия: ${r.act}.`,`גודל: ${cnt(r.men)}. איפה: ${tgWhere(r)}. פעילות: ${r.act}.`,`Size: ${cnt(r.men)}. Where: ${tgWhere(r)}. Activity: ${r.act}.`),
+    T3(`Принадлежность: ${r.army?'в форме армии России':'без формы, вооружены'}.`,`זיהוי: ${r.army?'במדי צבא רוסיה':'ללא מדים, חמושים'}.`,`Unit: ${r.army?'Russian Army uniform':'no uniforms, armed'}.`),
+    T3(`Впервые: ${fmt(r.first)}. Последним видел: ${r.by}, ${fmt(r.ls)}.`,`לראשונה: ${fmt(r.first)}. ראה אחרון: ${r.by}, ${fmt(r.ls)}.`,`First seen ${fmt(r.first)}. Last seen by ${r.by} at ${fmt(r.ls)}.`)];
+  if(fight.length)lines.push(T3(`Ведут бой: ${fight.join(', ')}.`,`בקרב איתה: ${fight.join(', ')}.`,`Engaged by: ${fight.join(', ')}.`));
+  const btns=[];if(!r.dead&&!r.bld&&U_('ya'))btns.push({t:T3('Ястреб: осмотреть','זיק: לסרוק','Hawk: scan'),d:T3('район вокруг цели','האזור סביב המטרה','the area around it'),on:()=>hq(T3(`Ястреб, я Кобра-6. Просканировать район: квадрат ${cell(r.lx,r.ly)}, цель ${r.no}. Приём.`,`זיק, כאן צפע. סרוק את האזור: משבצת ${cell(r.lx,r.ly)}, מטרה ${r.no}. עבור.`,`Hawk, this is Cobra-6. Scan the area: grid ${cell(r.lx,r.ly)}, target ${r.no}. Over.`),{k:'scan',x:r.lx,y:r.ly})});
+  btns.push({t:T3('Убрать с карты','להסיר מהמפה','Remove from map'),d:T3('появится снова, если увидят','תופיע שוב אם יראו','reappears if seen again'),on:()=>{r.hide=true;dirty=true;}});
+  openSheet(T3(`Цель ${r.no}`,`מטרה ${r.no}`,`Target ${r.no}`),lines.join('\n'),btns);}
+
+// "in cover ..." goes into the report the team sends in the same second; on its own it is not worth air time
+function coverNote(u){const q=S.radio.q;for(let i=q.length-1;i>=0;i--){const m=q[i];if(m.uid===u.id&&m.qt===S.t){m.text=m.text.replace(/\s*(Ведём бой!|Отвечаем\.|Работаем!|Engaging!|Returning fire\.|בקרב!|משיבים אש\.|פועלים!)?\s*$/,s=>' '+u.coverTxt+(s.trim()?' '+s.trim():''));u.coverTxt=null;return;}}
+  u.coverTxt=null;} // mid-fight: the fight is already reported, moving to cover is not news
 /* ---------- acts ---------- */
-function doAct(a){if(a.k==='sweep'){sweep();return;}if(a.k==='scan'){uavScanStart(a.x,a.y);return;}const u=a.uid?U_(a.uid):null;
+function doAct(a){if(a.k==='scan'){uavScanStart(a.x,a.y);return;}const u=a.uid?U_(a.uid):null;
   if(a.k==='order')orderExec(u,a);else if(a.k==='rep')sayReport(u);else if(a.k==='strike')strikeExec(a);else if(a.k==='med')medExec(a);
   else if(a.k==='atgm')atgmExec(u,a.b);
   else if(a.k==='mplant'||a.k==='mdefuse')missionAct(u,a);
@@ -1526,52 +1595,27 @@ function addCivW(b){if(S.civ[b]>0)S.civ[b]--;S.civHarm++;S.civW.push(newCivW(b))
 const cwActive=c=>c.st==='hurt'||c.st==='stable'||c.st==='treated';
 function killCivIn(b){for(const c of S.civW)if(c.b===b&&cwActive(c)){c.st='dead';S.civDead++;}}
 const cwTxt=c=>(HE?(`${c.who} — ${c.wound}, ${c.sev==='heavy'?'פצוע קשה':'פצוע קל'}`):((EN?(`${c.who} — ${c.wound}, ${c.sev==='heavy'?'serious':'light'}`):(`${c.who} — ${c.wound}, ${c.sev==='heavy'?'тяжёлое':'лёгкое'}`))));
-/* ---------- target check: all stations report what they see now; old marks fade or go ---------- */
-// A mark is "stale" (drawn grey) when nobody has confirmed it for 15 minutes, or when the last check could not see it.
+/* ---------- marks the player keeps by hand, and the UAV scan of an area ---------- */
+// Enemy groups are on the map by themselves (08c-picture.js). What is left here: building marks the player sets
+// (suspected, civilians, tunnel), which turn grey after 15 minutes without confirmation, and old saved point marks.
 const STALE=900;
 const ptStale=m=>!!m.uc||(m.t!=null&&S.t-m.t>STALE);
 const bStale=n=>!!(S.marks.bu&&S.marks.bu[n])||(S.marks.bt&&S.marks.bt[n]!=null&&S.t-S.marks.bt[n]>STALE);
 function markB(n,k,t){S.marks.b[n]=k;(S.marks.bt||(S.marks.bt={}))[n]=t;if(S.marks.bu)delete S.marks.bu[n];}
-// who of ours can see a point now: a ground team within 150 m with a line of sight, or the UAV within 320 m
-function seesPt(x,y,e){for(const u of infs()){if(u.men<=0)continue;const p=uPos(u,x,y),q=e?ePos(e,p[0],p[1]):[x,y];if(Math.hypot(p[0]-q[0],p[1]-q[1])<150&&los(p[0],p[1],q[0],q[1]))return u;}
-  const ya=U_('ya');if(ya&&S.uav&&Math.hypot(S.uav.x-x,S.uav.y-y)<320&&(!e||outside(e)))return ya;return null;}
-function sweep(){const rep=new Map(),add=(u,t)=>{if(!rep.has(u))rep.set(u,[]);rep.get(u).push(t);};const A=alive();const seen=new Set();
-  // enemy marks in the street: still there — moved to where they are now; nobody there — removed; not visible — grey
-  for(const m of [...S.marks.m]){const e=A.find(e=>outside(e)&&!seen.has(e)&&Math.hypot(e.x-m.x,e.y-m.y)<45&&seesPt(e.x,e.y,e));
-    if(e){seen.add(e);m.x=e.x;m.y=e.y;m.t=S.t;m.n=cnt(e.men);m.uc=false;m.no=tgtNo(e);add(seesPt(e.x,e.y,e),T3(`противник ${placeTxt(e.x,e.y)} на месте, ${cnt(e.men)}`,`האויב ${placeTxt(e.x,e.y)} עדיין שם, ${cnt(e.men)}`,`enemy ${placeTxt(e.x,e.y)} still there, ${cnt(e.men)}`));continue;}
-    const ob=seesPt(m.x,m.y);if(ob){S.marks.m.splice(S.marks.m.indexOf(m),1);add(ob,T3(`${placeTxt(m.x,m.y)}: противника нет, метку снимаем`,`${placeTxt(m.x,m.y)}: אין אויב, מורידים את הסימון`,`${placeTxt(m.x,m.y)}: no enemy, mark removed`));}
-    else m.uc=true;}
-  // enemy marks on buildings: fire from it confirms; inside a building nobody can be seen, so a quiet one is only "unconfirmed"
-  for(const n in S.marks.b){if(S.marks.b[n]!=='hos')continue;if(S.destroyed[n]||S.cleared[n]){delete S.marks.b[n];continue;}
-    const f=A.find(e=>e.bld==n&&!outside(e)&&e.cont.length);if(f){markB(n,'hos',S.t);add(U_(f.cont[0]),T3(`из здания ${n} ведут огонь`,`יורים ממבנה ${n}`,`fire from building ${n}`));}
-    else (S.marks.bu||(S.marks.bu={}))[n]=1;}
-  // new targets: groups in the open that someone sees, and buildings that fire at us
-  for(const e of A){if(seen.has(e))continue;
-    if(outside(e)){const ob=seesPt(e.x,e.y,e);if(!ob||S.marks.m.some(m=>Math.hypot(m.x-e.x,m.y-e.y)<45))continue;S.marks.m.push({id:S.nid++,x:e.x,y:e.y,t:S.t,n:cnt(e.men),no:tgtNo(e)});seen.add(e);
-      add(ob,T3(`новая цель: ${cnt(e.men)} ${e.roof?'на крыше здания '+e.bld:placeTxt(e.x,e.y)}`,`מטרה חדשה: ${cnt(e.men)} ${e.roof?'על גג מבנה '+e.bld:placeTxt(e.x,e.y)}`,`new target: ${cnt(e.men)} ${e.roof?'on the roof of building '+e.bld:placeTxt(e.x,e.y)}`));}
-    else if(e.bld&&e.cont.length&&S.marks.b[e.bld]!=='hos'){markB(e.bld,'hos',S.t);add(U_(e.cont[0]),T3(`новая цель: огонь из здания ${e.bld}`,`מטרה חדשה: אש ממבנה ${e.bld}`,`new target: fire from building ${e.bld}`));}}
-  const grey=S.marks.m.filter(m=>m.uc).length+Object.keys(S.marks.bu||{}).filter(n=>S.marks.b[n]==='hos').length;
-  for(const [u,a0] of rep){let a=[...new Set(a0)].join('; ');a=a.charAt(0).toUpperCase()+a.slice(1);say(u,T3(`Кобра-6, я ${u.call}. ${a}. Приём.`,`צפע, כאן ${u.call}. ${a}. עבור.`,`Cobra-6, this is ${u.call}. ${a}. Over.`),[],{known:'st'});}
-  const w={call:T3('Штаб роты','מפקדת הפלוגה','Company HQ'),type:'x'};
-  say(w,(rep.size?'':T3('Новых целей никто не видит. ','אף אחד לא רואה מטרות חדשות. ','Nobody sees any new targets. '))
-    +(grey?T3(`Не подтверждено и показано серым: ${grey}.`,`לא אומתו ומוצגים באפור: ${grey}.`,`Unconfirmed, shown in grey: ${grey}.`):T3('Все метки на карте подтверждены.','כל הסימונים במפה אומתו.','Every mark on the map is confirmed.')),[],{});
-  dirty=true;}
-const SWEEP_TXT=()=>T3('Всем станциям сети «Кобра», я Кобра-6. Доложить цели: что видите сейчас, по старым меткам — подтвердить или снять. Приём.','כל התחנות ברשת «צפע», כאן צפע. דווחו מטרות: מה אתם רואים עכשיו, ולגבי הסימונים הישנים — לאמת או להוריד. עבור.','All stations on the Cobra net, this is Cobra-6. Report targets: what you see now; confirm or clear the old marks. Over.');
-// ---- the UAV scans an area: flies there, looks for about a minute, updates every enemy mark in its circle ----
+// ---- the UAV scans an area: flies there, looks for about a minute, then the map in its circle is up to date ----
 const SCAN_R=320,SCAN_T=60;
 function uavScanStart(x,y){S.uav.tx=x;S.uav.ty=y;S.uav.scan={x,y,t:0};const ya=U_('ya');
   say(ya,T3(`Кобра-6, я Ястреб. Принял, выхожу в район, квадрат ${cell(x,y)}. Осмотр займёт около минуты, потом доложу. Приём.`,`צפע, כאן זיק. רות, יוצא לאזור, משבצת ${cell(x,y)}. הסריקה תיקח בערך דקה, אחר כך אדווח. עבור.`,`Cobra-6, this is Hawk. Roger, heading for the area, grid ${cell(x,y)}. The scan takes about a minute, then I'll report. Over.`),[],{});}
 function uavScanTick(dt){const sc=S.uav.scan;if(!sc)return;if(Math.hypot(S.uav.x-sc.x,S.uav.y-sc.y)>8)return;sc.t+=dt;if(sc.t<SCAN_T)return;S.uav.scan=null;uavScan(sc.x,sc.y);}
-function uavScan(cx,cy){const ya=U_('ya'),A=alive(),inR=(x,y)=>Math.hypot(x-cx,y-cy)<SCAN_R,seen=new Set();let ok=0,gone=0;const nw=[];
-  for(const m of [...S.marks.m]){if(!inR(m.x,m.y))continue;const e=A.find(e=>outside(e)&&!seen.has(e)&&inR(e.x,e.y)&&Math.hypot(e.x-m.x,e.y-m.y)<45);
-    if(e){seen.add(e);m.x=e.x;m.y=e.y;m.t=S.t;m.n=cnt(e.men);m.uc=false;m.no=tgtNo(e);ok++;}else{S.marks.m.splice(S.marks.m.indexOf(m),1);gone++;}}
-  for(const e of A){if(seen.has(e)||!outside(e)||!inR(e.x,e.y))continue;if(e.roof&&Math.random()<.2)continue; // a man lying on a roof is easy to miss
-    if(e.roof&&e.bld){markB(e.bld,'hos',S.t);nw.push(T3(`${cnt(e.men)} на крыше здания ${e.bld}`,`${cnt(e.men)} על גג מבנה ${e.bld}`,`${cnt(e.men)} on the roof of building ${e.bld}`));continue;}
-    if(S.marks.m.some(m=>Math.hypot(m.x-e.x,m.y-e.y)<45))continue;S.marks.m.push({id:S.nid++,x:e.x,y:e.y,t:S.t,n:cnt(e.men),no:tgtNo(e)});nw.push(T3(`${cnt(e.men)} ${placeTxt(e.x,e.y)}`,`${cnt(e.men)} ${placeTxt(e.x,e.y)}`,`${cnt(e.men)} ${placeTxt(e.x,e.y)}`));}
-  const nb=Object.keys(S.marks.b).filter(n=>S.marks.b[n]==='hos'&&inR(BN(+n).cx,BN(+n).cy)).length;
-  say(ya,T3(`Кобра-6, я Ястреб. Район квадрат ${cell(cx,cy)} осмотрен. Метки на улицах: подтверждено ${ok}, снято ${gone}. ${nw.length?'Новые цели: '+nw.join('; ')+'.':'Новых целей нет.'}${nb?` Отмеченных зданий в районе: ${nb}, внутрь не вижу.`:''} Приём.`,
-    `צפע, כאן זיק. סרקתי את האזור, משבצת ${cell(cx,cy)}. סימונים ברחובות: אומתו ${ok}, הוסרו ${gone}. ${nw.length?'מטרות חדשות: '+nw.join('; ')+'.':'אין מטרות חדשות.'}${nb?` מבנים מסומנים באזור: ${nb}, לתוכם אני לא רואה.`:''} עבור.`,
-    `Cobra-6, this is Hawk. Area around grid ${cell(cx,cy)} scanned. Street marks: ${ok} confirmed, ${gone} removed. ${nw.length?'New targets: '+nw.join('; ')+'.':'No new targets.'}${nb?` Marked buildings in the area: ${nb}, I can't see inside.`:''} Over.`),nw.length?[]:[],{known:'st'});dirty=true;}
+function uavScan(cx,cy){const ya=U_('ya'),inR=(x,y)=>Math.hypot(x-cx,y-cy)<SCAN_R,T=(S.tg=S.tg||{n:0,by:{}});let ok=0,gone=0;const nw=[];
+  // everyone in the open inside the circle is found (a man lying on a roof can be missed)
+  for(const e of alive()){if(!outside(e)||!inR(e.x,e.y))continue;if(e.roof&&Math.random()<.2)continue;
+    const r=T.by[e.id],was=r&&r.ls!=null&&!r.hide&&!r.dead;seeTgt(e,ya,{quiet:true});const rr=T.by[e.id];if(was)ok++;else nw.push(T3(`цель ${rr.no} — ${cnt(e.men)}, ${tgWhere(rr)}`,`מטרה ${rr.no} — ${cnt(e.men)}, ${tgWhere(rr)}`,`target ${rr.no} — ${cnt(e.men)}, ${tgWhere(rr)}`));}
+  // targets last seen in the open inside the circle and not there now: gone from the map
+  let inside=0;for(const id in T.by){const r=T.by[id];if(r.ls==null||r.hide||r.dead||r.ls===S.t)continue;if(!inR(r.lx,r.ly))continue;if(r.bld&&!r.roof){inside++;continue;}r.hide=true;gone++;}
+  say(ya,T3(`Кобра-6, я Ястреб. Район квадрат ${cell(cx,cy)} осмотрен. Подтверждено целей: ${ok}, снято с карты: ${gone}. ${nw.length?'Новые: '+nw.join('; ')+'.':'Новых нет.'}${inside?` В зданиях отмечено целей: ${inside}, внутрь не вижу.`:''} Приём.`,
+    `צפע, כאן זיק. סרקתי את האזור, משבצת ${cell(cx,cy)}. מטרות שאומתו: ${ok}, הוסרו מהמפה: ${gone}. ${nw.length?'חדשות: '+nw.join('; ')+'.':'אין חדשות.'}${inside?` מטרות מסומנות במבנים: ${inside}, לתוכם אני לא רואה.`:''} עבור.`,
+    `Cobra-6, this is Hawk. Area around grid ${cell(cx,cy)} scanned. Targets confirmed: ${ok}, removed from the map: ${gone}. ${nw.length?'New: '+nw.join('; ')+'.':'No new ones.'}${inside?` Targets marked in buildings: ${inside}, I can't see inside.`:''} Over.`),[],{known:'st'});dirty=true;}
 /* ---------- simulation ---------- */
 const NG=5,NW=Math.ceil(MWm/NG),NH=Math.ceil(MHm/NG);let NAV=null;
 function buildNav(){NAV=new Uint8Array(NW*NH);for(const b of BLOCKS){if(b.lot)continue;const x0=Math.floor((b.x0+1)/NG),x1=Math.floor((b.x1-1)/NG),y0=Math.floor((b.y0+1)/NG),y1=Math.floor((b.y1-1)/NG);for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)NAV[y*NW+x]=1;}genDebris();}
@@ -1719,7 +1763,7 @@ const STUCK_TXT=(u,e)=>(HE?(`צפע, כאן ${u.call}. אי אפשר לעקוף:
 function leaderDecide(u){
   u.avoid=(u.avoid||[]).filter(a=>a.until>S.t);
   const en=(u.threats||[]).map(E_).filter(e=>e&&!e.gone&&e.men>0);
-  if(!en.length){if(S.t-(u.contT||0)>20){const was=u.resume&&!['hold','cordon'].includes(u.resume.st);u.threats=[];u.byp=0;resumeOrder(u);if(was)say(u,RESUME_TXT(u),[],{known:'st'});}return;}
+  if(!en.length){if(S.t-(u.contT||0)>20){const was=u.resume&&!['hold','cordon'].includes(u.resume.st);u.threats=[];u.byp=0;resumeOrder(u);if(was)u.resumeNote=true;}return;}
   const ourFP=u.men*(u.ammo>0?1:.2)*(u.uc?1.3:1)*(u.sup>60?.5:1)*(u.q||1);
   const enMen=en.reduce((s,e)=>s+e.men,0),enFP=en.reduce((s,e)=>s+e.men*(e.sup>60?.5:1)*(e.bld&&!outside(e)?1.5:1),0);
   const ratio=ourFP/Math.max(.5,enFP);const mission=u.resume?u.resume.st:'hold';
@@ -1736,8 +1780,8 @@ function leaderDecide(u){
     u.byp=(u.byp||0)+1;addAvoid(180);u.threats=[];resumeOrder(u);say(u,BYPASS_TXT(u,why),[],{urgent:true,known:'st'});u.cont=[];return;}
   if(!u.cont.length){if(S.t-(u.contT||0)>30){const was=u.resume&&!['hold','cordon'].includes(u.resume.st);
       if(was){if((u.byp||0)>=2){stuck();return;}u.byp=(u.byp||0)+1;addAvoid(180);}
-      u.threats=[];resumeOrder(u);if(was)say(u,RESUME_TXT(u),[],{known:'st'});}return;}
-  {const pin=u.sup>60;if(!u.holdRep||pin!==!!u.holdPin||S.t-u.holdRep>240){u.holdRep=S.t;u.holdPin=pin;say(u,HOLD_TXT(u),[],{known:'st',urgent:pin});}}}
+      u.threats=[];resumeOrder(u);if(was)u.resumeNote=true;}return;}
+  {const pin=u.sup>60;if(pin&&!u.holdPin&&(!u.holdRep||S.t-u.holdRep>120)){u.holdRep=S.t;say(u,HOLD_TXT(u),[],{known:'st',urgent:true});}u.holdPin=pin;}/* only "pinned down" is news; holding cover is what a team in a fight does anyway */}
 const RESUME_TXT=u=>(HE?(`צפע, כאן ${u.call}. האש פסקה, ממשיכים במשימה.`):((EN?(`Cobra-6, this is ${u.call}. Fire has stopped, continuing the task.`):(`Кобра-6, я ${u.call}. Огонь стих, продолжаем задачу.`))));const ASSAULT_TXT=(u,b)=>(HE?(`צפע, כאן ${u.call}. עליונות האש שלנו, האויב מעט. מאגפים ופורצים למבנה ${b}.`):((EN?(`Cobra-6, this is ${u.call}. We have fire superiority, few enemy. Flanking and assaulting building ${b}.`):(`Кобра-6, я ${u.call}. Огневое превосходство наше, противника немного. Обходим с фланга и штурмуем здание ${b}.`))));const BYPASS_TXT=(u,why)=>(HE?(`צפע, כאן ${u.call}. ${why} מתנתקים ועוקפים ברחוב אחר.`):((EN?(`Cobra-6, this is ${u.call}. ${why} Breaking contact, going around by another street.`):(`Кобра-6, я ${u.call}. ${why} Разрываем контакт, обходим другой улицей.`))));const WITHDRAW_TXT=(u,why)=>(HE?(`צפע, כאן ${u.call}. ${why} מתנתקים ויוצאים מטווח האש.`):((EN?(`Cobra-6, this is ${u.call}. ${why} Breaking contact, getting out from under fire.`):(`Кобра-6, я ${u.call}. ${why} Разрываем контакт, отходим из-под огня.`))));const HOLD_TXT=u=>(HE?(`צפע, כאן ${u.call}. מחזיקים מחסה ויורים. ${u.sup>60?(S.mission?'מרותקים באש כבדה, צריך עזרה.':'מרותקים באש כבדה, צריך סיוע של «שרף».'):'האויב מתנגד.'}`):((EN?(`Cobra-6, this is ${u.call}. Holding cover, returning fire. ${u.sup>60?(S.mission?'Pinned down by heavy fire, need help.':'Pinned down by heavy fire, need Hammer support.'):'The enemy is resisting.'}`):(`Кобра-6, я ${u.call}. Держим укрытие, ведём огонь. ${u.sup>60?(S.mission?'Прижаты плотным огнём, нужна помощь.':'Прижаты плотным огнём, нужна поддержка «Молота».'):'Противник сопротивляется.'}`))));
 const WHY_STRONG=(HE?('האויב חזק יותר.'):((EN?("The enemy is stronger."):('Противник сильнее.')))),WHY_W=(HE?('יש הרבה פצועים.'):((EN?("Too many wounded."):('Много раненых.')))),WHY_STEALTH=(HE?('המשימה חשאית, הקרב מפריע לה.'):((EN?("The task is covert, the fight gets in the way."):('Задача скрытная, бой ей мешает.')))),WHY_AMMO=(HE?('מעט תחמושת.'):((EN?("Low on ammo."):('Мало патронов.'))));
 function moveAlong(o,step){const key=Math.round(o.tx)+','+Math.round(o.ty)+'/'+((o.avoid&&o.avoid.length)||0);if(o.pkey!==key||!o.path){AV=o.avoid&&o.avoid.length?avoidMask(o.avoid):null;o.path=null;if(o.veh&&NAVV){const n0=NAV;NAV=NAVV;FP_OK=true;const p=findPath(o.x,o.y,o.tx,o.ty);NAV=n0;if(FP_OK)o.path=p;}if(!o.path)o.path=findPath(o.x,o.y,o.tx,o.ty);AV=null;o.pkey=key;}
@@ -1779,8 +1823,8 @@ function tick(dt){
     let dm=false;if(u.veh){u.veh=false;S.car={x:u.x,y:u.y};S.marks.car={x:u.x,y:u.y};dm=true;}
     const en=u.cont.map(E_);const e0=en.reduce((a,e)=>!a||Math.hypot(e.x-u.x,e.y-u.y)<Math.hypot(a.x-u.x,a.y-u.y)?e:a,null);
     if(!u.resume)u.resume={st:u.st,tx:u.tx,ty:u.ty,tb:u.tb};u.threats=[...new Set([...(u.threats||[]),...u.cont])];const cp=findCover(u,en);
-    if(cp){u.st='cover';u.tx=cp[0];u.ty=cp[1];u.cvK=cp[3];u.pkey=null;const cvW=(cp[2]?debAt(cp[2])+' ':'')+placeTxt(u.tx,u.ty);say(u,(HE?(`צפע, כאן ${u.call}. ${dm?'ירדנו מהרכב. ':''}תפסנו מחסה ${cvW}. האויב ${DIRS[dirIdx(e0.x-u.x,e0.y-u.y)]}, ${Math.max(20,Math.round(Math.hypot(e0.x-u.x,e0.y-u.y)/10)*10)} מטר, ${cnt(e0.men)}${e0.bld&&!outside(e0)?', יורה מחלונות מבנה '+e0.bld:''}. מדכאים באש.`):((EN?(`Cobra-6, this is ${u.call}. ${dm?'Dismounted. ':''}In cover ${cvW}. Enemy to the ${DIRS[dirIdx(e0.x-u.x,e0.y-u.y)]}, ${Math.max(20,Math.round(Math.hypot(e0.x-u.x,e0.y-u.y)/10)*10)} meters, ${cnt(e0.men)}${e0.bld&&!outside(e0)?', firing from the windows of building '+e0.bld:''}. Suppressing.`):(`Кобра-6, я ${u.call}. ${dm?'Спешились. ':''}Укрылись ${cvW}. Противник на ${DIRS[dirIdx(e0.x-u.x,e0.y-u.y)]}, метров ${Math.max(20,Math.round(Math.hypot(e0.x-u.x,e0.y-u.y)/10)*10)}, ${cnt(e0.men)}${e0.bld&&!outside(e0)?', огонь из окон здания '+e0.bld:''}. Подавляем огнём.`)))),[],{urgent:true,known:'st'});}
-    else{u.st='incover';u.cvK=.6;u.decT=S.t+12;say(u,(HE?(`צפע, כאן ${u.call}. ${dm?'ירדנו מהרכב. ':''}אין מחסה קרוב, נלחמים במקום. האויב ${DIRS[dirIdx(e0.x-u.x,e0.y-u.y)]}, ${Math.max(20,Math.round(Math.hypot(e0.x-u.x,e0.y-u.y)/10)*10)} מטר, ${cnt(e0.men)}.`):((EN?(`Cobra-6, this is ${u.call}. ${dm?'Dismounted. ':''}No cover nearby, fighting where we are. Enemy to the ${DIRS[dirIdx(e0.x-u.x,e0.y-u.y)]}, ${Math.max(20,Math.round(Math.hypot(e0.x-u.x,e0.y-u.y)/10)*10)} meters, ${cnt(e0.men)}.`):(`Кобра-6, я ${u.call}. ${dm?'Спешились. ':''}Укрытия рядом нет, ведём бой на месте. Противник на ${DIRS[dirIdx(e0.x-u.x,e0.y-u.y)]}, метров ${Math.max(20,Math.round(Math.hypot(e0.x-u.x,e0.y-u.y)/10)*10)}, ${cnt(e0.men)}.`)))),[],{urgent:true,known:'st'});}}
+    if(cp){u.st='cover';u.tx=cp[0];u.ty=cp[1];u.cvK=cp[3];u.pkey=null;const cvW=(cp[2]?debAt(cp[2])+' ':'')+placeTxt(u.tx,u.ty);u.coverTxt=T3(`${dm?'Спешились. ':''}Укрылись ${cvW}.`,`${dm?'ירדנו מהרכב. ':''}תפסנו מחסה ${cvW}.`,`${dm?'Dismounted. ':''}In cover ${cvW}.`);}
+    else{u.st='incover';u.cvK=.6;u.decT=S.t+12;u.coverTxt=T3(`${dm?'Спешились. ':''}Укрытия рядом нет, ведём бой на месте.`,`${dm?'ירדנו מהרכב. ':''}אין מחסה קרוב, נלחמים במקום.`,`${dm?'Dismounted. ':''}No cover nearby, fighting where we are.`);}}
   // combat
   for(const u of U){if(!u.cont.length||u.men<=0)continue;const sh=1/u.cont.length;
     for(const id of u.cont){const e=E_(id),m=u.cm[id];const cov=m==='close'?.8:m==='window'?bcov(e.bld):e.roof?.6:(debCov(e.x,e.y)||.9);if(m==='window'&&!e.roof)wpnFire(u,e.bld,sh,dt,e);e.sup=Math.min(100,(e.sup||0)+u.men*sh*dt*1.8*(u.uc?1.3:1));e.acc+=(m==='close'?.008*(u.cq||1):.0045)*(e.rk||1)*(u.uc?1.3:1)*(u.q||1)*(sk(u,'fire')?1.15:1)*(u.sup>60?.5:1)*(u.st==='incover'?.8:1)*u.men*(u.ammo>0?1:.2)*sh*cov*dt;
@@ -1880,9 +1924,9 @@ function tick(dt){
     if(e.kind==='mil'&&e.mode==='move'&&!e.cpChk){const c=cpActive().find(c=>hyp(c,e)<170);if(c)e.cpChk=true;if(c&&Math.random()<.6){const m=e.men;e.men=0;e.gone=true;S.stats.det+=m;c.kills=(c.kills||0)+m;say(c,HE?`צפע, כאן ${c.call}. במחסום נעצרו חמושים: ${m}. בלי ירי.`:(EN?(`Cobra-6, this is ${c.call}. Armed men detained at the checkpoint: ${m}. No shots fired.`):(`Кобра-6, я ${c.call}. На блокпосту задержаны вооружённые: ${m}. Без стрельбы.`)),[],{known:'st',det:m});continue;}}
     e.mv=e.x!==px||e.y!==py;if(e.leader&&e.mv&&S.lpath){const l=S.lpath[S.lpath.length-1];if(Math.hypot(l[0]-e.x,l[1]-e.y)>12)S.lpath.push([e.x,e.y]);}}
   // our observation (stealthy phase and after)
-  for(const u of U){if(u.men<=0)continue;for(const e of alive()){if(u.cont.includes(e.id)||(u.inFight&&u.fightE&&u.fightE[e.id]))continue;const d=hyp(e,u);const vis=outside(e);if(!vis||d>(u.optic?420:260))continue;if(!e.roof&&!losUE(u,e))continue;
+  for(const u of U){if(u.men<=0)continue;for(const e of alive()){if(u.cont.includes(e.id)||(u.inFight&&u.fightE&&u.fightE[e.id]))continue;{const r=S.tg&&S.tg.by[e.id];if(r&&r.ls!=null&&!r.hide&&!r.dead)continue;}const d=hyp(e,u);const vis=outside(e);if(!vis||d>(u.optic?420:260))continue;if(!e.roof&&!losUE(u,e))continue;
     const p=(e.roof?.02:.06)*(u.optic?2:1)*dt;if((!u.seen[e.id]||S.t-u.seen[e.id]>(e.roof&&!e.mv?1200:480))&&Math.random()<p){u.seen[e.id]=S.t;const fixed=e.bld&&!e.mv&&e.mode!=='patrol';
-      say(u,(HE?(`צפע, כאן ${u.call}. ${salute(e,e.roof?'מתצפתים מהגג על הרחוב':e.mv?`נעים לכיוון ${DIRS_TO[dirIdx((e.tx||e.x)-e.x,(e.ty||e.y)-e.y)]}`:'עומדים ליד הכניסה')} ${S.alarm?'':'לא זיהו אותנו, לא פותחים באש.'} עבור.`):((EN?(`Cobra-6, this is ${u.call}. ${salute(e,e.roof?'watching the street from a roof':e.mv?`moving ${DIRS_TO[dirIdx((e.tx||e.x)-e.x,(e.ty||e.y)-e.y)]}`:'standing at the entrance')} ${S.alarm?'':'We have not been spotted, holding fire.'} Over.`):(`Кобра-6, я ${u.call}. ${salute(e,e.roof?'наблюдают с крыши за улицей':e.mv?`перемещаются на ${DIRS_TO[dirIdx((e.tx||e.x)-e.x,(e.ty||e.y)-e.y)]}`:'стоят у входа')} ${S.alarm?'':'Нас не обнаружили, огонь не открываем.'} Приём.`)))),[fixed?bChip(e.bld,'hos'):ptChip(e)],{known:'st',pid:fixed?e.bld:0,spot:spotDesc(e),eid:e.id,ex:e.x,ey:e.y});}}}
+      seeTgt(e,u);}}}
   // insurgent behaviour after the alarm: mobilisation, shoot-and-scoot, blending in
   if(S.alarm){
     if(!S.mob&&S.t-(S.alarmT0||S.t)>300){S.mob=true;const our=U.filter(u=>u.men>0);const far=BL.filter(b=>!b.prot&&inTown(b.cx,b.cy)&&our.every(u=>Math.hypot(u.x-b.cx,u.y-b.cy)>350));const k=S.mobK!=null?S.mobK:2+(Math.random()<.5?1:0);let made=0;
@@ -1902,28 +1946,33 @@ function tick(dt){
   stepTo(S.uav,S.uav.tx,S.uav.ty,25*dt);S.marks.own.ya={x:S.uav.tx,y:S.uav.ty};uavScanTick(dt);
   const ya=U_('ya');ya.seen=ya.seen||{};
   for(const e of alive()){if(!outside(e))continue;const d=Math.hypot(e.x-S.uav.x,e.y-S.uav.y);if(d>320)continue;const p=(e.roof?.012:e.mv?.08:.04)*dt;
-    const key=e.id+(e.mode==='move'?'m':'');if(ya.seen[key]&&S.t-ya.seen[key]<900)continue;
+    if(!e.leader){const r=S.tg&&S.tg.by[e.id];if(r&&r.ls!=null&&!r.hide&&!r.dead)continue;}const key=e.id+(e.mode==='move'?'m':'');if(ya.seen[key]&&S.t-ya.seen[key]<900)continue;
     if(Math.random()<p){ya.seen[key]=S.t;const fixed=e.bld&&!e.mv&&e.mode!=='patrol';
       let t;if(e.leader&&e.mode==='move')t=(HE?(`צפע, כאן זיק. שניים יצאו ממבנה ${S.L}, בריצה, אחד חמוש. נעים לכיוון ${DIRS_TO[dirIdx(e.tx-e.x,e.ty-e.y)]}, ${placeTxt(e.x,e.y)}. עוקב. עבור.`):((EN?(`Cobra-6, this is Hawk. Two men left building ${S.L} running, one armed. Moving ${DIRS_TO[dirIdx(e.tx-e.x,e.ty-e.y)]}, ${placeTxt(e.x,e.y)}. Tracking. Over.`):(`Кобра-6, я Ястреб. Двое вышли из здания ${S.L}, бегом, один вооружён. Движутся на ${DIRS_TO[dirIdx(e.tx-e.x,e.ty-e.y)]}, ${placeTxt(e.x,e.y)}. Веду. Приём.`))));
       else t=(HE?(`צפע, כאן זיק. ${salute(e,e.roof?'מתצפתים מהגג':e.mv?`נעים לכיוון ${DIRS_TO[dirIdx((e.tx||e.x)-e.x,(e.ty||e.y)-e.y)]}`:'עומדים')} עבור.`):((EN?(`Cobra-6, this is Hawk. ${salute(e,e.roof?'watching from a roof':e.mv?`moving ${DIRS_TO[dirIdx((e.tx||e.x)-e.x,(e.ty||e.y)-e.y)]}`:'standing')} Over.`):(`Кобра-6, я Ястреб. ${salute(e,e.roof?'наблюдают с крыши':e.mv?`перемещаются на ${DIRS_TO[dirIdx((e.tx||e.x)-e.x,(e.ty||e.y)-e.y)]}`:'стоят')} Приём.`))));
-      say(ya,t,[fixed?bChip(e.bld,'hos'):ptChip(e)],{pid:fixed?e.bld:0,urgent:!!e.leader,spot:e.leader?null:spotDesc(e),eid:e.id,ex:e.x,ey:e.y});
+      if(e.leader&&e.mode==='move')say(ya,t,[ptChip(e)],{urgent:true});seeTgt(e,ya);
       if(e.leader&&e.mode==='move')e.trackedBy='ya';}}
   for(const e of alive()){if(e.leader&&e.mode==='tunnel'&&e.trackedBy==='ya'&&!e.inRep&&Math.hypot(e.x-S.uav.x,e.y-S.uav.y)<350){e.inRep=true;say(ya,(HE?(`צפע, כאן זיק. השניים שעקבתי אחריהם נכנסו למבנה ${e.bld}. לא יצאו ממנו.`):((EN?(`Cobra-6, this is Hawk. The two I was tracking went into building ${e.bld}. Nobody has come out since.`):(`Кобра-6, я Ястреб. Двое, которых вёл, вошли в здание ${e.bld}. Из здания больше не выходили.`)))),[bChip(e.bld,'hos')],{urgent:true,pid:e.bld});}}
-  battleSum();
+  pictureTick();battleSum();
   // squads: state reports
   for(const u of U){if(u.men<=0&&u.wounded<=0)continue;
     if(u.cont.length&&u.men>0){u.lastCont=u.cont.slice();
       // one fight is one report: "Contact!" once; a group joining the fight once; a target another team already reported — a short note
       const fe=(u.fightE=u.fightE||{}),nw=u.cont.filter(id=>!fe[id]);
-      if(!u.inFight||nw.length){const first=!u.inFight;u.inFight=true;u.fought=true;nw.forEach(id=>fe[id]=1);const e=E_(nw[0]||u.cont[0]);const m=u.cm[e.id];
+      if(!u.inFight||nw.length){const first=!u.inFight;if(first){u.fightT0=S.t;u.fightL0=(u.men||0)+(u.wounded||0);}u.inFight=true;u.fought=true;nw.forEach(id=>fe[id]=1);const e=E_(nw[0]||u.cont[0]);const m=u.cm[e.id];
         if(fightNote(u,e,m,first));else if(m==='close')say(u,(HE?(`צפע, כאן ${u.call}! קרב בתוך מבנה ${u.inB}! אויב: ${cnt(e.men)}. פועלים!`):((EN?(`Cobra-6, this is ${u.call}! Fighting inside building ${u.inB}! Enemy: ${cnt(e.men)}. Engaging!`):(`Кобра-6, я ${u.call}! Бой внутри здания ${u.inB}! Противник ${cnt(e.men)}. Работаем!`)))),[bChip(u.inB,'hos')],{urgent:true,known:'st',pid:u.inB});
         else if(m==='window')say(u,(HE?(`צפע, כאן ${u.call}! מגע! ${DIRS[dirIdx(e.x-u.x,e.y-u.y)]}, ${dstM(u,e)} מטר: ירי ממבנה ${e.bld}. משיבים אש.`):((EN?(`Cobra-6, this is ${u.call}! Contact! To the ${DIRS[dirIdx(e.x-u.x,e.y-u.y)]}, ${dstM(u,e)} meters: fire from building ${e.bld}. Returning fire.`):(`Кобра-6, я ${u.call}! Контакт! На ${DIRS[dirIdx(e.x-u.x,e.y-u.y)]}, метров ${dstM(u,e)}: огонь из здания ${e.bld}. Отвечаем.`)))),[bChip(e.bld,'hos')],{urgent:true,known:'st',pid:e.bld,eid:e.id,ex:e.x,ey:e.y});
         else say(u,(HE?(`צפע, כאן ${u.call}! מגע! ${DIRS[dirIdx(e.x-u.x,e.y-u.y)]}, ${dstM(u,e)} מטר: ${cnt(e.men)}, ${placeTxt(e.x,e.y)}. בקרב!`):((EN?(`Cobra-6, this is ${u.call}! Contact! To the ${DIRS[dirIdx(e.x-u.x,e.y-u.y)]}, ${dstM(u,e)} meters: ${cnt(e.men)}, ${placeTxt(e.x,e.y)}. Engaging!`):(`Кобра-6, я ${u.call}! Контакт! На ${DIRS[dirIdx(e.x-u.x,e.y-u.y)]}, метров ${dstM(u,e)}: ${cnt(e.men)}, ${placeTxt(e.x,e.y)}. Ведём бой!`)))),[e.roof?bChip(e.bld,'hos'):ptChip(e)],{urgent:true,known:'st',pid:e.roof?e.bld:0,eid:e.id,ex:e.x,ey:e.y});}
-      if((u.newW||u.newK||u.cont.some(id=>E_(id).unrep))&&S.t-u.lastCas>90){const ek=flushEK(u.cont);const cr=casRep(u);say(u,(HE?(`צפע, כאן ${u.call}. ${ek?`נוטרלו מחבלים: ${ek}. `:''}${u.newW||u.newK?`הנפגעים שלנו: ${casTxt(u.newK,u.newW)}.${cr.t} ${u.newW?'דחיפות — מיידי. ':''}`:'אין נפגעים. '}תחמושת ${Math.round(u.ammo/10)*10}%.`):((EN?(`Cobra-6, this is ${u.call}. ${ek?`Enemy neutralized: ${ek}. `:''}${u.newW||u.newK?`Our casualties: ${casTxt(u.newK,u.newW)}.${cr.t} ${u.newW?'Priority — urgent. ':''}`:'No casualties. '}Ammo ${Math.round(u.ammo/10)*10}%.`):(`Кобра-6, я ${u.call}. ${ek?`Нейтрализовано боевиков: ${ek}. `:''}${u.newW||u.newK?`Наши потери: ${casTxt(u.newK,u.newW)}.${cr.t} ${u.newW?'Категория — срочная. ':''}`:'Потерь нет. '}БК ${Math.round(u.ammo/10)*10}%.`)))),[],{urgent:!!(u.newW||u.newK),known:'full',ek,note:cr.note});u.newW=u.newK=0;u.lastCas=S.t;}
+      if(u.coverTxt)coverNote(u);
+      // during the fight only our own losses are reported at once; enemy killed goes into the report at the end of the fight
+      if((u.newW||u.newK)&&S.t-u.lastCas>90){const ek=flushEK(u.cont);const cr=casRep(u);say(u,(HE?(`צפע, כאן ${u.call}. ${ek?`נוטרלו מחבלים: ${ek}. `:''}${u.newW||u.newK?`הנפגעים שלנו: ${casTxt(u.newK,u.newW)}.${cr.t} ${u.newW?'דחיפות — מיידי. ':''}`:'אין נפגעים. '}תחמושת ${Math.round(u.ammo/10)*10}%.`):((EN?(`Cobra-6, this is ${u.call}. ${ek?`Enemy neutralized: ${ek}. `:''}${u.newW||u.newK?`Our casualties: ${casTxt(u.newK,u.newW)}.${cr.t} ${u.newW?'Priority — urgent. ':''}`:'No casualties. '}Ammo ${Math.round(u.ammo/10)*10}%.`):(`Кобра-6, я ${u.call}. ${ek?`Нейтрализовано боевиков: ${ek}. `:''}${u.newW||u.newK?`Наши потери: ${casTxt(u.newK,u.newW)}.${cr.t} ${u.newW?'Категория — срочная. ':''}`:'Потерь нет. '}БК ${Math.round(u.ammo/10)*10}%.`)))),[],{urgent:!!(u.newW||u.newK),known:'full',ek,note:cr.note});u.newW=u.newK=0;u.lastCas=S.t;}
       if(u.ammo<25&&!u.lowAmmo){u.lowAmmo=true;say(u,(HE?(`צפע, כאן ${u.call}. התחמושת אוזלת.`):((EN?(`Cobra-6, this is ${u.call}. Running low on ammo.`):(`Кобра-6, я ${u.call}. Боеприпасы на исходе.`)))),[],{urgent:true,known:'full'});}
     }else{
       // the fight is over only after 45 s without contact (a group that ducks out of sight for a moment is still the same fight)
-      if(u.inFight&&(u.men<=0||S.t-(u.contT||0)>45)){u.inFight=false;u.fightE={};const ek=flushEK(u.lastCont);let t=(HE?(`צפע, כאן ${u.call}. המגע הסתיים.${ek?` נוטרלו מחבלים: ${ek}.`:''} כשירים: ${u.men}`):((EN?(`Cobra-6, this is ${u.call}. Contact over.${ek?` Enemy neutralized: ${ek}.`:''} Fit: ${u.men}`):(`Кобра-6, я ${u.call}. Огневой контакт прекращён.${ek?` Нейтрализовано боевиков: ${ek}.`:''} В строю ${u.men}`))));if(u.wounded)t+=(HE?(`, פצועים: ${u.wounded}`):((EN?(`, wounded ${u.wounded}`):(`, раненых ${u.wounded}`))));if(u.newK)t+=(HE?(`, הרוגים: ${u.newK}`):((EN?(`, killed ${u.newK}`):(`, погибших ${u.newK}`))));const cr=casRep(u);say(u,t+(HE?(`. תחמושת ${Math.round(u.ammo/10)*10}%.`):((EN?(`. Ammo ${Math.round(u.ammo/10)*10}%.`):(`. БК ${Math.round(u.ammo/10)*10}%.`))))+cr.t,[],{known:'full',ek,note:cr.note});u.newW=u.newK=0;u.lastCas=S.t;}
+      if(u.inFight&&(u.men<=0||S.t-(u.contT||0)>45)){u.inFight=false;u.fightE={};
+        // a short exchange of fire with nothing to tell (no losses, nobody hit, enough ammo) is not reported: the map shows it
+        const quiet=S.t-(u.fightT0||0)<90&&!u.newW&&!u.newK&&!(u.lastCont||[]).some(id=>(E_(id)||{}).unrep)&&u.ammo>=50&&u.men>0;
+        if(quiet){u.resumeNote=false;}else{const ek=flushEK(u.lastCont);let t=(HE?(`צפע, כאן ${u.call}. המגע הסתיים.${ek?` נוטרלו מחבלים: ${ek}.`:''} כשירים: ${u.men}`):((EN?(`Cobra-6, this is ${u.call}. Contact over.${ek?` Enemy neutralized: ${ek}.`:''} Fit: ${u.men}`):(`Кобра-6, я ${u.call}. Огневой контакт прекращён.${ek?` Нейтрализовано боевиков: ${ek}.`:''} В строю ${u.men}`))));if(u.wounded)t+=(HE?(`, פצועים: ${u.wounded}`):((EN?(`, wounded ${u.wounded}`):(`, раненых ${u.wounded}`))));if(u.newK)t+=(HE?(`, הרוגים: ${u.newK}`):((EN?(`, killed ${u.newK}`):(`, погибших ${u.newK}`))));const cr=casRep(u);const go=u.resumeNote?T3(' Продолжаем задачу.',' ממשיכים במשימה.',' Continuing the task.'):'';u.resumeNote=false;say(u,t+(HE?(`. תחמושת ${Math.round(u.ammo/10)*10}%.`):((EN?(`. Ammo ${Math.round(u.ammo/10)*10}%.`):(`. БК ${Math.round(u.ammo/10)*10}%.`))))+cr.t+go,[],{known:'full',ek,note:cr.note});}u.newW=u.newK=0;u.lastCas=S.t;}
       u.morale=Math.min(90,u.morale+dt*.03);}
     if(u.men>1&&u.morale<25&&u.st!=='retreat'&&u.st!=='broken'){u.st='retreat';u.inB=0;u.tx=u.x;u.ty=u.y+300;delete S.marks.ord[u.id];say(u,(HE?(`צפע, כאן ${u.call}! נפגעים כבדים, נסוגים דרומה!`):((EN?(`Cobra-6, this is ${u.call}! Heavy casualties, falling back south!`):(`Кобра-6, я ${u.call}! Тяжёлые потери, отходим на юг!`)))),[],{urgent:true,known:'full'});}
     if(u.men<=1&&u.st!=='broken'){u.st='broken';u.tx=u.x;u.ty=u.y;say(u,(HE?(`צפע… כאן ${u.call}. כשירים: ${u.men}, פצועים: ${u.wounded}. לא כשירים ללחימה. צריך ינשוף.`):((EN?(`Cobra-6… this is ${u.call}. Fit ${u.men}, wounded ${u.wounded}. Combat ineffective. Need Angel.`):(`Кобра-6… я ${u.call}. В строю ${u.men}, раненых ${u.wounded}. Боеспособность потеряна. Нужен Ангел.`)))),[posChip(u)],{urgent:true,known:'full'});}
@@ -2200,6 +2249,7 @@ function render(){
   for(const n in S.marks.b){const b=BN(+n),[sx,sy]=toS(b.cx,b.cy),k=S.marks.b[n];const ox=sx+14,oy=sy-12;if(k==='hos')symHos(c,ox,oy,10,bStale(n)?'?':'',bStale(n));else if(k==='unk')symUnk(c,ox,oy);else if(k==='civ')symCiv(c,ox,oy);else if(k==='tun')symTun(c,ox,oy);}
   for(const n in (S.marks.bied||{})){const b=BN(+n),[sx,sy]=toS(b.cx,b.cy);symIed(c,sx-15,sy-12,9);}
   for(const m of (S.marks.ied||[])){const [sx,sy]=toS(m.x,m.y);symIed(c,sx,sy,11);c.font='10px Arial, sans-serif';c.textAlign='center';c.textBaseline='middle';halo(c,(HE?('מטען '):((EN?("IED "):('СВУ '))))+fmt(m.t),sx,sy+19,'#7a3a00');}
+  drawPicture(c);
   for(const m of S.marks.m){const [sx,sy]=toS(m.x,m.y),old=ptStale(m);symHos(c,sx,sy,11,m.no?String(m.no):(old?'?':''),old);c.font=(HE?('10px "Heebo", sans-serif'):('10px "PT Mono", monospace'));c.textAlign='center';c.textBaseline='middle';halo(c,fmt(m.t),sx,sy+19,old?'#6b6863':'#7a1010');}
   for(const id in S.marks.ord){const o=S.marks.ord[id];const a=toS(o.fx,o.fy),b=toS(o.x,o.y);arrow(c,a[0],a[1],b[0],b[1],'#1f6fb0');}
   for(const m of S.marks.strike){const b=BN(m.b),[sx,sy]=toS(b.cx,b.cy),r=100*K*V.s;c.save();c.strokeStyle='#c42828';c.lineWidth=2;c.setLineDash([5,4]);c.beginPath();c.arc(sx,sy,r,0,7);c.stroke();c.setLineDash([]);c.font=(HE?('700 11px "Rubik", sans-serif'):('700 11px "Roboto Condensed", sans-serif'));c.textAlign='center';c.textBaseline='middle';halo(c,m.tI?(S.t<m.tI?(HE?(`תקיפה ${fmt(m.tI)}`):((EN?(`strike ${fmt(m.tI)}`):(`удар ${fmt(m.tI)}`)))):(HE?('תקיפה'):((EN?("strike"):('удар'))))):(HE?('בקשה'):((EN?("requested"):('заявка')))),sx,sy-r-8,'#c42828');c.restore();}
@@ -2227,6 +2277,7 @@ const ptrs=new Map();let gest=null;
 function pos(e){const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};}
 function hitMark(x,y){for(const u of [...S.units].reverse()){const m=S.marks.own[u.id];const [sx,sy]=toS(m.x,m.y);if(Math.abs(sx-x)<20&&Math.abs(sy-y)<16)return{kind:'own',id:u.id,drag:(u.type==='inf')&&!UI.target};}
   for(const m of (S.marks.ied||[])){const [sx,sy]=toS(m.x,m.y);if(Math.hypot(sx-x,sy-y)<16)return{kind:'ied',id:m.id,drag:!UI.target};}
+  {const r=hitTgt(x,y);if(r)return{kind:'tg',id:r.no,drag:false};}
   for(let i=S.marks.m.length-1;i>=0;i--){const m=S.marks.m[i];const [sx,sy]=toS(m.x,m.y);if(Math.hypot(sx-x,sy-y)<16)return{kind:'pt',id:m.id,drag:!UI.target};}return null;}
 cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);const p=pos(e);ptrs.set(e.pointerId,p);
   if(ptrs.size===1)gest={type:'pan',sx:p.x,sy:p.y,ox:V.ox,oy:V.oy,t:performance.now(),moved:false,mark:hitMark(p.x,p.y)};
@@ -2242,7 +2293,7 @@ cv.addEventListener('wheel',e=>{e.preventDefault();const p=pos(e);const wx=(p.x-
 function onTap(x,y,mark){const [mx,my]=toM(x,y);if(mx<0||my<0||mx>MWm||my>MHm)return;
   const t=UI.target;
   if(t){if(t.needB){const b=bldAt(mx,my,25);if(!b)return;t.b=b.n;t.pt={x:b.cx,y:b.cy};}else{t.pt={x:mx,y:my};}updTarget();dirty=true;return;}
-  if(mark){if(mark.kind==='own')selectUnit(mark.id,false);else if(mark.kind==='ied')openIedSheet(mark.id);else openPtSheet(mark.id);return;}
+  if(mark){if(mark.kind==='own')selectUnit(mark.id,false);else if(mark.kind==='ied')openIedSheet(mark.id);else if(mark.kind==='tg')openTgtSheet(mark.id);else openPtSheet(mark.id);return;}
   const b=bldAt(mx,my,0);if(b){openBldSheet(b.n);return;}
   if(selId){selId=null;updUnits();dirty=true;}}
 
@@ -2339,8 +2390,6 @@ $('#cYes').onclick=()=>{const t=UI.target;if(!t||!t.pt)return;const u=U_(t.uid);
     hq((HE?(`${u.call}, כאן צפע. ${txt}. עבור.`):((EN?(`${u.call}, this is Cobra-6. ${txt}. Over.`):(`${u.call}, я Кобра-6. ${txt}. Приём.`)))),{k:'order',uid:u.id,kind:t.kind,x,y,b:t.b,method:t.method});}
   UI.target=null;updTarget();dirty=true;};
 $('#bFit').onclick=()=>{V.s=minS();clampView();};
-// all stations: check the targets on the map
-$('#bSweep').onclick=()=>{if(!S.started||S.over)return;if(S.radio.q.some(m=>m.act&&m.act.k==='sweep'))return;hq(SWEEP_TXT(),{k:'sweep'});};
 $('#bJr').onclick=openJournal;
 $('#bExpand').onclick=()=>{const a=$('#app');a.classList.toggle('big');$('#bExpand').textContent=a.classList.contains('big')?(HE?('צמצם'):((EN?("Less"):('Уже')))):(HE?('הרחב'):((EN?("More"):('Шире'))));};
 
@@ -2391,7 +2440,7 @@ async function start(data){
   if(S.truth)$('#truthPill').hidden=false;
   resize();dirty=true;requestAnimationFrame(frame);}
 window.claude?.hot?.snapshot?.(()=>({S}));
-window.__kp={get S(){return S;},get C(){return C;},trial:o=>{setCity(o.seed,o.dens,true);return newState(o);},mtrial:o=>{setCity(o.seed,o.dens,true);return newMissionState(o);},chk:(x,y)=>({town:inTown(x,y),blk:!!blockOf(x,y),free:navFree(Math.floor(x/NG),Math.floor(y/NG))}),M:()=>M,tick:dt=>tick(dt),radioStep,BL:()=>BL,DEB:()=>DEB,toS:(x,y)=>toS(x,y)};
+window.__kp={get S(){return S;},get C(){return C;},trial:o=>{setCity(o.seed,o.dens,true);return newState(o);},mtrial:o=>{setCity(o.seed,o.dens,true);return newMissionState(o);},chk:(x,y)=>({town:inTown(x,y),blk:!!blockOf(x,y),free:navFree(Math.floor(x/NG),Math.floor(y/NG))}),M:()=>M,tick:dt=>tick(dt),radioStep,BL:()=>BL,DEB:()=>DEB,toS:(x,y)=>toS(x,y),center:(x,y,s)=>centerOn(x,y,s||clamp(cw/W*2,minS(),maxS()))};
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
 })();
 </script>
