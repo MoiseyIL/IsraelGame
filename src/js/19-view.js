@@ -36,7 +36,7 @@ function render(){
   c.save();c.translate(V.ox,V.oy);c.scale(V.s*K,V.s*K);
   c.drawImage(mapCv,0,0,MWm,MHm);
   for(const n in S.destroyed){const b=BN(+n);c.fillStyle='rgba(30,30,30,.75)';c.fillRect(b.x0,b.y0,b.x1-b.x0,b.y1-b.y0);c.strokeStyle='#111';c.lineWidth=2/(V.s*K);c.beginPath();c.moveTo(b.x0,b.y0);c.lineTo(b.x1,b.y1);c.moveTo(b.x1,b.y0);c.lineTo(b.x0,b.y1);c.stroke();}
-  drawBDmg(c);drawDebris(c,V.s*K);
+  drawFireZones(c);drawBDmg(c);drawDebris(c,V.s*K);
   for(const n in S.cleared){const b=BN(+n);c.strokeStyle='#1f6fb0';c.lineWidth=3/(V.s*K);c.strokeRect(b.x0-2,b.y0-2,b.x1-b.x0+4,b.y1-b.y0+4);}
   c.lineWidth=1.2/(V.s*K);c.strokeStyle='rgba(176,30,120,.7)';c.beginPath();for(let x=CELL;x<MWm;x+=CELL){c.moveTo(x,0);c.lineTo(x,MHm);}for(let y=CELL;y<MHm;y+=CELL){c.moveTo(0,y);c.lineTo(MWm,y);}c.stroke();
   if(S.marks.labArea){const A=S.marks.labArea;c.setLineDash([12/(V.s*K),8/(V.s*K)]);c.strokeStyle='rgba(205,125,20,.95)';c.lineWidth=3/(V.s*K);c.strokeRect(A.x+5,A.y+5,CELL-10,CELL-10);c.setLineDash([]);}

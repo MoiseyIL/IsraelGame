@@ -154,7 +154,7 @@ function tick(dt){
       if(e.leader&&e.mode==='move')say(ya,t,[ptChip(e)],{urgent:true});seeTgt(e,ya);
       if(e.leader&&e.mode==='move')e.trackedBy='ya';}}
   for(const e of alive()){if(e.leader&&e.mode==='tunnel'&&e.trackedBy==='ya'&&!e.inRep&&Math.hypot(e.x-S.uav.x,e.y-S.uav.y)<350){e.inRep=true;say(ya,(HE?(`צפע, כאן זיק. השניים שעקבתי אחריהם נכנסו למבנה ${e.bld}. לא יצאו ממנו.`):((EN?(`Cobra-6, this is Hawk. The two I was tracking went into building ${e.bld}. Nobody has come out since.`):(`Кобра-6, я Ястреб. Двое, которых вёл, вошли в здание ${e.bld}. Из здания больше не выходили.`)))),[bChip(e.bld,'hos')],{urgent:true,pid:e.bld});}}
-  pictureTick();battleSum();
+  pictureTick();fireZoneTick();battleSum();
   // squads: state reports
   for(const u of U){if(u.men<=0&&u.wounded<=0)continue;
     if(u.cont.length&&u.men>0){u.lastCont=u.cont.slice();

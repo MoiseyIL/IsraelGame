@@ -67,3 +67,19 @@ function openTgtSheet(no){const T=S.tg;const id=Object.keys(T.by).find(k=>T.by[k
 // "in cover ..." goes into the report the team sends in the same second; on its own it is not worth air time
 function coverNote(u){const q=S.radio.q;for(let i=q.length-1;i>=0;i--){const m=q[i];if(m.uid===u.id&&m.qt===S.t){m.text=m.text.replace(/\s*(Ведём бой!|Отвечаем\.|Работаем!|Engaging!|Returning fire\.|בקרב!|משיבים אש\.|פועלים!)?\s*$/,s=>' '+u.coverTxt+(s.trim()?' '+s.trim():''));u.coverTxt=null;return;}}
   u.coverTxt=null;} // mid-fight: the fight is already reported, moving to cover is not news
+// ---- fire zones: where our teams are exchanging fire, so it is clear where not to walk in ----
+// A zone is the corridor between the team and the enemy position as our side knows it, plus a patch around that position.
+// Bright while the fight goes on, fades out over 90 s after the shooting stops.
+const FZ_FADE=90;
+function fireZoneTick(){const Z=(S.fz=S.fz||{});const T=S.tg&&S.tg.by;
+  for(const u of infs()){if(u.men<=0||!u.cont.length)continue;const up=u.inB?BN(u.inB):null;
+    for(const id of u.cont){const r=T&&T[id],e=E_(id);if(!e)continue;let ex,ey;
+      if(r&&r.ls!=null){if(r.bld){const b=BN(r.bld);ex=b.cx;ey=b.cy;}else{ex=r.lx;ey=r.ly;}}else{ex=e.x;ey=e.y;}
+      Z[u.id+'|'+id]={ux:up?up.cx:u.x,uy:up?up.cy:u.y,ex,ey,t:S.t};}}
+  for(const k in Z)if(S.t-Z[k].t>FZ_FADE)delete Z[k];}
+function drawFireZones(c){const Z=S.fz;if(!Z)return;c.save();c.lineCap='round';
+  for(const k in Z){const z=Z[k],a=clamp(1-(S.t-z.t)/FZ_FADE,0,1);if(a<=0)continue;
+    c.strokeStyle=`rgba(200,35,25,${.16*a})`;c.lineWidth=46;c.beginPath();c.moveTo(z.ux,z.uy);c.lineTo(z.ex,z.ey);c.stroke();
+    c.fillStyle=`rgba(200,35,25,${.14*a})`;c.beginPath();c.arc(z.ex,z.ey,60,0,7);c.fill();
+    c.strokeStyle=`rgba(170,25,20,${.55*a})`;c.lineWidth=2.5;c.setLineDash([9,7]);c.beginPath();c.arc(z.ex,z.ey,60,0,7);c.stroke();c.setLineDash([]);}
+  c.restore();}
