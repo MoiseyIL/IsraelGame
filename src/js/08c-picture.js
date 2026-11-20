@@ -18,7 +18,7 @@ function tgDanger(e){let best=null;for(const u of infs()){if(u.men<=0)continue;c
 // someone of ours sees the group now
 function seeTgt(e,ob,o){o=o||{};const r=tgRec(e);const isNew=r.ls==null||r.hide;
   if(e.mv&&e.tx!=null){r.dx=e.tx-e.x;r.dy=e.ty-e.y;}else{r.dx=0;r.dy=0;}
-  r.lx=e.x;r.ly=e.y;r.bld=(e.bld&&(!outside(e)||e.roof))?e.bld:0;r.roof=!!e.roof;r.men=e.men;r.mv=!!e.mv;r.ls=S.t;r.by=ob.call;r.army=e.kind==='army';r.hide=false;r.dead=0;
+  r.lx=e.x;r.ly=e.y;r.bld=(e.bld&&(!outside(e)||e.roof))?e.bld:0;r.roof=!!e.roof;r.men=e.men;r.mv=!!e.mv;r.ls=S.t;r.by=ob.call;r.army=e.kind==='army';r.uni=r.army?uniOf(e):'';r.hide=false;r.dead=0;
   r.act=e.roof?T3('наблюдают с крыши','מתצפתים מהגג','watching from a roof'):e.mv?T3(`идут на ${tgDir(r)}`,`נעים ${tgDir(r)}`,`moving ${tgDir(r)}`):r.bld?T3('в здании','במבנה','inside a building'):T3('стоят','עומדים','standing');
   if(isNew){r.first=S.t;r.warned=false;jrAdd({t:S.t,from:T3('Карта','מפה','Map'),text:T3(`Цель ${r.no}: ${cnt(e.men)}, ${tgWhere(r)} (видит ${ob.call}).`,`מטרה ${r.no}: ${cnt(e.men)}, ${tgWhere(r)} (רואה: ${ob.call}).`,`Target ${r.no}: ${cnt(e.men)}, ${tgWhere(r)} (seen by ${ob.call}).`),eid:e.id});}
   if(!o.quiet&&!o.contact&&!r.warned){const dg=tgDanger(e);if(dg){r.warned=true;tgSay(e,r,ob,dg,isNew);}}
@@ -57,7 +57,7 @@ function openTgtSheet(no){const T=S.tg;const id=Object.keys(T.by).find(k=>T.by[k
   const fight=infs().filter(u=>u.men>0&&u.cont.includes(id)).map(u=>u.call);
   const lines=[T3(`Состояние: ${st}.`,`מצב: ${st}.`,`Status: ${st}.`),
     T3(`Численность: ${cnt(r.men)}. Где: ${tgWhere(r)}. Действия: ${r.act}.`,`גודל: ${cnt(r.men)}. איפה: ${tgWhere(r)}. פעילות: ${r.act}.`,`Size: ${cnt(r.men)}. Where: ${tgWhere(r)}. Activity: ${r.act}.`),
-    T3(`Принадлежность: ${r.army?'в форме армии России':'без формы, вооружены'}.`,`זיהוי: ${r.army?'במדי צבא רוסיה':'ללא מדים, חמושים'}.`,`Unit: ${r.army?'Russian Army uniform':'no uniforms, armed'}.`),
+    T3(`Принадлежность: ${r.army?(r.uni||L2(NAT_S().uni)):'без формы, вооружены'}.`,`זיהוי: ${r.army?(r.uni||L2(NAT_S().uni)):'ללא מדים, חמושים'}.`,`Unit: ${r.army?(r.uni||L2(NAT_S().uni)):'no uniforms, armed'}.`),
     T3(`Впервые: ${fmt(r.first)}. Последним видел: ${r.by}, ${fmt(r.ls)}.`,`לראשונה: ${fmt(r.first)}. ראה אחרון: ${r.by}, ${fmt(r.ls)}.`,`First seen ${fmt(r.first)}. Last seen by ${r.by} at ${fmt(r.ls)}.`)];
   if(fight.length)lines.push(T3(`Ведут бой: ${fight.join(', ')}.`,`בקרב איתה: ${fight.join(', ')}.`,`Engaged by: ${fight.join(', ')}.`));
   const btns=[];if(!r.dead&&!r.bld&&U_('ya'))btns.push({t:T3('Ястреб: осмотреть','זיק: לסרוק','Hawk: scan'),d:T3('район вокруг цели','האזור סביב המטרה','the area around it'),on:()=>hq(T3(`Ястреб, я Кобра-6. Просканировать район: квадрат ${cell(r.lx,r.ly)}, цель ${r.no}. Приём.`,`זיק, כאן צפע. סרוק את האזור: משבצת ${cell(r.lx,r.ly)}, מטרה ${r.no}. עבור.`,`Hawk, this is Cobra-6. Scan the area: grid ${cell(r.lx,r.ly)}, target ${r.no}. Over.`),{k:'scan',x:r.lx,y:r.ly})});
