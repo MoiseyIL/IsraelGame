@@ -1,7 +1,7 @@
 /* ---------- pointer ---------- */
 const ptrs=new Map();let gest=null;
 function pos(e){const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};}
-function hitMark(x,y){for(const u of [...S.units].reverse()){const m=S.marks.own[u.id];const [sx,sy]=toS(m.x,m.y);if(Math.abs(sx-x)<20&&Math.abs(sy-y)<16)return{kind:'own',id:u.id,drag:(u.type==='inf')&&!UI.target};}
+function hitMark(x,y){for(const u of [...S.units].reverse()){const m=S.marks.own[u.id];const [sx,sy]=toS(m.x,m.y);if(Math.abs(sx-x)<20&&Math.abs(sy-y)<16)return{kind:'own',id:u.id,drag:false};}
   for(const m of (S.marks.ied||[])){const [sx,sy]=toS(m.x,m.y);if(Math.hypot(sx-x,sy-y)<16)return{kind:'ied',id:m.id,drag:!UI.target};}
   {const r=hitTgt(x,y);if(r)return{kind:'tg',id:r.no,drag:false};}
   for(let i=S.marks.m.length-1;i>=0;i--){const m=S.marks.m[i];const [sx,sy]=toS(m.x,m.y);if(Math.hypot(sx-x,sy-y)<16)return{kind:'pt',id:m.id,drag:!UI.target};}return null;}

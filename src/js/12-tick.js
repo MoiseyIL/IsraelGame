@@ -56,6 +56,8 @@ function tick(dt){
       else if(u.st==='cordon'){u.st='hold';say(u,(HE?(`צפע, כאן ${u.call}. בעמדה, מבנה ${u.tb} מכותר, היציאות בתצפית.`):((EN?(`Cobra-6, this is ${u.call}. In position, building ${u.tb} cordoned off, exits under observation.`):(`Кобра-6, я ${u.call}. На позиции, здание ${u.tb} оцеплено, выходы под наблюдением.`)))),[posChip(u)],{known:'st',act:{k:'clrOrd',uid:u.id}});u.cordon=u.tb;}
       else{const r=u.st==='retreat';u.st='hold';u.cordon=0;say(u,(HE?(`צפע, כאן ${u.call}. ${r?'נסוגונו':'במקום'}: ${placeTxt(u.x,u.y)}. תפסנו עמדה.`):((EN?(`Cobra-6, this is ${u.call}. ${r?'Withdrew':'In place'}: ${placeTxt(u.x,u.y)}. In position.`):(`Кобра-6, я ${u.call}. ${r?'Отошли':'На месте'}: ${placeTxt(u.x,u.y)}. Заняли позицию.`)))),[posChip(u)],{known:'st',act:{k:'clrOrd',uid:u.id}});}
     }}
+  // own forces are tracked digitally: their symbols move with them
+  for(const u of U)S.marks.own[u.id]={x:u.x,y:u.y};dirty=true;
   // small drones
   for(const u of U){if(!(u.droneT>0))continue;u.droneT-=dt;if(u.droneT>0)continue;const b=u.droneB;const en=alive().filter(e=>e.bld===b&&!e.mv);const k=en.reduce((s,e)=>s+e.men,0),civ=S.civ[b],n=k+civ;let awake=en.some(e=>e.alert),lost=false,heard=false;const parts=[],ch=[];let ko=null,pid=0;
     if(!awake&&en.length&&Math.random()<.15){en.forEach(e=>e.alert=true);awake=true;heard=true;}
@@ -144,7 +146,7 @@ function tick(dt){
     if(u.veh&&dist<12){d.seen[u.id]=1;if(Math.random()<.4){d.gone=true;raiseAlarm();u.veh=false;S.car=null;S.marks.car=null;const k=2+(Math.random()<.5?1:0);for(let i=0;i<k&&u.men>0;i++)casualty(u);u.st='hold';u.tx=u.x;u.ty=u.y;delete S.marks.ord[u.id];say(u,(HE?(`צפע, כאן ${u.call}!! הרכב עלה על מטען, ${placeTxt(u.x,u.y)}! יש נפגעים! ממשיכים ברגל.`):((EN?(`Cobra-6, this is ${u.call}!! The car hit an IED, ${placeTxt(u.x,u.y)}! We have casualties! Continuing on foot.`):(`Кобра-6, я ${u.call}!! Машина подорвалась на СВУ, ${placeTxt(u.x,u.y)}! Есть потери! Дальше пешком.`)))),[posChip(u)],{urgent:true,known:'full'});}break;}
     if(!u.veh&&dist<10){d.seen[u.id]=1;if(Math.random()<(u.pace==='fast'?.3:.75)){d.gone=true;say(u,(HE?(`צפע, כאן ${u.call}. מטען ברחוב, ${placeTxt(d.x,d.y)}. עוקפים.`):((EN?(`Cobra-6, this is ${u.call}. Explosive device in the street, ${placeTxt(d.x,d.y)}. Going around.`):(`Кобра-6, я ${u.call}. На улице взрывное устройство, ${placeTxt(d.x,d.y)}. Обходим.`)))),[{k:'ied',x:d.x,y:d.y,label:(HE?('מטען: '):((EN?("IED: "):('СВУ: '))))+cell(d.x,d.y)}],{known:'st'});}else if(Math.random()<.5){d.gone=true;raiseAlarm();casualty(u);say(u,(HE?(`צפע, כאן ${u.call}! עלינו על מטען, ${placeTxt(u.x,u.y)}! יש פצוע!`):((EN?(`Cobra-6, this is ${u.call}! IED explosion, ${placeTxt(u.x,u.y)}! One wounded!`):(`Кобра-6, я ${u.call}! Подрыв на СВУ, ${placeTxt(u.x,u.y)}! Есть раненый!`)))),[],{urgent:true,known:'st'});}break;}}}
   // UAV
-  stepTo(S.uav,S.uav.tx,S.uav.ty,25*dt);S.marks.own.ya={x:S.uav.tx,y:S.uav.ty};uavScanTick(dt);
+  stepTo(S.uav,S.uav.tx,S.uav.ty,25*dt);S.marks.own.ya={x:S.uav.x,y:S.uav.y};uavScanTick(dt);
   const ya=U_('ya');ya.seen=ya.seen||{};
   for(const e of alive()){if(!outside(e))continue;const d=Math.hypot(e.x-S.uav.x,e.y-S.uav.y);if(d>320)continue;const p=(e.roof?.012:e.mv?.08:.04)*dt;
     if(!e.leader){const r=S.tg&&S.tg.by[e.id];if(r&&r.ls!=null&&!r.hide&&!r.dead)continue;}const key=e.id+(e.mode==='move'?'m':'');if(ya.seen[key]&&S.t-ya.seen[key]<900)continue;
