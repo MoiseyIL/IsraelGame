@@ -21,7 +21,8 @@ function seeTgt(e,ob,o){o=o||{};const r=tgRec(e);const isNew=r.ls==null||r.hide;
   r.lx=e.x;r.ly=e.y;r.bld=(e.bld&&(!outside(e)||e.roof))?e.bld:0;r.roof=!!e.roof;r.men=e.men;r.mv=!!e.mv;r.ls=S.t;r.by=ob.call;r.army=e.kind==='army';r.uni=r.army?uniOf(e):'';r.hide=false;r.dead=0;
   r.act=e.veh?T3('едут на машинах','נוסעים ברכבים','riding vehicles'):e.roof?T3('наблюдают с крыши','מתצפתים מהגג','watching from a roof'):e.mv?T3(`идут на ${tgDir(r)}`,`נעים ${tgDir(r)}`,`moving ${tgDir(r)}`):r.bld?T3('в здании','במבנה','inside a building'):T3('стоят','עומדים','standing');
   if(isNew){r.first=S.t;r.warned=false;jrAdd({t:S.t,from:T3('Карта','מפה','Map'),text:T3(`Цель ${r.no}: ${cnt(e.men)}, ${tgWhere(r)} (видит ${ob.call}).`,`מטרה ${r.no}: ${cnt(e.men)}, ${tgWhere(r)} (רואה: ${ob.call}).`,`Target ${r.no}: ${cnt(e.men)}, ${tgWhere(r)} (seen by ${ob.call}).`),eid:e.id});}
-  if(!o.quiet&&!o.contact&&!r.warned){const dg=tgDanger(e);if(dg){r.warned=true;tgSay(e,r,ob,dg,isNew);}}
+  const named=r.t!=null&&r.t>-1e8,fought=infs().some(u=>u.men>0&&u.cont.includes(e.id));
+  if(!o.quiet&&!o.contact&&!r.warned&&!fought&&!(named&&S.t-r.t<180)){const dg=tgDanger(e);if(dg){r.warned=true;tgSay(e,r,ob,dg,!named);}}
   dirty=true;return isNew;}
 function tgSay(e,r,ob,dg,isNew){const mv=r.mv?T3(`, идут на ${tgDir(r)}`,`, נעים ${tgDir(r)}`,`, moving ${tgDir(r)}`):'';
   const why=dg.obj?T3(`, у объекта`,`, ליד היעד`,`, near the objective`):dg.u&&dg.u!==ob?T3(`; ближе всех ${dg.u.call}, ${Math.round(dg.d/10)*10} м`,`; הכי קרוב: ${dg.u.call}, ${Math.round(dg.d/10)*10} מ׳`,`; nearest is ${dg.u.call}, ${Math.round(dg.d/10)*10} m`):dg.u?T3(`, ${Math.round(dg.d/10)*10} м от нас`,`, ${Math.round(dg.d/10)*10} מ׳ מאיתנו`,`, ${Math.round(dg.d/10)*10} m from us`):'';

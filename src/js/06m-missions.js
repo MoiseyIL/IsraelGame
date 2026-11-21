@@ -164,7 +164,7 @@ function ourPlantTick(dt){const O=S.obj;for(const u of infs()){if(u.afterMove&&u
     if(Math.hypot(u.x-O.x,u.y-O.y)>40){u.st='hold';continue;}
     if(u.cont.length||alive().some(e=>e.kind==='army'&&Math.hypot(e.x-O.x,e.y-O.y)<HOLD_R)){continue;}
     u.prog=(u.prog||0)+dt;if(u.prog<(u.sap?PLANT_SAP:PLANT_T))continue;u.prog=0;
-    if(u.st==='plant'&&!S.charge.us){S.charge.us={tDet:S.t+DET_T,uid:u.id};u.st='hold';say(u,T3(`Кобра-6, я ${u.call}. Заряд установлен. Подрыв в ${fmt(S.t+DET_T)}. Держим объект. Приём.`,`צפע, כאן ${u.call}. המטען הוצב. פיצוץ ב-${fmt(S.t+DET_T)}. מחזיקים ביעד. עבור.`,`Cobra-6, this is ${u.call}. Charge planted. Detonation at ${fmt(S.t+DET_T)}. Holding the objective. Over.`),[],{urgent:true,known:'st'});}
+    if(u.st==='plant'&&!S.charge.us){S.charge.us={tDet:S.t+DET_T,uid:u.id};u.st='hold';u.resume=null;u.autoAs=false;u.threats=[];u.tb=0;u.afterMove=null;say(u,T3(`Кобра-6, я ${u.call}. Заряд установлен. Подрыв в ${fmt(S.t+DET_T)}. Держим объект. Приём.`,`צפע, כאן ${u.call}. המטען הוצב. פיצוץ ב-${fmt(S.t+DET_T)}. מחזיקים ביעד. עבור.`,`Cobra-6, this is ${u.call}. Charge planted. Detonation at ${fmt(S.t+DET_T)}. Holding the objective. Over.`),[],{urgent:true,known:'st'});}
     else if(u.st==='defuse'&&S.charge.them){S.charge.them=null;u.st='hold';say(u,T3(`Кобра-6, я ${u.call}. Заряд противника обезврежен. Приём.`,`צפע, כאן ${u.call}. מטען האויב נוטרל. עבור.`,`Cobra-6, this is ${u.call}. Enemy charge defused. Over.`),[],{urgent:true,known:'st'});}else u.st='hold';}}
 function missionTick(dt){if(S.t>=S.aiT){S.aiT=S.t+8;armyCommand();}armyTick(dt);ourPlantTick(dt);
   if(S.charge.us&&S.t>=S.charge.us.tDet){S.mres='win';endGame('mwin');return;}

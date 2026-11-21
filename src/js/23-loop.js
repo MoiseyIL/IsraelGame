@@ -27,5 +27,5 @@ async function start(data){
   if(S.truth)$('#truthPill').hidden=false;
   resize();dirty=true;requestAnimationFrame(frame);}
 window.claude?.hot?.snapshot?.(()=>({S}));
-window.__kp={get S(){return S;},get C(){return C;},trial:o=>{setCity(o.seed,o.dens,true);return newState(o);},mtrial:o=>{setCity(o.seed,o.dens,true);return newMissionState(o);},chk:(x,y)=>({town:inTown(x,y),blk:!!blockOf(x,y),free:navFree(Math.floor(x/NG),Math.floor(y/NG))}),M:()=>M,tick:dt=>tick(dt),radioStep,BL:()=>BL,DEB:()=>DEB,toS:(x,y)=>toS(x,y),center:(x,y,s)=>centerOn(x,y,s||clamp(cw/W*2,minS(),maxS()))};
+window.__kp={get S(){return S;},get C(){return C;},trial:o=>{setCity(o.seed,o.dens,true);return newState(o);},mtrial:o=>{setCity(o.seed,o.dens,true);return newMissionState(o);},chk:(x,y)=>({town:inTown(x,y),blk:!!blockOf(x,y),free:navFree(Math.floor(x/NG),Math.floor(y/NG))}),M:()=>M,tick:dt=>tick(dt),radioStep,BL:()=>BL,DEB:()=>DEB,toS:(x,y)=>toS(x,y),center:(x,y,s)=>centerOn(x,y,s||clamp(cw/W*2,minS(),maxS())),say:(u,t,o)=>say(u,t,[],o||{})};
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});

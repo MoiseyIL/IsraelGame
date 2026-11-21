@@ -13,10 +13,12 @@ function say(u,text,chips,o){o=o||{};chips=(chips||[]).filter(c=>c.k!=='pos'&&!(
   if(o.known&&u.id&&!u.men&&u.type==='inf'){const uu=U_(u.id);if(uu)u=uu;}if(S.mission)text=text.replace(/боевиков/g,'солдат противника').replace(/מחבלים/g,'חיילי אויב').replace(/מחבל/g,'חייל אויב');const m={from:u.call,uid:u.id||null,eid:o.eid||'',qt:S.t,text,note:o.note||'',chips:chips||[],urgent:!!o.urgent,act:o.act||null,kobj:o.kobj||null,pid:o.pid||0,ek:o.ek||0,det:o.det||0};
   if(o.known&&u.type==='inf')m.known=o.known==='full'?{men:u.men,wounded:u.wounded,ammo:Math.round(u.ammo/10)*10,st:stLabel(u),full:true}:{st:stLabel(u)};
   if(S.radio.q.some(x=>x.uid&&x.uid===m.uid&&x.text===m.text))return; // the same message already waiting
-  m.front=!!o.front;m.pr=o.pr!=null?o.pr:m.urgent?0:o.front?1:o.noSpot?2:3;qPut(m);}
+  m.front=!!o.front;m.pr=o.pr!=null?o.pr:o.front?-1:m.urgent?0:o.noSpot?2:3; /* an answer to the commander's call comes at once */qPut(m);}
 // higher precedence goes first, the same precedence in order of arrival
-const prOf=x=>x.pr!=null?x.pr:x.urgent?0:(x.front||x.out)?1:3;
-function qPut(m){const q=S.radio.q,p=prOf(m),i=q.findIndex(x=>prOf(x)>p);if(i<0)q.push(m);else q.splice(i,0,m);}
+const prOf=x=>x.pr!=null?x.pr:x.front?-1:x.urgent?0:x.out?1:3;
+// a team's own messages keep their order (a later urgent one never overtakes an earlier one of the same team)
+function qPut(m){const q=S.radio.q,p=prOf(m);let i=q.findIndex(x=>prOf(x)>p);if(i<0)i=q.length;
+  if(m.uid){let last=-1;q.forEach((x,k)=>{if(x.uid===m.uid)last=k;});if(i<=last)i=last+1;}q.splice(i,0,m);}
 // the commander's own transmissions go ahead of routine reports already waiting (urgent ones still come first)
 function hq(text,act){qPut({from:(HE?('צפע'):((EN?("Cobra-6"):('Кобра-6')))),out:true,text,act,chips:[],pr:1});}
 function posChip(u){return{k:'pos',uid:u.id,x:u.x,y:u.y,label:(HE?(`${u.sh} ← ${cell(u.x,u.y)}${(bldAt(u.x,u.y,45)?' · מבנה '+bldAt(u.x,u.y,45).n:'')}`):((EN?(`${u.sh} → ${cell(u.x,u.y)}${(bldAt(u.x,u.y,45)?' · bldg '+bldAt(u.x,u.y,45).n:'')}`):(`${u.sh} → ${cell(u.x,u.y)}${(bldAt(u.x,u.y,45)?' · зд. '+bldAt(u.x,u.y,45).n:'')}`))))};}
