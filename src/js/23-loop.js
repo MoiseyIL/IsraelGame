@@ -5,6 +5,7 @@ function frame(now){const rdt=Math.min(.1,(now-last)/1000);last=now;
   if(S.started&&!S.over&&S.speed>0){S.acc+=rdt*RATE*S.speed;let n=0;while(S.acc>=1&&n<240&&!S.over){tick(1);S.acc-=1;n++;}}
   if($('#brief').hidden&&$('#camp').hidden)radioStep(rdt); // the radio waits while the order or the HQ screen is open
   if(now-lastSave>10000){lastSave=now;saveGame();}
+  if(S.started&&!S.over&&S.speed>0)dbLog(false);
   if(S.alarm&&!S.alarmKnown&&S.log.some(m=>m.urgent)){S.alarmKnown=true;updObj();}
   const sec=Math.floor(S.t/15);if(sec!==lastSec){lastSec=sec;$('#clock').textContent=fmt(S.t);updUnits();dirty=true;}
   render();requestAnimationFrame(frame);}
@@ -12,7 +13,7 @@ const SAVE_KEY=(HE?('reshet-save-he'):EN?'reshet-save-en':('reshet-save-ru'));le
 function saveGame(){if(!S||!S.started||S.over)return;try{localStorage.setItem(SAVE_KEY,JSON.stringify({v:1,at:Date.now(),S}));}catch(e){}}
 function loadGame(){try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(d&&d.S&&d.S.started&&!d.S.over)return d.S;}catch(e){}return null;}
 function clearSave(){try{localStorage.removeItem(SAVE_KEY);}catch(e){}}
-document.addEventListener('visibilitychange',()=>{if(document.hidden)saveGame();});window.addEventListener('pagehide',saveGame);
+document.addEventListener('visibilitychange',()=>{if(document.hidden){saveGame();dbLog(true);}});window.addEventListener('pagehide',()=>{saveGame();dbLog(true);});
 async function start(data){
   C=loadCamp()||newCamp();saveCamp();TR=loadTR();MS=loadMS();try{const md=localStorage.getItem(MODE_KEY);MODE=['train','mission'].includes(md)?md:'camp';}catch(e){}
   let saved=(data&&data.S)?null:loadGame();if(saved&&saved.train&&!(saved.city&&saved.city.g===3)){clearSave();saved=null;}const S0=(data&&data.S)||saved;if(S0)MODE=S0.mission?'mission':S0.train?'train':'camp';

@@ -26,7 +26,7 @@ function jrText(){const L=[];const mode=S.mission?T3('Миссия','משימה'
   for(const u of infs())L.push(`${u.call}: ${cell(u.x,u.y)} (${Math.round(u.x)},${Math.round(u.y)}) ${u.st} ${u.men}/${u.wounded} ${T3('БК','תחמ׳','ammo')} ${Math.round(u.ammo)}%${u.inB?' bld '+u.inB:''}`);
   for(const e of S.enemies){const no=S.tg&&S.tg.by[e.id]?' #'+S.tg.by[e.id].no:'';L.push(`{${e.id}}${no} ${e.kind}${e.rt?'/'+e.rt:''} ${e.gone||e.men<=0?'×':''}${e.men}/${e.max||''} ${cell(e.x,e.y)} (${Math.round(e.x)},${Math.round(e.y)}) ${e.mode||''}${e.bld?' bld '+e.bld:''}${e.roof?' roof':''}`);}
   return L.join('\n');}
-function openJournal(){const was=S.speed;if(S.started&&!S.over){S.speed=0;setSpeedUI();}
+function openJournal(){dbLog(true);const was=S.speed;if(S.started&&!S.over){S.speed=0;setSpeedUI();}
   let el=$('#jr');if(!el){el=document.createElement('div');el.id='jr';el.className='ov';document.body.appendChild(el);}
   el.innerHTML=`<div class="doc jrdoc"><h1>${T3('Журнал боя','יומן קרב','Battle journal')}</h1><p class="meta">${T3('Все сообщения операции по порядку. Внизу — служебные данные: где на самом деле были все группы. Сохраните или скопируйте и пришлите для разбора.','כל ההודעות של המבצע לפי הסדר. למטה — נתונים טכניים: איפה באמת היו כל החוליות. שמרו או העתיקו ושלחו לניתוח.','Every message of the operation in order. At the bottom is service data: where every group really was. Save or copy it and send it for analysis.')}</p>
     <textarea id="jrT" readonly spellcheck="false"></textarea><div class="jrb"><button class="go" id="jrCopy">${T3('Скопировать','להעתיק','Copy')}</button><button class="go alt" id="jrSave">${T3('Сохранить файл','לשמור קובץ','Save file')}</button><button class="go alt" id="jrClose">${T3('Закрыть','לסגור','Close')}</button></div><p class="meta" id="jrMsg"></p></div>`;
@@ -57,3 +57,14 @@ function battleSum(){const U=infs().filter(u=>u.inFight&&u.men>0);if(!U.length){
   const k=(S.kek||0)-S.sum0.k,c=S.stats.kia+S.stats.wia-S.sum0.c;S.sumT=S.t;S.sum0={k:S.kek||0,c:S.stats.kia+S.stats.wia};
   const m={from:T3('Штаб роты','מפקדת הפלוגה','Company HQ'),uid:null,text:T3(`Сводка ${fmt(S.t)}. Бой: ${list||'цели не уточнены'}. За 5 минут: противник — ${k} нейтрализовано, у нас — ${c} потерь.`,`סיכום ${fmt(S.t)}. קרב: ${list||'המטרות לא מוגדרות'}. ב־5 הדקות האחרונות: אויב — ${k} נוטרלו, אצלנו — ${c} נפגעים.`,`Summary ${fmt(S.t)}. In action: ${list||'targets not identified'}. Last 5 minutes: enemy — ${k} neutralized, ours — ${c} casualties.`),note:'',chips:[],t:S.t};
   deliver(m);}
+
+// ---- claude.ai only: the journal of the current battle is kept in the artifact's database, one document overwritten
+// each time (a new battle replaces the old one), so it can be read for analysis without copying. Elsewhere: nothing.
+let DBP=null,dbLast=0;
+function dbLog(force){if(!window.claude||!window.claude.use||!S||!S.started)return;const now=performance.now();if(!force&&now-dbLast<60000)return;dbLast=now;
+  if(!DBP)DBP=window.claude.use('db').catch(()=>null);
+  DBP.then(db=>{if(!db)return;let t=jrText();
+    // a document holds 256 KiB: keep the head, the service data and as many of the newest messages as fit
+    if(t.length>100000){const L=t.split('\n'),cut=L.findIndex(x=>x.startsWith('--- '));const head=L.slice(0,3),tail=cut>0?L.slice(cut-1):[],body=L.slice(3,cut>0?cut-1:L.length);
+      let keep=[],n=0;for(let i=body.length-1;i>=0&&n<90000;i--){keep.unshift(body[i]);n+=body[i].length+1;}t=[...head,`… (${body.length-keep.length})`,...keep,...tail].join('\n');}
+    return db.doc('battlelog/current').set({lang:window.GAME_LANG||'',mode:S.mission?'mission':S.train?'train':'camp',code:S.city&&S.city.seed,t:fmt(S.t),over:!!S.over,result:S.result||'',saved:new Date().toISOString(),text:t});}).catch(()=>{});}

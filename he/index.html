@@ -1501,7 +1501,7 @@ function jrText(){const L=[];const mode=S.mission?T3('Миссия','משימה'
   for(const u of infs())L.push(`${u.call}: ${cell(u.x,u.y)} (${Math.round(u.x)},${Math.round(u.y)}) ${u.st} ${u.men}/${u.wounded} ${T3('БК','תחמ׳','ammo')} ${Math.round(u.ammo)}%${u.inB?' bld '+u.inB:''}`);
   for(const e of S.enemies){const no=S.tg&&S.tg.by[e.id]?' #'+S.tg.by[e.id].no:'';L.push(`{${e.id}}${no} ${e.kind}${e.rt?'/'+e.rt:''} ${e.gone||e.men<=0?'×':''}${e.men}/${e.max||''} ${cell(e.x,e.y)} (${Math.round(e.x)},${Math.round(e.y)}) ${e.mode||''}${e.bld?' bld '+e.bld:''}${e.roof?' roof':''}`);}
   return L.join('\n');}
-function openJournal(){const was=S.speed;if(S.started&&!S.over){S.speed=0;setSpeedUI();}
+function openJournal(){dbLog(true);const was=S.speed;if(S.started&&!S.over){S.speed=0;setSpeedUI();}
   let el=$('#jr');if(!el){el=document.createElement('div');el.id='jr';el.className='ov';document.body.appendChild(el);}
   el.innerHTML=`<div class="doc jrdoc"><h1>${T3('Журнал боя','יומן קרב','Battle journal')}</h1><p class="meta">${T3('Все сообщения операции по порядку. Внизу — служебные данные: где на самом деле были все группы. Сохраните или скопируйте и пришлите для разбора.','כל ההודעות של המבצע לפי הסדר. למטה — נתונים טכניים: איפה באמת היו כל החוליות. שמרו או העתיקו ושלחו לניתוח.','Every message of the operation in order. At the bottom is service data: where every group really was. Save or copy it and send it for analysis.')}</p>
     <textarea id="jrT" readonly spellcheck="false"></textarea><div class="jrb"><button class="go" id="jrCopy">${T3('Скопировать','להעתיק','Copy')}</button><button class="go alt" id="jrSave">${T3('Сохранить файл','לשמור קובץ','Save file')}</button><button class="go alt" id="jrClose">${T3('Закрыть','לסגור','Close')}</button></div><p class="meta" id="jrMsg"></p></div>`;
@@ -1532,6 +1532,17 @@ function battleSum(){const U=infs().filter(u=>u.inFight&&u.men>0);if(!U.length){
   const k=(S.kek||0)-S.sum0.k,c=S.stats.kia+S.stats.wia-S.sum0.c;S.sumT=S.t;S.sum0={k:S.kek||0,c:S.stats.kia+S.stats.wia};
   const m={from:T3('Штаб роты','מפקדת הפלוגה','Company HQ'),uid:null,text:T3(`Сводка ${fmt(S.t)}. Бой: ${list||'цели не уточнены'}. За 5 минут: противник — ${k} нейтрализовано, у нас — ${c} потерь.`,`סיכום ${fmt(S.t)}. קרב: ${list||'המטרות לא מוגדרות'}. ב־5 הדקות האחרונות: אויב — ${k} נוטרלו, אצלנו — ${c} נפגעים.`,`Summary ${fmt(S.t)}. In action: ${list||'targets not identified'}. Last 5 minutes: enemy — ${k} neutralized, ours — ${c} casualties.`),note:'',chips:[],t:S.t};
   deliver(m);}
+
+// ---- claude.ai only: the journal of the current battle is kept in the artifact's database, one document overwritten
+// each time (a new battle replaces the old one), so it can be read for analysis without copying. Elsewhere: nothing.
+let DBP=null,dbLast=0;
+function dbLog(force){if(!window.claude||!window.claude.use||!S||!S.started)return;const now=performance.now();if(!force&&now-dbLast<60000)return;dbLast=now;
+  if(!DBP)DBP=window.claude.use('db').catch(()=>null);
+  DBP.then(db=>{if(!db)return;let t=jrText();
+    // a document holds 256 KiB: keep the head, the service data and as many of the newest messages as fit
+    if(t.length>100000){const L=t.split('\n'),cut=L.findIndex(x=>x.startsWith('--- '));const head=L.slice(0,3),tail=cut>0?L.slice(cut-1):[],body=L.slice(3,cut>0?cut-1:L.length);
+      let keep=[],n=0;for(let i=body.length-1;i>=0&&n<90000;i--){keep.unshift(body[i]);n+=body[i].length+1;}t=[...head,`… (${body.length-keep.length})`,...keep,...tail].join('\n');}
+    return db.doc('battlelog/current').set({lang:window.GAME_LANG||'',mode:S.mission?'mission':S.train?'train':'camp',code:S.city&&S.city.seed,t:fmt(S.t),over:!!S.over,result:S.result||'',saved:new Date().toISOString(),text:t});}).catch(()=>{});}
 /* ---------- the picture: every enemy group our side has seen, kept on the map by itself ---------- */
 // One group = one target card. A card is updated by whoever sees the group (teams, the UAV, a firefight); nobody has
 // to tap anything. Only what changes decisions goes on the air: a new target close to our teams or the objective,
@@ -2260,7 +2271,7 @@ function endGame(why){if(S.over)return;if(S.mission){missionEnd(why);return;}S.o
   S.result=!ok?(HE?('המשימה לא בוצעה'):((EN?("Mission failed"):('Задача не выполнена')))):S.civHarm?(HE?('המטרה נוטרלה, אבל נפגעו אזרחים'):((EN?("Target neutralized, civilians harmed"):('Цель нейтрализована, есть пострадавшие среди мирных')))):S.lab!=='destroyed'?(HE?('המשימה בוצעה חלקית: המעבדה שלמה'):((EN?("Mission partly complete: the workshop is intact"):('Задача выполнена частично: мастерская цела')))):S.leader==='captured'?(HE?('המשימה בוצעה בהצטיינות: «המהנדס» נעצר'):((EN?("Mission accomplished with distinction: \"the Engineer\" detained"):('Задача выполнена образцово: «Инженер» задержан')))):(HE?('המשימה בוצעה'):((EN?("Mission accomplished"):('Задача выполнена'))));
   if(resonance()>=7)S.result+=(HE?(' · סערה בינלאומית'):((EN?(" · international scandal"):(' · международный скандал'))));else if(resonance()>=3)S.result+=(HE?(' · ביקורת בתקשורת'):((EN?(" · media criticism"):(' · критика в СМИ'))));
   campAfter();showDebrief();}
-function showDebrief(){if(S.mission){missionDebrief();return;}
+function showDebrief(){dbLog(true);if(S.mission){missionDebrief();return;}
   const U=infs();
   const left=U.reduce((s,u)=>s+u.wounded,0);
   $('#dMeta').textContent=(HE?(`${fmt(S.t)} · ${S.endWhy==='wiped'?'הצוותים איבדו כשירות':S.endWhy==='done'?'המשימות בוצעו, יציאה':S.endWhy==='manual'?'המבצע הסתיים בהחלטת המפקד':'06:30, פקודת יציאה'}`):((EN?(`${fmt(S.t)} · ${S.endWhy==='wiped'?'teams combat ineffective':S.endWhy==='done'?'objectives complete, withdrawal':S.endWhy==='manual'?'operation ended by the commander':'06:30, withdrawal ordered'}`):(`${fmt(S.t)} · ${S.endWhy==='wiped'?'отделения потеряли боеспособность':S.endWhy==='done'?'задачи выполнены, отход':S.endWhy==='manual'?'операция завершена по решению командира':'06:30, приказ на отход'}`))));
@@ -2578,6 +2589,7 @@ function frame(now){const rdt=Math.min(.1,(now-last)/1000);last=now;
   if(S.started&&!S.over&&S.speed>0){S.acc+=rdt*RATE*S.speed;let n=0;while(S.acc>=1&&n<240&&!S.over){tick(1);S.acc-=1;n++;}}
   if($('#brief').hidden&&$('#camp').hidden)radioStep(rdt); // the radio waits while the order or the HQ screen is open
   if(now-lastSave>10000){lastSave=now;saveGame();}
+  if(S.started&&!S.over&&S.speed>0)dbLog(false);
   if(S.alarm&&!S.alarmKnown&&S.log.some(m=>m.urgent)){S.alarmKnown=true;updObj();}
   const sec=Math.floor(S.t/15);if(sec!==lastSec){lastSec=sec;$('#clock').textContent=fmt(S.t);updUnits();dirty=true;}
   render();requestAnimationFrame(frame);}
@@ -2585,7 +2597,7 @@ const SAVE_KEY=(HE?('reshet-save-he'):EN?'reshet-save-en':('reshet-save-ru'));le
 function saveGame(){if(!S||!S.started||S.over)return;try{localStorage.setItem(SAVE_KEY,JSON.stringify({v:1,at:Date.now(),S}));}catch(e){}}
 function loadGame(){try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(d&&d.S&&d.S.started&&!d.S.over)return d.S;}catch(e){}return null;}
 function clearSave(){try{localStorage.removeItem(SAVE_KEY);}catch(e){}}
-document.addEventListener('visibilitychange',()=>{if(document.hidden)saveGame();});window.addEventListener('pagehide',saveGame);
+document.addEventListener('visibilitychange',()=>{if(document.hidden){saveGame();dbLog(true);}});window.addEventListener('pagehide',()=>{saveGame();dbLog(true);});
 async function start(data){
   C=loadCamp()||newCamp();saveCamp();TR=loadTR();MS=loadMS();try{const md=localStorage.getItem(MODE_KEY);MODE=['train','mission'].includes(md)?md:'camp';}catch(e){}
   let saved=(data&&data.S)?null:loadGame();if(saved&&saved.train&&!(saved.city&&saved.city.g===3)){clearSave();saved=null;}const S0=(data&&data.S)||saved;if(S0)MODE=S0.mission?'mission':S0.train?'train':'camp';
