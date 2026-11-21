@@ -23,10 +23,10 @@ const CH={
   sso: [7,8,8,7,8,5,7], spn:[7,7,7,7,7,5,7], vdv:[10,6,3,6,7,4,4], mp:[9,5,3,5,7,4,4], msv:[9,5,3,4,5,4,4], isp:[6,5,5,5,5,4,5],
   shturm:[8,5,3,5,8,3,4], stormv:[7,3,2,5,6,2,2], bars:[7,4,3,4,4,3,3], sobr:[7,6,5,6,8,7,4], razv:[7,6,7,7,6,5,7], snip:[4,5,8,6,2,2,9],
   // South Africa (missions)
-  za_stf:[7,6,6,6,9,8,5], za_sf:[7,7,8,7,7,6,7], za_pf:[6,6,8,7,5,5,8], za_para:[9,6,3,6,7,4,4], za_inf:[8,5,3,4,5,4,4], za_eng:[6,5,5,5,5,4,5]};
+  za_stf:[7,6,6,6,9,8,5], za_sf:[7,7,8,7,7,6,7], za_pf:[6,6,8,7,5,5,8], za_para:[9,6,3,6,7,4,4], za_inf:[8,5,3,4,5,4,4], za_eng:[6,5,5,5,5,4,5], moto:[7,4,3,6,6,3,4], za_gecko:[7,6,6,6,6,4,6]};
 // special abilities: tags, not numbers; each adds a little to the final score (no more than +5)
 function chTags(t){const T=TU[t]||ENU[t]||{},a=[];
-  if(T.uc)a.push([['маскировка под местных','הסוואה כמקומיים','disguised as locals'],1]);if(T.veh)a.push([['машина','רכב','car'],1]);
+  if(T.uc)a.push([['маскировка под местных','הסוואה כמקומיים','disguised as locals'],1]);if(T.veh)a.push([T.vehN||['машина','רכב','car'],1]);
   if(T.atgm)a.push([['ракеты','טילים','missiles'],2]);if(T.optic)a.push([['оптика','אופטיקה','optics'],1]);if(T.sap)a.push([['сапёры','חבלנים','sappers'],2]);
   if(T.ask)a.push([['опрос жителей','תחקור תושבים','questioning residents'],1]);if(T.cp)a.push([['блокпост','מחסום','checkpoint'],1]);if(T.amb)a.push([['засады','מארבים','ambushes'],1]);return a;}
 function chPower(t){const c=CH[t];if(!c)return 0;const b=Math.min(5,chTags(t).reduce((s,x)=>s+x[1],0));return Math.round(10*c.reduce((s,v,i)=>s+v*CH_W[i],0))+b;}

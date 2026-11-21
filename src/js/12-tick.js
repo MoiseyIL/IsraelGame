@@ -28,7 +28,7 @@ function tick(dt){
     else{u.st='incover';u.cvK=.6;u.decT=S.t+12;u.coverTxt=T3(`${dm?'Спешились. ':''}Укрытия рядом нет, ведём бой на месте.`,`${dm?'ירדנו מהרכב. ':''}אין מחסה קרוב, נלחמים במקום.`,`${dm?'Dismounted. ':''}No cover nearby, fighting where we are.`);}}
   // combat
   for(const u of U){if(!u.cont.length||u.men<=0)continue;const sh=1/u.cont.length;
-    for(const id of u.cont){const e=E_(id),m=u.cm[id];const cov=m==='close'?.8:m==='window'?bcov(e.bld):e.roof?.6:(debCov(e.x,e.y)||.9);if(m==='window'&&!e.roof)wpnFire(u,e.bld,sh,dt,e);e.sup=Math.min(100,(e.sup||0)+u.men*sh*dt*1.8*(u.uc?1.3:1)*(1+.2*kitOf(u).mg));if(m!=='close')glFire(u,e,dt,m==='window'?e.bld:0);e.acc+=(m==='close'?.008*(u.cq||1):.0045)*(e.rk||1)*(u.uc?1.3:1)*(u.q||1)*(sk(u,'fire')?1.15:1)*(u.sup>60?.5:1)*(u.st==='incover'?.8:1)*u.men*(u.ammo>0?1:.2)*sh*cov*(m!=='close'&&kitOf(u).mk?1.12:1)*dt;
+    for(const id of u.cont){const e=E_(id),m=u.cm[id];const cov=m==='close'?.8:m==='window'?bcov(e.bld):e.roof?.6:(debCov(e.x,e.y)||.9);if(m==='window'&&!e.roof)wpnFire(u,e.bld,sh,dt,e);e.sup=Math.min(100,(e.sup||0)+u.men*sh*dt*1.8*(u.uc?1.3:1)*(1+.2*kitOf(u).mg));if(m!=='close')glFire(u,e,dt,m==='window'?e.bld:0);e.acc+=(m==='close'?.008*(u.cq||1):.0045)*(e.rk||1)*(e.veh?1.5:1)*(u.uc?1.3:1)*(u.q||1)*(sk(u,'fire')?1.15:1)*(u.sup>60?.5:1)*(u.st==='incover'?.8:1)*u.men*(u.ammo>0?1:.2)*sh*cov*(m!=='close'&&kitOf(u).mk?1.12:1)*dt;
       if(m==='close'&&S.civ[u.inB]>0&&Math.random()<.0012*S.civ[u.inB]*dt){addCivW(u.inB);u.civHit=(u.civHit||0)+1;}}
     u.ammo=Math.max(0,u.ammo-.07*dt);noise(u.x,u.y,u.loud?300:70);}
   for(const e of alive()){if(!e.cont.length||e.mode==='flee')continue;if(!e.fired){e.fired=true;enemyShot(e);}const sh=1/e.cont.length;

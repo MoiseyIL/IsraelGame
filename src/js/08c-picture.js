@@ -19,7 +19,7 @@ function tgDanger(e){let best=null;for(const u of infs()){if(u.men<=0)continue;c
 function seeTgt(e,ob,o){o=o||{};const r=tgRec(e);const isNew=r.ls==null||r.hide;
   if(e.mv&&e.tx!=null){r.dx=e.tx-e.x;r.dy=e.ty-e.y;}else{r.dx=0;r.dy=0;}
   r.lx=e.x;r.ly=e.y;r.bld=(e.bld&&(!outside(e)||e.roof))?e.bld:0;r.roof=!!e.roof;r.men=e.men;r.mv=!!e.mv;r.ls=S.t;r.by=ob.call;r.army=e.kind==='army';r.uni=r.army?uniOf(e):'';r.hide=false;r.dead=0;
-  r.act=e.roof?T3('наблюдают с крыши','מתצפתים מהגג','watching from a roof'):e.mv?T3(`идут на ${tgDir(r)}`,`נעים ${tgDir(r)}`,`moving ${tgDir(r)}`):r.bld?T3('в здании','במבנה','inside a building'):T3('стоят','עומדים','standing');
+  r.act=e.veh?T3('едут на машинах','נוסעים ברכבים','riding vehicles'):e.roof?T3('наблюдают с крыши','מתצפתים מהגג','watching from a roof'):e.mv?T3(`идут на ${tgDir(r)}`,`נעים ${tgDir(r)}`,`moving ${tgDir(r)}`):r.bld?T3('в здании','במבנה','inside a building'):T3('стоят','עומדים','standing');
   if(isNew){r.first=S.t;r.warned=false;jrAdd({t:S.t,from:T3('Карта','מפה','Map'),text:T3(`Цель ${r.no}: ${cnt(e.men)}, ${tgWhere(r)} (видит ${ob.call}).`,`מטרה ${r.no}: ${cnt(e.men)}, ${tgWhere(r)} (רואה: ${ob.call}).`,`Target ${r.no}: ${cnt(e.men)}, ${tgWhere(r)} (seen by ${ob.call}).`),eid:e.id});}
   if(!o.quiet&&!o.contact&&!r.warned){const dg=tgDanger(e);if(dg){r.warned=true;tgSay(e,r,ob,dg,isNew);}}
   dirty=true;return isNew;}

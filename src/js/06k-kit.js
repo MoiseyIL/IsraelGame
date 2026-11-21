@@ -10,9 +10,9 @@ const KIT={
   // Russia: AK-74M, PKP/PKM or RPK-74M, RPG-7, GP-25/30 under the barrel, SVD
   msv:{mg:2,rk:4,gl:3,mk:1},vdv:{mg:2,rk:4,gl:3,mk:1},mp:{mg:2,rk:4,gl:3,mk:1},shturm:{mg:2,rk:4,gl:3,mk:1},
   stormv:{mg:1,rk:2,gl:1,mk:0},bars:{mg:1,rk:2,gl:2,mk:0},sso:{mg:1,rk:1,gl:1,mk:1},spn:{mg:1,rk:1,gl:1,mk:1},
-  razv:{mg:1,rk:1,gl:1,mk:1},snip:{mg:0,rk:0,gl:0,mk:1},sobr:{mg:0,rk:0,gl:0,mk:1},isp:{mg:0,rk:0,gl:0,mk:0},
+  razv:{mg:1,rk:1,gl:1,mk:1},moto:{mg:1,rk:2,gl:1,mk:0},snip:{mg:0,rk:0,gl:0,mk:1},sobr:{mg:0,rk:0,gl:0,mk:1},isp:{mg:0,rk:0,gl:0,mk:0},
   // South Africa: R4 rifles, SS-77 machine guns, Milkor MGL six-shot 40 mm launchers
-  za_inf:{mg:2,rk:0,gl:4,mk:0},za_para:{mg:2,rk:0,gl:4,mk:0},za_sf:{mg:1,rk:0,gl:2,mk:1},za_pf:{mg:1,rk:0,gl:1,mk:1},za_stf:{mg:0,rk:0,gl:0,mk:1},za_eng:{mg:1,rk:0,gl:0,mk:0},
+  za_inf:{mg:2,rk:0,gl:4,mk:0},za_para:{mg:2,rk:0,gl:4,mk:0},za_sf:{mg:1,rk:0,gl:2,mk:1},za_pf:{mg:1,rk:0,gl:1,mk:1},za_gecko:{mg:1,rk:0,gl:1,mk:0},za_stf:{mg:0,rk:0,gl:0,mk:1},za_eng:{mg:1,rk:0,gl:0,mk:0},
   // insurgents: a bigger group has a machine gun and an RPG
   ins3:{mg:1,rk:1,gl:0,mk:0},ins:{mg:0,rk:0,gl:0,mk:0}};
 // named weapons, only where open sources name them
@@ -23,7 +23,7 @@ const ARMS={
   ru2:['АК-74М, ПКП/ПКМ или РПК-74М, РПГ-7, ГП-25/30','AK-74M, PKP/PKM או RPK-74M, RPG-7, GP-25/30','AK-74M, PKP/PKM or RPK-74M, RPG-7, GP-25/30'],
   za:['R4, SS-77, Milkor MGL','R4, SS-77, Milkor MGL','R4, SS-77, Milkor MGL']};
 const ARMS_OF={gol:'idf',tz:'idf',gv:'idf',nh:'idf',kf:'idf',sgol:'idfr',stz:'idfr',sgv:'idfr',snh:'idfr',eg:'idfr',
-  msv:'ru',vdv:'ru',mp:'ru',shturm:'ru',stormv:'ru2',bars:'ru2',razv:'ru',za_inf:'za',za_para:'za',za_pf:'za'};
+  msv:'ru',vdv:'ru',mp:'ru',shturm:'ru',stormv:'ru2',bars:'ru2',moto:'ru2',za_gecko:'za',razv:'ru',za_inf:'za',za_para:'za',za_pf:'za'};
 function kitKey(s){if(s.type==='inf')return s.tt||({k1:'csq',k2:'csq',k3:'yh',dv:'dv'})[s.id]||'csq';if(s.kind==='army')return s.rt;return(s.kind==='leader'||s.kind==='rest')&&s.max>=3?'ins3':'ins';}
 const kitOf=s=>KIT[kitKey(s)]||KIT.ins;
 // catalog line: what the group carries
@@ -48,5 +48,6 @@ const TAC={
   za:{wd:.4,wdX:.4,boundM:100,boundS:15,near:350,supStop:85,lead:["za_pf","za_sf"]}};
 const tacOf=()=>TAC[(S&&S.nation)||'ru']||TAC.ru;
 const ARMY_BASE=1.6; // the same walking pace as our teams at the fast pace in town
+const ARMY_VEH=6; // motorcycles, buggies, Geckos in town (Duvdevan's car: 7)
 // near our teams the army moves by bounds; far from them it simply walks
 const armyNearUs=(e,T)=>infs().some(u=>u.men>0&&Math.hypot(u.x-e.x,u.y-e.y)<T.near);
