@@ -302,19 +302,21 @@ html[lang=he] .jrdoc textarea{direction:rtl;text-align:right}
     <h2>4. Обеспечение</h2>
     <p><b>Ангел</b>: вертолёты эвакуации. Свободная машина будет на площадке через 5 минут, если свободных нет — поднимают ещё одну (12 мин). Забирают раненых, привозят боекомплект группам в 150 м от площадки. После вылета машина уходит в госпиталь и возвращается через 20 минут. Горячую площадку могут не принять.</p>
     <h2>5. Управление и связь</h2>
-    <p>Карта — схема города с сеткой 200 м (столбцы A–G, ряды 1–11) и номерами зданий. Отделения докладывают по схеме <b>SALUTE</b>: численность, действия, место, принадлежность, время, оружие.</p>
+    <p>Карта цифровая: схема города с сеткой 200 м (столбцы A–G, ряды 1–11) и номерами зданий. Свои отделения и «Ястреб» видны на ней в реальном времени. Каждая группа противника, которую увидели наши или «Ястреб», сама появляется ромбом с номером цели и движется вслед за ней. В эфир о противнике идёт только то, что меняет решения: «Контакт!» с направлением и расстоянием, новая цель рядом с нашими или у объекта, потери. Полный доклад SALUTE (численность, действия, место, принадлежность, время, оружие) — в карточке цели.</p>
     <div class="leg">
       <svg viewBox="0 0 30 26"><rect x="2" y="3" width="26" height="16" fill="#a8dcf5" stroke="#14324a" stroke-width="1.5"/><path d="M2 3l26 16M28 3L2 19" stroke="#14324a" stroke-width="1.2"/><rect x="9" y="7" width="12" height="8" fill="#a8dcf5"/><text x="15" y="13.6" font-size="7" font-weight="700" text-anchor="middle" fill="#14324a" font-family="Arial,sans-serif">SF</text></svg><span>ЯМАМ «Кобра-1/2»: штурмовая группа спецназа</span>
       <svg viewBox="0 0 30 26"><rect x="2" y="3" width="26" height="16" fill="#a8dcf5" stroke="#14324a" stroke-width="1.5"/><path d="M7 8h16M7 8v7M15 8v7M23 8v7" stroke="#14324a" stroke-width="1.7" fill="none"/></svg><span>сапёры «Алмаз» («Яхалом»)</span>
       <svg viewBox="0 0 30 26"><rect x="2" y="3" width="26" height="16" fill="#a8dcf5" stroke="#14324a" stroke-width="1.5"/><path d="M2 19L28 3" stroke="#14324a" stroke-width="1.2"/><rect x="9" y="7" width="12" height="8" fill="#a8dcf5"/><text x="15" y="13.6" font-size="7" font-weight="700" text-anchor="middle" fill="#14324a" font-family="Arial,sans-serif">SF</text><circle cx="9" cy="23" r="2.3" fill="#14324a"/><circle cx="21" cy="23" r="2.3" fill="#14324a"/></svg><span>«Вишня»: мистаарвим, колёса — в машине</span>
-      <svg viewBox="0 0 30 22"><path d="M15 1l10 10-10 10L5 11z" fill="#ff9b9b" stroke="#7a1010" stroke-width="1.5"/></svg><span>противник, цель подтверждена</span>
-      <svg viewBox="0 0 30 22"><circle cx="15" cy="11" r="8" fill="#ffef8a" stroke="#6b5a00" stroke-width="1.5"/></svg><span>неопознанные</span>
-      <svg viewBox="0 0 30 22"><rect x="7" y="3" width="16" height="16" fill="#a8e6a1" stroke="#1f5a1a" stroke-width="1.5"/></svg><span>мирные жители</span>
-      <svg viewBox="0 0 30 22"><circle cx="15" cy="11" r="8" fill="#e3c08a" stroke="#5a3a10" stroke-width="1.5"/><path d="M10 8h10l-5 7z" fill="#5a3a10"/></svg><span>подземный ход</span>
+      <svg viewBox="0 0 30 22"><path d="M15 1l10 10-10 10L5 11z" fill="#ff9b9b" stroke="#7a1010" stroke-width="1.5"/><text x="15" y="14.5" font-size="9" font-weight="700" text-anchor="middle" fill="#5a0b0b" font-family="Arial">3</text></svg><span>цель 3: видят сейчас; стрелка — куда идёт</span>
+      <svg viewBox="0 0 30 22"><path d="M15 1l10 10-10 10L5 11z" fill="#d2d0cc" stroke="#77736c" stroke-width="1.5"/><text x="15" y="14.5" font-size="9" font-weight="700" text-anchor="middle" fill="#3d3a35" font-family="Arial">3</text></svg><span>цель 3 потеряна: сереет через 3–10 мин, исчезает через 30; крест — уничтожена</span>
+      <svg viewBox="0 0 30 22"><path d="M3 18L24 6" stroke="rgba(200,35,25,.35)" stroke-width="7" stroke-linecap="round"/><circle cx="24" cy="6" r="5" fill="rgba(200,35,25,.2)" stroke="#aa1914" stroke-width="1.2" stroke-dasharray="2 2"/></svg><span>зона огня: здесь идёт перестрелка, лучше не заходить</span>
+      <svg viewBox="0 0 30 22"><circle cx="15" cy="11" r="8" fill="#ffef8a" stroke="#6b5a00" stroke-width="1.5"/></svg><span>неопознанные (ваша отметка здания)</span>
+      <svg viewBox="0 0 30 22"><rect x="7" y="3" width="16" height="16" fill="#a8e6a1" stroke="#1f5a1a" stroke-width="1.5"/></svg><span>мирные жители (ваша отметка)</span>
+      <svg viewBox="0 0 30 22"><circle cx="15" cy="11" r="8" fill="#e3c08a" stroke="#5a3a10" stroke-width="1.5"/><path d="M10 8h10l-5 7z" fill="#5a3a10"/></svg><span>подземный ход (ваша отметка)</span>
       <svg viewBox="0 0 30 22"><path d="M15 2L25 19H5z" fill="#ffcf5a" stroke="#7a3a00" stroke-width="1.5"/><text x="15" y="17" font-size="10" font-weight="700" text-anchor="middle" fill="#5a2800" font-family="Arial">!</text></svg><span>СВУ: на улице или на двери здания</span>
     </div>
-    <p style="font-size:13px;color:#5d646c">Метки своих двигаете вы.</p>
-    <p>Коснитесь здания на карте, чтобы отметить его или запросить удар. Коснитесь метки отделения, чтобы отдать приказ. Где сейчас отделения, вы знаете только из их докладов.</p>
+    <p style="font-size:13px;color:#5d646c">Цели противника и свои отделения карта показывает сама. Отмечаете вы только здания.</p>
+    <p>Коснитесь отделения, чтобы отдать приказ. Коснитесь ромба цели — откроется её карточка. Коснитесь здания, чтобы отметить его или запросить удар. «Ястреб» может просканировать район и обновить цели в нём. Кнопка «Журнал» над эфиром — все сообщения операции.</p>
     <button class="go" id="bGo">Начать операцию</button>
     <button class="go alt" id="bEnd" hidden>Завершить операцию</button>
     <button class="go alt" id="bNew" hidden>Начать заново</button>
@@ -407,20 +409,22 @@ html[lang=he] .jrdoc textarea{direction:rtl;text-align:right}
     <h2>4. מנהלה</h2>
     <p><b>ינשוף</b>: מסוקי פינוי של יחידה 669. מסוק פנוי מגיע למנחת תוך 5 דקות; אם אין מסוק פנוי, מקפיצים עוד אחד (12 דק׳). מפנה פצועים ומביא תחמושת לצוותים עד 150 מ׳ מהמנחת. אחרי הפינוי טס לבית החולים וחוזר תוך 20 דקות. למנחת תחת אש הוא עלול לא לנחות.</p>
     <h2>5. פיקוד וקשר</h2>
-    <p>המפה היא תצ״א מקודד: רשת של 200 מ׳ (טורים א–ז מימין לשמאל, שורות 1–11) ומספרי מבנים. הצוותים מדווחים: כמות, פעילות, מיקום, זיהוי, שעה, נשק.</p>
+    <p>המפה דיגיטלית: תצ״א מקודד עם רשת של 200 מ׳ (טורים א–ז מימין לשמאל, שורות 1–11) ומספרי מבנים. הצוותים שלכם ו«זיק» מוצגים בה בזמן אמת. כל חוליית אויב שהצוותים או «זיק» ראו מופיעה מעצמה כמעוין עם מספר מטרה וזזה אחריה. לקשר עולה רק מה שמשנה החלטות: «מגע!» עם כיוון וטווח, מטרה חדשה ליד הכוחות שלנו או ליד היעד, נפגעים. הדיווח המלא (כמות, פעילות, מיקום, זיהוי, שעה, נשק) — בכרטיס המטרה.</p>
     <p>נוהל דיבור ברשת: <b>«כאן»</b> — מי מדבר; <b>«עבור»</b> — מחכה לתשובה; <b>«סוף»</b> — סיום; <b>«רות»</b> — קיבלתי.</p>
     <div class="leg">
       <svg viewBox="0 0 30 26"><rect x="2" y="3" width="26" height="16" fill="#a8dcf5" stroke="#14324a" stroke-width="1.5"/><path d="M2 3l26 16M28 3L2 19" stroke="#14324a" stroke-width="1.2"/><rect x="9" y="7" width="12" height="8" fill="#a8dcf5"/><text x="15" y="13.6" font-size="7" font-weight="700" text-anchor="middle" fill="#14324a" font-family="Arial,sans-serif">SF</text></svg><span>ימ״ם «צפע 1/2»: צוות פריצה של כוח מיוחד</span>
       <svg viewBox="0 0 30 26"><rect x="2" y="3" width="26" height="16" fill="#a8dcf5" stroke="#14324a" stroke-width="1.5"/><path d="M7 8h16M7 8v7M15 8v7M23 8v7" stroke="#14324a" stroke-width="1.7" fill="none"/></svg><span>חבלני «יהלום»</span>
       <svg viewBox="0 0 30 26"><rect x="2" y="3" width="26" height="16" fill="#a8dcf5" stroke="#14324a" stroke-width="1.5"/><path d="M2 19L28 3" stroke="#14324a" stroke-width="1.2"/><rect x="9" y="7" width="12" height="8" fill="#a8dcf5"/><text x="15" y="13.6" font-size="7" font-weight="700" text-anchor="middle" fill="#14324a" font-family="Arial,sans-serif">SF</text><circle cx="9" cy="23" r="2.3" fill="#14324a"/><circle cx="21" cy="23" r="2.3" fill="#14324a"/></svg><span>«דובדבן»: מסתערבים, גלגלים — ברכב</span>
-      <svg viewBox="0 0 30 22"><path d="M15 1l10 10-10 10L5 11z" fill="#ff9b9b" stroke="#7a1010" stroke-width="1.5"/></svg><span>אויב, מטרה מאומתת</span>
-      <svg viewBox="0 0 30 22"><circle cx="15" cy="11" r="8" fill="#ffef8a" stroke="#6b5a00" stroke-width="1.5"/></svg><span>לא מזוהים</span>
-      <svg viewBox="0 0 30 22"><rect x="7" y="3" width="16" height="16" fill="#a8e6a1" stroke="#1f5a1a" stroke-width="1.5"/></svg><span>אזרחים</span>
-      <svg viewBox="0 0 30 22"><circle cx="15" cy="11" r="8" fill="#e3c08a" stroke="#5a3a10" stroke-width="1.5"/><path d="M10 8h10l-5 7z" fill="#5a3a10"/></svg><span>מנהרה</span>
+      <svg viewBox="0 0 30 22"><path d="M15 1l10 10-10 10L5 11z" fill="#ff9b9b" stroke="#7a1010" stroke-width="1.5"/><text x="15" y="14.5" font-size="9" font-weight="700" text-anchor="middle" fill="#5a0b0b" font-family="Arial">3</text></svg><span>מטרה 3: רואים אותה עכשיו; החץ — לאן היא נעה</span>
+      <svg viewBox="0 0 30 22"><path d="M15 1l10 10-10 10L5 11z" fill="#d2d0cc" stroke="#77736c" stroke-width="1.5"/><text x="15" y="14.5" font-size="9" font-weight="700" text-anchor="middle" fill="#3d3a35" font-family="Arial">3</text></svg><span>מטרה 3 אבדה: מאפירה אחרי 3–10 דק׳, נעלמת אחרי 30; איקס — הושמדה</span>
+      <svg viewBox="0 0 30 22"><path d="M3 18L24 6" stroke="rgba(200,35,25,.35)" stroke-width="7" stroke-linecap="round"/><circle cx="24" cy="6" r="5" fill="rgba(200,35,25,.2)" stroke="#aa1914" stroke-width="1.2" stroke-dasharray="2 2"/></svg><span>אזור אש: כאן יש קרב, עדיף לא להיכנס</span>
+      <svg viewBox="0 0 30 22"><circle cx="15" cy="11" r="8" fill="#ffef8a" stroke="#6b5a00" stroke-width="1.5"/></svg><span>לא מזוהים (הסימון שלכם על מבנה)</span>
+      <svg viewBox="0 0 30 22"><rect x="7" y="3" width="16" height="16" fill="#a8e6a1" stroke="#1f5a1a" stroke-width="1.5"/></svg><span>אזרחים (הסימון שלכם)</span>
+      <svg viewBox="0 0 30 22"><circle cx="15" cy="11" r="8" fill="#e3c08a" stroke="#5a3a10" stroke-width="1.5"/><path d="M10 8h10l-5 7z" fill="#5a3a10"/></svg><span>מנהרה (הסימון שלכם)</span>
       <svg viewBox="0 0 30 22"><path d="M15 2L25 19H5z" fill="#ffcf5a" stroke="#7a3a00" stroke-width="1.5"/><text x="15" y="17" font-size="10" font-weight="700" text-anchor="middle" fill="#5a2800" font-family="Arial">!</text></svg><span>מטען: ברחוב או על דלת מבנה</span>
     </div>
-    <p style="font-size:13px;color:#5d646c">את הסימונים של כוחותינו מזיזים אתם.</p>
-    <p>געו במבנה במפה כדי לסמן אותו או לבקש תקיפה. געו בסימון של צוות כדי לתת לו פקודה. איפה הצוותים נמצאים — אתם יודעים רק מהדיווחים בקשר.</p>
+    <p style="font-size:13px;color:#5d646c">את מטרות האויב ואת הצוותים שלכם המפה מראה בעצמה. אתם מסמנים רק מבנים.</p>
+    <p>געו בצוות כדי לתת לו פקודה. געו במעוין של מטרה כדי לפתוח את הכרטיס שלה. געו במבנה כדי לסמן אותו או לבקש תקיפה. «זיק» יכול לסרוק אזור ולעדכן בו את המטרות. כפתור «יומן» מעל הקשר — כל ההודעות של המבצע.</p>
     <button class="go" id="bGo">התחל מבצע</button>
     <button class="go alt" id="bEnd" hidden>סיים מבצע</button>
     <button class="go alt" id="bNew" hidden>להתחיל מחדש</button>
@@ -513,19 +517,21 @@ html[lang=he] .jrdoc textarea{direction:rtl;text-align:right}
     <h2>4. Support</h2>
     <p><b>Angel</b>: medevac helicopters. A free aircraft reaches the LZ in 5 minutes; if none is free, another is launched (12 min). They pick up the wounded and bring ammo to teams within 150 m of the LZ. After a flight the aircraft goes to the hospital and returns in 20 minutes. A hot LZ may be refused.</p>
     <h2>5. Command and signal</h2>
-    <p>The map is a town plan with a 200 m grid (columns A–G, rows 1–11) and numbered buildings. Teams report in the <b>SALUTE</b> format: size, activity, location, unit, time, equipment.</p>
+    <p>The map is digital: a town plan with a 200 m grid (columns A–G, rows 1–11) and numbered buildings. Your teams and the Hawk UAV are shown on it in real time. Every enemy group seen by your teams or the Hawk appears by itself as a diamond with a target number and follows the group. Only what changes decisions goes on the air about the enemy: "Contact!" with direction and distance, a new target close to your teams or the objective, casualties. The full SALUTE report (size, activity, location, unit, time, equipment) is in the target card.</p>
     <div class="leg">
       <svg viewBox="0 0 30 26"><rect x="2" y="3" width="26" height="16" fill="#a8dcf5" stroke="#14324a" stroke-width="1.5"/><path d="M2 3l26 16M28 3L2 19" stroke="#14324a" stroke-width="1.2"/><rect x="9" y="7" width="12" height="8" fill="#a8dcf5"/><text x="15" y="13.6" font-size="7" font-weight="700" text-anchor="middle" fill="#14324a" font-family="Arial,sans-serif">SF</text></svg><span>Yamam "Cobra-1/2": special forces assault team</span>
       <svg viewBox="0 0 30 26"><rect x="2" y="3" width="26" height="16" fill="#a8dcf5" stroke="#14324a" stroke-width="1.5"/><path d="M7 8h16M7 8v7M15 8v7M23 8v7" stroke="#14324a" stroke-width="1.7" fill="none"/></svg><span>"Diamond" sappers (Yahalom)</span>
       <svg viewBox="0 0 30 26"><rect x="2" y="3" width="26" height="16" fill="#a8dcf5" stroke="#14324a" stroke-width="1.5"/><path d="M2 19L28 3" stroke="#14324a" stroke-width="1.2"/><rect x="9" y="7" width="12" height="8" fill="#a8dcf5"/><text x="15" y="13.6" font-size="7" font-weight="700" text-anchor="middle" fill="#14324a" font-family="Arial,sans-serif">SF</text><circle cx="9" cy="23" r="2.3" fill="#14324a"/><circle cx="21" cy="23" r="2.3" fill="#14324a"/></svg><span>"Cherry": mista'arvim, wheels mean in the car</span>
-      <svg viewBox="0 0 30 22"><path d="M15 1l10 10-10 10L5 11z" fill="#ff9b9b" stroke="#7a1010" stroke-width="1.5"/></svg><span>enemy, target confirmed</span>
-      <svg viewBox="0 0 30 22"><circle cx="15" cy="11" r="8" fill="#ffef8a" stroke="#6b5a00" stroke-width="1.5"/></svg><span>unidentified</span>
-      <svg viewBox="0 0 30 22"><rect x="7" y="3" width="16" height="16" fill="#a8e6a1" stroke="#1f5a1a" stroke-width="1.5"/></svg><span>civilians</span>
-      <svg viewBox="0 0 30 22"><circle cx="15" cy="11" r="8" fill="#e3c08a" stroke="#5a3a10" stroke-width="1.5"/><path d="M10 8h10l-5 7z" fill="#5a3a10"/></svg><span>tunnel</span>
+      <svg viewBox="0 0 30 22"><path d="M15 1l10 10-10 10L5 11z" fill="#ff9b9b" stroke="#7a1010" stroke-width="1.5"/><text x="15" y="14.5" font-size="9" font-weight="700" text-anchor="middle" fill="#5a0b0b" font-family="Arial">3</text></svg><span>target 3: in sight now; the arrow shows where it is going</span>
+      <svg viewBox="0 0 30 22"><path d="M15 1l10 10-10 10L5 11z" fill="#d2d0cc" stroke="#77736c" stroke-width="1.5"/><text x="15" y="14.5" font-size="9" font-weight="700" text-anchor="middle" fill="#3d3a35" font-family="Arial">3</text></svg><span>target 3 lost: greys out over 3–10 min, disappears after 30; a cross means destroyed</span>
+      <svg viewBox="0 0 30 22"><path d="M3 18L24 6" stroke="rgba(200,35,25,.35)" stroke-width="7" stroke-linecap="round"/><circle cx="24" cy="6" r="5" fill="rgba(200,35,25,.2)" stroke="#aa1914" stroke-width="1.2" stroke-dasharray="2 2"/></svg><span>fire zone: a firefight is going on here, better keep out</span>
+      <svg viewBox="0 0 30 22"><circle cx="15" cy="11" r="8" fill="#ffef8a" stroke="#6b5a00" stroke-width="1.5"/></svg><span>unidentified (your building mark)</span>
+      <svg viewBox="0 0 30 22"><rect x="7" y="3" width="16" height="16" fill="#a8e6a1" stroke="#1f5a1a" stroke-width="1.5"/></svg><span>civilians (your mark)</span>
+      <svg viewBox="0 0 30 22"><circle cx="15" cy="11" r="8" fill="#e3c08a" stroke="#5a3a10" stroke-width="1.5"/><path d="M10 8h10l-5 7z" fill="#5a3a10"/></svg><span>tunnel (your mark)</span>
       <svg viewBox="0 0 30 22"><path d="M15 2L25 19H5z" fill="#ffcf5a" stroke="#7a3a00" stroke-width="1.5"/><text x="15" y="17" font-size="10" font-weight="700" text-anchor="middle" fill="#5a2800" font-family="Arial">!</text></svg><span>IED: in the street or on a building door</span>
     </div>
-    <p style="font-size:13px;color:#5d646c">You move the markers of your own teams.</p>
-    <p>Tap a building on the map to mark it or request a strike. Tap a team marker to give an order. You only know where your teams are from their reports.</p>
+    <p style="font-size:13px;color:#5d646c">The map shows enemy targets and your teams by itself. You only mark buildings.</p>
+    <p>Tap a team to give it an order. Tap a target diamond to open its card. Tap a building to mark it or request a strike. The Hawk can scan an area and update the targets in it. The Journal button above the radio shows every message of the operation.</p>
     <button class="go" id="bGo">Start operation</button>
     <button class="go alt" id="bEnd" hidden>End operation</button>
     <button class="go alt" id="bNew" hidden>Start over</button>
