@@ -41,3 +41,33 @@ function raiseAlarm(){if(S.alarm)return;S.alarm=true;S.alarmT0=S.t;
     else if(e.kind==='leader'&&e.leader){S.lpath=[[e.x,e.y]];const B=BN(S.T);if(e.men>1){const g=Object.assign({},e,{id:'eL2',men:1,max:1,leader:false,cont:[],acc:0});S.enemies.push(g);e.men-=1;}e.mode='move';e.bld=0;e.tx=B.cx;e.ty=B.cy;e.dest=S.T;e.runT=S.t;}
     else if(e.kind==='rest'||e.kind==='patrol'){const B=BN(S.L);e.mode='move';e.bld=0;e.tx=B.cx+(Math.random()-.5)*20;e.ty=B.cy+12;e.dest=S.L;}
   }}
+
+// ---- "take position": the team goes to the point and finds cover there by itself, never inside a building ----
+// 1) wreckage, ruins, an orchard or the wadi bed within 50 m; 2) otherwise the wall of a house; 3) otherwise it lies down and says so.
+// Among equal spots it prefers one the known enemy cannot see.
+const POS_R=50;
+function posThreat(x,y){let best=null,bd=1e9;const T=S.tg&&S.tg.by;
+  if(T)for(const id in T){const r=T[id];if(r.ls==null||r.hide||r.dead||S.t-r.ls>TG_GREY)continue;const d=Math.hypot(r.lx-x,r.ly-y);if(d<bd){bd=d;best={x:r.lx,y:r.ly};}}
+  if(!best&&S.mission&&S.obj)best={x:S.obj.x,y:S.obj.y};return best;}
+function posPick(x,y){const th=posThreat(x,y),hid=(px,py)=>!th||!los(px,py,th.x,th.y),cands=[];
+  for(const r of [0,6,12,18,26,34,42,POS_R])for(let a=0;a<(r?16:1);a++){const px=x+Math.cos(a*Math.PI/8)*r,py=y+Math.sin(a*Math.PI/8)*r;
+    if(px<0||py<0||px>MWm||py>MHm||!navFree(px/NG|0,py/NG|0))continue;cands.push([px,py,r]);}
+  let best=null;
+  for(const [px,py,r] of cands){const dc=debCov(px,py),nat=!inTown(px,py)&&coverAt(px,py);if(!dc&&!nat)continue;
+    const s=r+(hid(px,py)?0:25)+(dc?dc*40:20);if(!best||s<best.s)best={x:px,y:py,s,k:'cover',cov:dc||.5,d:dc?debNear(px,py,4):null,nat:!dc};}
+  if(best)return best;
+  // against a wall: a house right next to the street; in villages houses stand back in their yards, then the yard wall
+  for(const [px,py,r] of cands){const cx=px/NG|0,cy=py/NG|0;let kind=null;
+    for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=(cx+dx+.5)*NG,ny=(cy+dy+.5)*NG,k=blockOf(nx,ny);if(!k||k.lot||k.road)continue;if(bldAt(nx,ny,6)){kind='wall';break;}kind=kind||'fence';}
+    if(!kind)continue;const s=r+(hid(px,py)?0:25)+(kind==='fence'?8:0);if(!best||s<best.s)best={x:px,y:py,s,k:kind,cov:kind==='wall'?.45:.5};}
+  return best||{x,y,k:'prone',cov:.6};}
+function posArrive(u){
+  if(u.posOn===1){const p=posPick(u.x,u.y);u.posP=p;u.posOn=2;if(Math.hypot(p.x-u.x,p.y-u.y)>3){u.st='move';u.tx=p.x;u.ty=p.y;u.pkey=null;return true;}}
+  if(u.posOn!==2)return false;const p=u.posP;u.posOn=0;u.st='hold';u.tx=u.x;u.ty=u.y;u.posCov=p.cov;delete S.marks.ord[u.id];
+  const th=posThreat(u.x,u.y),sec=th?T3(` Наблюдаем на ${DIRS_TO[dirIdx(th.x-u.x,th.y-u.y)]}.`,` מתצפתים ל${DIRS_TO[dirIdx(th.x-u.x,th.y-u.y)]}.`,` Watching ${DIRS_TO[dirIdx(th.x-u.x,th.y-u.y)]}.`):'';
+  const inOrch=M.orch&&M.orch.some(o=>u.x>o.x0&&u.x<o.x1&&u.y>o.y0&&u.y<o.y1);
+  const where=p.k==='cover'?(p.d?debAt(p.d)+' ':p.nat?(inOrch?T3('в саду, ','במטע, ','in the orchard, '):T3('в русле вади, ','בערוץ הוואדי, ','in the wadi bed, ')):T3('рядом с руинами, ','ליד ההריסות, ','by the ruins, ')):'';
+  const wb=p.k==='wall'?bldAt(u.x,u.y,15):null,loc=p.k==='fence'?T3('у ограды двора, ','צמודים לגדר של חצר, ','against a yard wall, ')+placeTxt(u.x,u.y):wb?T3(`у стены здания ${wb.n}, квадрат ${cell(u.x,u.y)}`,`צמודים לקיר של מבנה ${wb.n}, משבצת ${cell(u.x,u.y)}`,`against the wall of building ${wb.n}, grid ${cell(u.x,u.y)}`):where+placeTxt(u.x,u.y);
+  const txt=p.k==='prone'?T3(`Кобра-6, я ${u.call}. Укрытий и построек рядом нет, залегли: ${placeTxt(u.x,u.y)}.${sec} Приём.`,`צפע, כאן ${u.call}. אין מחסה ואין מבנים בקרבת מקום, שכבנו: ${placeTxt(u.x,u.y)}.${sec} עבור.`,`Cobra-6, this is ${u.call}. No cover and no buildings nearby, lying prone: ${placeTxt(u.x,u.y)}.${sec} Over.`)
+    :T3(`Кобра-6, я ${u.call}. Заняли позицию ${loc}.${sec} Приём.`,`צפע, כאן ${u.call}. תפסנו עמדה ${loc}.${sec} עבור.`,`Cobra-6, this is ${u.call}. In position ${loc}.${sec} Over.`);
+  say(u,txt,[],{known:'st',act:{k:'clrOrd',uid:u.id}});return true;}

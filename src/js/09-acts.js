@@ -28,10 +28,11 @@ else if(a.k==='drone')droneExec(u,a);
 }
 function orderExec(u,a){
   if(u.men<=1){say(u,(HE?(`צפע, כאן ${u.call}. לא יכולים לבצע: כשירים ${u.men}, פצועים ${u.wounded}. צריכים פינוי.`):((EN?(`Cobra-6, this is ${u.call}. Unable to comply: ${u.men} fit, ${u.wounded} wounded. We need evacuation.`):(`Кобра-6, я ${u.call}. Выполнить не можем: в строю ${u.men}, раненых ${u.wounded}. Нужна эвакуация.`)))),[],{known:'full',front:true});delete S.marks.ord[u.id];return;}
-  if(a.kind==='hold'){u.st='hold';u.tx=u.x;u.ty=u.y;say(u,(HE?(`כאן ${u.call}. רות, תופסים עמדה ומתצפתים.`):((EN?(`This is ${u.call}. Roger, taking position, observing.`):(`Я ${u.call}. Принял, занимаем позицию, наблюдаем.`)))),[],{known:'st',front:true});delete S.marks.ord[u.id];return;}
+  if(a.kind==='hold'){u.posOn=0;u.posCov=0;u.st='hold';u.tx=u.x;u.ty=u.y;say(u,(HE?(`כאן ${u.call}. רות, תופסים עמדה ומתצפתים.`):((EN?(`This is ${u.call}. Roger, taking position, observing.`):(`Я ${u.call}. Принял, занимаем позицию, наблюдаем.`)))),[],{known:'st',front:true});delete S.marks.ord[u.id];return;}
   if(u.st==='clearing'&&a.kind!=='retreat'){const enIn=alive().some(e=>e.bld===u.inB&&!e.roof);if(enIn){say(u,(HE?(`כאן ${u.call}. בקרב בתוך מבנה ${u.inB}, לא יכולים לצאת.`):((EN?(`This is ${u.call}. Fighting inside building ${u.inB}, we can't pull out.`):(`Я ${u.call}. Ведём бой в здании ${u.inB}, выйти не можем.`)))),[],{front:true,known:'st'});return;}}
   if(u.demo>0){u.demo=0;}
   occSet(u.id,0,null);u.occupy=a.kind==='occupy';if(u.occupy)a=Object.assign({},a,{kind:'assault',method:a.method||(u.sap?'sapper':'door')});u.askOn=a.kind==='ask';u.cpOn=a.kind==='cp';if(a.kind==='ask'||a.kind==='cp')a=Object.assign({},a,{kind:a.kind==='ask'?'recon':'move'});
+  const posOn=a.kind==='pos';if(posOn)a=Object.assign({},a,{kind:'move'});u.posOn=posOn?1:0;u.posCov=0;
   u.resume=null;u.autoAs=false;u.byp=0;u.stuckRep=0;u.avoid=[];u.threats=[];u.inB=0;u.st=a.kind;u.tx=a.x;u.ty=a.y;u.tb=a.b||0;
   if(a.kind==='snipe'||a.kind==='recon'){const B=BN(a.b);const dx=u.x-B.cx,dy=u.y-B.cy,d=Math.hypot(dx,dy)||1,r=Math.min(a.kind==='recon'?35:170,d);u.tx=B.cx+dx/d*r;u.ty=B.cy+dy/d*r;}u.cordon=0;u.method=a.method||'door';u.dogDone=false;u.dogBonus=false;
   let noDog=false;if(a.kind==='assault'&&u.method==='dog'){if(S.dogs>0)S.dogs--;else{u.method='door';noDog=true;}}
