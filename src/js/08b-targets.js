@@ -42,7 +42,7 @@ function openJournal(){dbLog(true);const was=S.speed;if(S.started&&!S.over){S.sp
 
 // a short note instead of a full contact report; true when it was sent
 function fightNote(u,e,m,first){const T=(S.tg=S.tg||{n:0,by:{}});const no=tgtNo(e),r=T.by[e.id];const other=r.ct&&S.t-r.ct<120&&r.cu!==u.id;r.ct=S.t;r.cu=u.id;
-  if(first&&!other)return false;const where=m==='close'?T3(`внутри здания ${u.inB}`,`בתוך מבנה ${u.inB}`,`inside building ${u.inB}`):e.bld&&!outside(e)?T3(`в здании ${e.bld}`,`במבנה ${e.bld}`,`in building ${e.bld}`):placeTxt(e.x,e.y);
+  if(first&&!other)return false;if(!first&&r.annT&&S.t-r.annT<300)return true;r.annT=S.t;const where=m==='close'?T3(`внутри здания ${u.inB}`,`בתוך מבנה ${u.inB}`,`inside building ${u.inB}`):e.bld&&!outside(e)?T3(`в здании ${e.bld}`,`במבנה ${e.bld}`,`in building ${e.bld}`):placeTxt(e.x,e.y);
   if(first)say(u,T3(`Кобра-6, я ${u.call}. Веду бой с целью ${no}, ${where}.`,`צפע, כאן ${u.call}. בקרב עם מטרה ${no}, ${where}.`,`Cobra-6, this is ${u.call}. Engaging target ${no}, ${where}.`),[],{known:'st'});
   else say(u,T3(`Кобра-6, я ${u.call}! Ещё противник: цель ${no}, ${where}, ${cnt(e.men)}. Ведём бой.`,`צפע, כאן ${u.call}! עוד אויב: מטרה ${no}, ${where}, ${cnt(e.men)}. בקרב.`,`Cobra-6, this is ${u.call}! More enemy: target ${no}, ${where}, ${cnt(e.men)}. Engaging.`),e.bld&&!outside(e)?[bChip(e.bld,'hos')]:[Object.assign(ptChip(e),{no,label:T3(`цель ${no}: ${cell(e.x,e.y)}`,`מטרה ${no}: ${cell(e.x,e.y)}`,`target ${no}: ${cell(e.x,e.y)}`)})],{urgent:true,known:'st'});
   return true;}

@@ -98,7 +98,7 @@ function drawLabels2(g){g.font=(HE?'20px "Rubik", Arial, sans-serif':'italic 20p
   if(M.cem){const c=M.cem;g.fillStyle='rgba(90,90,80,.5)';for(let y=c.y0+8;y<c.y1-6;y+=10)for(let x=c.x0+8;x<c.x1-6;x+=12)g.fillRect(x,y,4,7);g.fillStyle='#6a5a3c';g.font=(HE?'15px "Rubik", Arial, sans-serif':'italic 15px "Roboto Condensed", sans-serif');g.fillText(HE?'בית קברות':(EN?("cemetery"):('кладбище')),(c.x0+c.x1)/2,c.y1+12);}}
 function bldAt(x,y,tol){for(const b of BL)if(x>=b.x0-2&&x<=b.x1+2&&y>=b.y0-2&&y<=b.y1+2)return b;if(!tol)return null;let best=null,bd=tol;for(const b of BL){const dx=Math.max(b.x0-x,0,x-b.x1),dy=Math.max(b.y0-y,0,y-b.y1),d=Math.hypot(dx,dy);if(d<bd){bd=d;best=b;}}return best;}
 const cell=(x,y)=>COLS[clamp(Math.floor(x/CELL),0,6)]+(clamp(Math.floor(y/CELL),0,10)+1);
-function placeTxt(x,y){const b=bldAt(x,y,45);return b?(HE?(`ליד מבנה ${b.n}, משבצת ${cell(x,y)}`):((EN?(`near building ${b.n}, grid ${cell(x,y)}`):(`у здания ${b.n}, квадрат ${cell(x,y)}`)))):(HE?(`משבצת ${cell(x,y)}`):((EN?(`grid ${cell(x,y)}`):(`квадрат ${cell(x,y)}`))));}
+function placeTxt(x,y){const b=bldAt(x,y,45);return b?(HE?(`ליד מבנה ${b.n}, משבצת ${cell(b.cx,b.cy)}`):((EN?(`near building ${b.n}, grid ${cell(b.cx,b.cy)}`):(`у здания ${b.n}, квадрат ${cell(b.cx,b.cy)}`)))):(HE?(`משבצת ${cell(x,y)}`):((EN?(`grid ${cell(x,y)}`):(`квадрат ${cell(x,y)}`))));}
 const inTown=(x,y)=>M.classic?((x-700)/500)**2+((y-860)/640)**2<1:((x-M.cx)/M.rx)**2+((y-M.cy)/M.ry)**2<M.edge(x,y)**2;
 
 // o.w: width in pixels (a small preview when set); o.mini: no lettering, which is the slow part

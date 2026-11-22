@@ -13,7 +13,7 @@ function uavScanTick(dt){const sc=S.uav.scan;if(!sc)return;if(Math.hypot(S.uav.x
 function uavScan(cx,cy){const ya=U_('ya'),inR=(x,y)=>Math.hypot(x-cx,y-cy)<SCAN_R,T=(S.tg=S.tg||{n:0,by:{}});let ok=0,gone=0;const nw=[];
   // everyone in the open inside the circle is found (a man lying on a roof can be missed)
   for(const e of alive()){if(!outside(e)||!inR(e.x,e.y))continue;if(e.roof&&Math.random()<.2)continue;
-    const r=T.by[e.id],was=r&&r.ls!=null&&!r.hide&&!r.dead;seeTgt(e,ya,{quiet:true});const rr=T.by[e.id];if(was)ok++;else{rr.warned=true;rr.t=S.t;nw.push(T3(`цель ${rr.no} — ${cnt(e.men)}, ${tgWhere(rr)}`,`מטרה ${rr.no} — ${cnt(e.men)}, ${tgWhere(rr)}`,`target ${rr.no} — ${cnt(e.men)}, ${tgWhere(rr)}`));}}
+    const r=T.by[e.id],was=r&&r.ls!=null&&!r.hide&&!r.dead;seeTgt(e,ya,{quiet:true});const rr=T.by[e.id];rr.warned=true;rr.t=S.t;if(was)ok++;else{nw.push(T3(`цель ${rr.no} — ${cnt(e.men)}, ${tgWhere(rr)}`,`מטרה ${rr.no} — ${cnt(e.men)}, ${tgWhere(rr)}`,`target ${rr.no} — ${cnt(e.men)}, ${tgWhere(rr)}`));}}
   // targets last seen in the open inside the circle and not there now: gone from the map
   let inside=0;for(const id in T.by){const r=T.by[id];if(r.ls==null||r.hide||r.dead||r.ls===S.t)continue;if(!inR(r.lx,r.ly))continue;if(r.bld&&!r.roof){inside++;continue;}r.hide=true;gone++;}
   say(ya,T3(`Кобра-6, я Ястреб. Район квадрат ${cell(cx,cy)} осмотрен. Подтверждено целей: ${ok}, снято с карты: ${gone}. ${nw.length?'Новые: '+nw.join('; ')+'.':'Новых нет.'}${inside?` В зданиях отмечено целей: ${inside}, внутрь не вижу.`:''} Приём.`,

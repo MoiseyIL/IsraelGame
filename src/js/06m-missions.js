@@ -169,6 +169,21 @@ function armyCommand(){const O=S.obj,A=alive().filter(e=>e.kind==='army'&&e.mode
   const others=A.filter(e=>e!==carrier&&!leads.includes(e)&&e.role!=='clear');const reserve=others.length>=3?others.reduce((a,e)=>!a||e.men<a.men?e:a,null):null;
   const escort=others.filter(e=>e!==reserve).sort((a,b)=>nearO(a)-nearO(b))[0];
   const ow=others.filter(e=>e!==reserve&&e!==escort);const pts=ringPoints(Math.max(1,ow.length),90,170,-1);
+  // Russia against an objective our teams hold from buildings: no more walking into the windows one group at a time.
+  // The groups gather in cover about 180 m out while the drone goes to look, then all go in at once from several sides,
+  // the expendable groups first and the rest 20 s later. Losses still do not stop them once they go.
+  if(T.push&&!S.charge.them){const held=ekList(180).filter(k=>k.b&&Math.hypot(k.x-O.x,k.y-O.y)<HOLD_R+90);
+    if(S.siege&&!S.siege.go&&!held.length&&S.t-(S.siege.seen||0)>120)S.siege=null;
+    if(held.length){if(!S.siege){S.siege={t0:S.t,go:0};if(S.euav){S.euav.tx=O.x;S.euav.ty=O.y;S.euav.retask=S.t+90;}}S.siege.seen=S.t;}
+    const G=S.siege;
+    if(G&&!G.go){const dx=S.enBase.x-O.x,dy=S.enBase.y-O.y,l=Math.hypot(dx,dy)||1,rx=O.x+dx/l*180,ry=O.y+dy/l*180;
+      A.forEach((e,i)=>{if(!free(e)||e.role==='rally')return;armyGoTo(e,rx+(i-(A.length-1)/2)*45,ry,'rally');});
+      const inPlace=A.every(e=>e.cont.length||e.role==='rally'&&e.mode==='hold');
+      if(!(inPlace||S.t-G.t0>150))return;
+      G.go=S.t;const lead=e=>T.lead.includes(e.rt);const order=A.slice().sort((a,b)=>lead(b)-lead(a)),pts=ringPoints(order.length,35,70,-1);
+      order.forEach((e,i)=>{e.goT=S.t+(lead(e)?0:20);e.goP=pts[i];e.role='wait';});
+      say(INTEL(),T3('Кобра-6, я Разведка. Перехват: противник собрал группы и идёт на штурм объекта с нескольких направлений, впереди расходные. Приём.','צפע, כאן מודיעין. יירוט: האויב ריכז את החוליות ויוצא להסתער על היעד מכמה כיוונים, בראש המתכלים. עבור.','Cobra-6, this is Intel. Intercept: the enemy has gathered its groups and is assaulting the objective from several directions, expendable groups first. Over.'),[],{urgent:true});}
+    if(G&&G.go)for(const e of A)if(e.goP&&S.t>=e.goT&&(free(e)||e.mode==='hold')){armyGoTo(e,e.goP[0],e.goP[1],e===carrier?'carrier':'assault');e.goP=null;}}
   // South Africa: our teams sit within reach of the objective and the carrier cannot plant — when they are weak (few men, or
   // pinned) and the South Africans nearby clearly outnumber them, a group goes in and clears them out, by fire and movement
   if(T.clear&&!S.zaWd&&nearO(carrier)<160){const ours=ekList(120).filter(k=>Math.hypot(k.x-O.x,k.y-O.y)<HOLD_R+40);
@@ -181,8 +196,8 @@ function armyCommand(){const O=S.obj,A=alive().filter(e=>e.kind==='army'&&e.mode
   // the carrier keeps going: after a firefight it leaves its cover once the shooting stops (Russia at once, South Africa after a pause)
   if(ready&&(free(carrier)&&(carrier.mode!=='hold'||S.t-(carrier.holdT||0)>T.resume)||carrier.mode==='base')){if(nearO(carrier)>25)armyGoTo(carrier,O.x,O.y,'carrier');}
   if(carrier.mode==='hold'&&nearO(carrier)<30&&!carrier.cont.length){carrier.mode='plant';carrier.prog=carrier.prog||0;}
-  if(ready&&escort&&free(escort)&&(escort.mode==='base'||escort.mode==='hold'&&nearO(escort)>120))armyGoTo(escort,(carrier.tx+carrier.x)/2,(carrier.ty+carrier.y)/2+20,'escort');
-  ow.forEach((e,i)=>{if(ready&&free(e)&&(e.mode==='base'||e.mode==='hold'&&e.role!=='overwatch'))armyGoTo(e,pts[i][0],pts[i][1],'overwatch');});
+  if(ready&&escort&&free(escort)&&!['wait','assault','rally'].includes(escort.role)&&(escort.mode==='base'||escort.mode==='hold'&&nearO(escort)>120))armyGoTo(escort,(carrier.tx+carrier.x)/2,(carrier.ty+carrier.y)/2+20,'escort');
+  ow.forEach((e,i)=>{if(ready&&free(e)&&!['wait','assault','rally'].includes(e.role)&&(e.mode==='base'||e.mode==='hold'&&e.role!=='overwatch'))armyGoTo(e,pts[i][0],pts[i][1],'overwatch');});
   if(reserve&&free(reserve)&&reserve.mode==='base'&&(S.t-T0>480||S.contact0))armyGoTo(reserve,O.x,O.y-120,'reserve');
   // a group in contact is supported by a neighbour that flanks the enemy
   for(const e of A){if(!e.cont.length||e.flankCalled&&S.t-e.flankCalled<120)continue;const u=U_(e.cont[0]);if(!u)continue;
@@ -212,7 +227,7 @@ function armyTick(dt){const O=S.obj,U=infs(),T=tacOf();
       if(T.fm&&['carrier','defuse'].includes(e.role)&&e.mode==='hold'&&S.t-(e.holdT||0)>15&&e.men>e.max*.5){armyGoTo(e,O.x,O.y,e.role);e.boundT=S.t+12;}
       if(T.clear&&e.role==='clear'&&e.mode==='hold'&&S.t-(e.holdT||0)>15&&e.men>e.max*.5){const k=(S.ek||{})[e.clearU];if(k){const p=k.b?BN(k.b):null;armyGoTo(e,p?p.cx:k.x,p?p.cy:k.y,'clear');e.boundT=S.t+12;}}
       if(e.role==='clear'){const u=U_(e.clearU);if(u&&u.inB&&u.men>0&&Math.hypot(e.x-BN(u.inB).cx,e.y-BN(u.inB).cy)<25){e.bld=u.inB;e.x=BN(u.inB).cx;e.y=BN(u.inB).cy;e.mode='hold';e.holdT=S.t;continue;}}
-      const push=(T.push&&['carrier','probe','defuse'].includes(e.role)&&e.men>e.max*.4||T.fm&&e.boundT>S.t)&&e.mode==='amove'; /* in a firefight everyone is under suppressive fire; what stops a push is losses */
+      const push=(T.push&&['carrier','probe','defuse','assault'].includes(e.role)&&e.men>e.max*.4||T.fm&&e.boundT>S.t)&&e.mode==='amove'; /* in a firefight everyone is under suppressive fire; what stops a push is losses */
       if(push){if(moveAlong(e,ARMY_BASE*(e.spd||1)*.6*dt)){const atO=Math.hypot(e.x-O.x,e.y-O.y)<30;if(atO&&e.role==='carrier'&&!S.charge.them){e.mode='plant';e.prog=e.prog||0;}else strongpoint(e);}continue;}
       if(e.mode==='amove')strongpoint(e);if(e.mode==='plant'||e.mode==='defuse'){e.mode='hold';}continue;}
     if(e.mode==='amove'){if((e.sup||0)>T.supStop)continue;if(e.pause>0){e.pause-=dt;continue;}
