@@ -31,10 +31,10 @@ function chTags(t){const T=TU[t]||ENU[t]||{},a=[];
   if(T.uc)a.push([['маскировка под местных','הסוואה כמקומיים','disguised as locals'],1]);if(T.veh)a.push([T.vehN||['машина','רכב','car'],1]);
   if(T.atgm)a.push([['ракеты','טילים','missiles'],2]);if(T.optic)a.push([['оптика','אופטיקה','optics'],1]);if(T.sap)a.push([['сапёры','חבלנים','sappers'],2]);
   if(T.ask)a.push([['опрос жителей','תחקור תושבים','questioning residents'],1]);if(T.cp)a.push([['блокпост','מחסום','checkpoint'],1]);if(T.amb)a.push([['засады','מארבים','ambushes'],1]);return a;}
-function chPower(t){const c=CH[t];if(!c)return 0;const b=Math.min(5,chTags(t).reduce((s,x)=>s+x[1],0));return Math.round(10*c.reduce((s,v,i)=>s+v*CH_W[i],0))+b;}
+function chPower(t,cc){const c=cc||CH[t];if(!c)return 0;const b=Math.min(5,chTags(t).reduce((s,x)=>s+x[1],0));return Math.round(10*c.reduce((s,v,i)=>s+v*CH_W[i],0))+b;}
 // battle parameters from the table
 const fpOf=f=>.168*f*f; // fire of the whole group at full strength, in "rifle equivalents"
-function mechOf(t,men){const [f,r,s,v,a,c,k]=CH[t];return{q:+(fpOf(f)/men).toFixed(3),rk:+(1.6-.1*r).toFixed(2),mk:+(1.5-.1*r).toFixed(2),stl:+(2**((6-s)/3)).toFixed(2),
+function mechOf(t,men,cc){const [f,r,s,v,a,c,k]=cc||CH[t];return{q:+(fpOf(f)/men).toFixed(3),rk:+(1.6-.1*r).toFixed(2),mk:+(1.5-.1*r).toFixed(2),stl:+(2**((6-s)/3)).toFixed(2),
   spd:+(.6+.08*v).toFixed(2),clr:+((1.5-.08*a)*(men>=12?.75:1)).toFixed(2),ent:+(1.5-.1*a).toFixed(2),cq:+(.7+.05*a).toFixed(2),cap:+(.1+.07*c).toFixed(2),rc:+(1.5-.1*k).toFixed(2)};}
 // catalog block: seven bars and the final score
 function chHTML(t){const c=CH[t];if(!c)return'';const tg=chTags(t);
