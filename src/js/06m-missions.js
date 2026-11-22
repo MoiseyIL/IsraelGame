@@ -66,25 +66,55 @@ const ZAF={
  za_eng:{n:['Полевой инженерный полк','גדוד הנדסה שדה','Field Engineer Regiment'],men:6,sap:true,
   pub:['Инженерное формирование армии ЮАР создано в 1982 году (инженерный корпус — с 1922-го) и управляет всеми инженерными частями армии, штаб в Таба-Тшване. Среди полков — 2-й полевой инженерный полк в Бетлехеме.','מערך ההנדסה של צבא דרום אפריקה הוקם ב־1982 (חיל ההנדסה — מ־1922) ושולט בכל יחידות ההנדסה של הצבא, מפקדתו בטאבה צ׳וואנה. בין הגדודים — גדוד הנדסת שדה 2 בבית לחם (מדינת החופש).','The SA Army Engineer Formation was created in 1982 (the Engineer Corps dates from 1922) and controls all army engineering units, headquartered at Thaba Tshwane. Its regiments include 2 Field Engineer Regiment in Bethlehem.'],
   gm:['Сапёры: быстрее ставят и обезвреживают заряд.','חבלנים: מציבים ומנטרלים מטען מהר יותר.','Sappers: plant and defuse charges faster.'],src:'https://en.wikipedia.org/wiki/South_African_Army_Engineer_Formation'}};
-const ENU=Object.assign({},RUF,ZAF);
+// Ukraine (Armed Forces and the National Police special unit), open sources only. Numbers are game conventions.
+const UAF={
+ ua_kord:{n:['КОРД Нацполиции','KORD של המשטרה הלאומית','KORD (National Police)'],men:8,uni:['в форме Национальной полиции Украины','במדי המשטרה הלאומית של אוקראינה','Ukrainian National Police uniform'],
+  pub:['КОРД (Корпус оперативно-внезапного действия) — спецподразделение Национальной полиции Украины. Набор и подготовка начались в 2015 году, первые подразделения сформированы в 2016-м; устройство взято с полицейских SWAT в США. Задачи — задержание особо опасных вооружённых преступников, освобождение заложников, борьба с терроризмом; с 2022 года выполняет и боевые задачи.','KORD (חיל הפעולה המבצעית המהירה) — היחידה המיוחדת של המשטרה הלאומית של אוקראינה. הגיוס וההכשרה החלו ב־2015, והיחידות הראשונות הוקמו ב־2016; המבנה לקוח מיחידות SWAT בארה״ב. משימות: מעצר עבריינים חמושים מסוכנים, שחרור בני ערובה, לוחמה בטרור; מאז 2022 מבצעת גם משימות קרב.','KORD (Rapid Operational Response Unit) is the special unit of the National Police of Ukraine. Recruitment and training began in 2015 and the first units were formed in 2016; its structure follows US police SWAT units. Tasks: arresting dangerous armed criminals, freeing hostages, counter-terrorism; since 2022 it also carries out combat tasks.'],
+  gm:['Полицейский спецназ: лучший в зданиях и при задержании.','יחידה מיוחדת משטרתית: הטובה ביותר במבנים ובמעצרים.','Police special unit: best in buildings and at arrests.'],src:'https://en.wikipedia.org/wiki/Rapid_Operational_Response_Unit'},
+ ua_sso:{n:['ССО Украины','הכוחות המיוחדים של אוקראינה','Ukrainian SSO'],men:8,
+  pub:['Силы специальных операций Вооружённых сил Украины — отдельный род сил, созданный в 2016 году. Задачи — разведка, специальные и диверсионные действия.','כוחות המבצעים המיוחדים של צבא אוקראינה — זרוע נפרדת שהוקמה ב־2016. משימות: סיור, פעולות מיוחדות וחבלה.','The Special Operations Forces of the Armed Forces of Ukraine are a separate branch created in 2016. Tasks: reconnaissance, special operations and sabotage.'],
+  gm:['Малая группа высокой выучки: скрытная, точная, стойкая.','צוות קטן ומיומן מאוד: חשאי, מדויק ועמיד.','Small, highly trained team: stealthy, accurate, resilient.'],src:'https://en.wikipedia.org/wiki/Special_Operations_Forces_(Ukraine)'},
+ ua_razv:{n:['Разведгруппа бригады','צוות סיור חטיבתי','Brigade recon team'],men:6,
+  pub:['У бригад Сухопутных войск Украины свои разведроты, есть и отдельные разведбатальоны. Разведка ведётся во многом с беспилотников.','לחטיבות של כוחות היבשה של אוקראינה יש פלוגות סיור משלהן, ויש גם גדודי סיור נפרדים. חלק גדול מהסיור נעשה בכטב״מים.','Ukrainian Ground Forces brigades have their own reconnaissance companies, and there are separate reconnaissance battalions. Much of the reconnaissance is done with drones.'],
+  gm:['Разведгруппа с квадрокоптером: скрытная и далеко видит.','צוות סיור עם רחפן: חשאי ורואה רחוק.','Recon team with a quadcopter: stealthy and sees far.'],src:'https://en.wikipedia.org/wiki/Ukrainian_Ground_Forces'},
+ ua_hmmwv:{n:['Группа на HMMWV','צוות על HMMWV','Team on HMMWVs'],men:8,veh:true,vehN:['машины HMMWV','רכבי HMMWV','HMMWVs'],
+  pub:['Бронированные HMMWV поступают в Украину из США с 2015 года: первые 10 машин доставили в марте 2015-го, и тогда говорили, что их ждут аэромобильные войска и спецназ. Позже партии шли многим бригадам.','רכבי HMMWV ממוגנים מגיעים לאוקראינה מארה״ב מאז 2015: עשרת הראשונים הגיעו במרץ 2015, ונאמר אז שמחכים להם הכוחות המוטסים והכוחות המיוחדים. מאוחר יותר משלוחים הגיעו לחטיבות רבות.','Armoured HMMWVs have been arriving in Ukraine from the US since 2015: the first 10 were delivered in March 2015, when they were said to be awaited by the airmobile troops and special forces. Later batches went to many brigades.'],
+  gm:['Быстро подъезжает, спешивается у противника или у объекта. Пока едет — уязвима.','מגיעה מהר, יורדת מהרכב ליד האויב או ליד היעד. בזמן הנסיעה — פגיעה.','Arrives fast, dismounts near the enemy or the objective. Vulnerable while riding.'],src:'https://www.armyrecognition.com/news/army-news/army-news-2015/first-batch-of-10-us-armored-humvees-hmmwv-delivered-to-ukraine'},
+ ua_dshv:{n:['Десантно-штурмовые войска','כוחות הסתערות מוטסים','Air Assault Forces'],men:16,
+  pub:['Десантно-штурмовые войска — отдельный род войск ВСУ: десантные и десантно-штурмовые бригады, резерв для быстрого реагирования. Действуют в составе бригад и групп.','כוחות ההסתערות המוטסים — זרוע נפרדת בצבא אוקראינה: חטיבות צנחנים והסתערות מוטסת, עתודה לתגובה מהירה. פועלים במסגרת חטיבות וכוחות משימה.','The Air Assault Forces are a separate branch of the Ukrainian Armed Forces: airborne and air assault brigades, a rapid-reaction reserve. They fight as brigades and task groups.'],
+  gm:['Десантный взвод: быстрый и напористый.','מחלקת צנחנים: מהירה ונמרצת.','Paratrooper platoon: fast and aggressive.'],src:'https://en.wikipedia.org/wiki/Ukrainian_Air_Assault_Forces'},
+ ua_mech:{n:['Механизированная бригада','חטיבה ממוכנת','Mechanised brigade'],men:16,
+  pub:['Механизированные бригады — основа Сухопутных войск Украины.','החטיבות הממוכנות הן הבסיס של כוחות היבשה של אוקראינה.','Mechanised brigades are the core of the Ukrainian Ground Forces.'],
+  gm:['Пехотный взвод: много стволов, держит позиции.','מחלקת חי״ר: הרבה קני ירי, מחזיקה עמדות.','Infantry platoon: many rifles, holds positions.'],src:'https://en.wikipedia.org/wiki/Ukrainian_Ground_Forces'},
+ ua_shturm:{n:['Штурмовой полк','גדוד הסתערות','Assault regiment'],men:12,
+  pub:['В 2025 году в ВСУ сформировали штурмовые полки и батальоны, а в сентябре 2025-го — отдельный род войск, Штурмовые войска; первым в него перевели 225-й отдельный штурмовой полк. Задачи — штурм и контратаки.','ב־2025 הוקמו בצבא אוקראינה גדודי וגדודוני הסתערות, ובספטמבר 2025 — זרוע נפרדת, כוחות ההסתערות; הראשון שעבר אליה הוא גדוד ההסתערות הנפרד 225. משימות: הסתערות והתקפות נגד.','In 2025 the Ukrainian Armed Forces formed assault regiments and battalions, and in September 2025 a separate branch, the Assault Forces; the 225th Separate Assault Regiment was the first moved into it. Tasks: assaults and counter-attacks.'],
+  gm:['Штурмовики: сильны в атаке на здания.','לוחמי הסתערות: חזקים בהסתערות על מבנים.','Assault troops: strong when storming buildings.'],src:'https://en.wikipedia.org/wiki/Assault_Forces_(Ukraine)'},
+ ua_eng:{n:['Инженерная часть ВСУ','יחידת הנדסה של צבא אוקראינה','Ukrainian engineers'],men:6,sap:true,
+  pub:['Инженерные войска — род войск Сухопутных войск Украины: разминирование, заграждения, переправы, укрепления.','חיל ההנדסה — זרוע של כוחות היבשה של אוקראינה: פינוי מוקשים, מכשולים, מעברים וביצורים.','Engineer troops are a branch of the Ukrainian Ground Forces: mine clearing, obstacles, crossings and fortifications.'],
+  gm:['Сапёры: быстрее ставят и обезвреживают заряд.','חבלנים: מציבים ומנטרלים מטען מהר יותר.','Sappers: plant and defuse charges faster.'],src:'https://en.wikipedia.org/wiki/Ukrainian_Ground_Forces'}};
+const ENU=Object.assign({},RUF,ZAF,UAF);
 // each country: its units, which unit answers each of ours, extra units on harder levels, names for reports and screens
 const NAT={
- ru:{units:RUF,analog:{ym:'sobr',dv:'moto',mg:'snip',eg:'sso',sgol:'razv',stz:'razv',sgv:'razv',snh:'razv',gol:'msv',tz:'vdv',gv:'mp',nh:'shturm',kf:'shturm',yh:'isp'},def:['msv','spn'],foot:'shturm',eng:'isp',hard:r=>r()<.5?'bars':'stormv',vhard:'shturm',
+ ru:{units:RUF,analog:{ym:'sobr',dv:'moto',mg:'snip',eg:'sso',sgol:'razv',stz:'razv',sgv:'razv',snh:'razv',gol:'msv',tz:'vdv',gv:'mp',nh:'shturm',kf:'shturm',yh:'isp'},def:['msv','spn'],foot:'shturm',vehTac:['Впереди на скорости мотоциклы, за ними пешие штурмовые группы; давят под огнём, потери их не останавливают.','בראש נעים במהירות אופנועים ואחריהם קבוצות הסתערות רגליות; לוחצים תחת אש, אבדות לא עוצרות אותם.','Motorcycles lead at speed, foot assault groups follow; they push on under fire and losses do not stop them.'],tac0:['Штурмовые группы давят под огнём, потери их не останавливают.','קבוצות ההסתערות לוחצות תחת אש, אבדות לא עוצרות אותן.','The assault groups push on under fire and losses do not stop them.'],eng:'isp',hard:r=>r()<.5?'bars':'stormv',vhard:'shturm',
   tac:['Впереди расходные группы, за ними штурмовые; давят под огнём, потери их не останавливают.','בראש קבוצות מתכלות ואחריהן קבוצות הסתערות; לוחצים תחת אש, אבדות לא עוצרות אותם.','Expendable groups lead, assault groups follow; they push on under fire and losses do not stop them.'],gen:['армии России','צבא רוסיה','the Russian Army'],uni:['в форме армии России','במדי צבא רוסיה','Russian Army uniform'],units_t:['Армия России: подразделения','צבא רוסיה: היחידות','Russian Army: units'],intel:['подразделения армии России','יחידות של צבא רוסיה','Russian Army units']},
- za:{units:ZAF,analog:{ym:'za_stf',dv:'za_gecko',mg:'za_pf',eg:'za_sf',sgol:'za_pf',stz:'za_pf',sgv:'za_pf',snh:'za_pf',gol:'za_inf',tz:'za_para',gv:'za_inf',nh:'za_inf',kf:'za_inf',yh:'za_eng'},def:['za_inf','za_sf'],foot:'za_inf',eng:'za_eng',hard:()=>'za_inf',vhard:'za_para',
-  tac:['Впереди разведка, дальше огонь и движение: из укрытий прижимают огнём, потом рывок; берегут людей и отходят по команде все вместе.','בראש הסיור, ואחריו אש ותנועה: מרתקים באש ממחסות ואז מסתערים; שומרים על הלוחמים ונסוגים יחד בפקודה.','Reconnaissance leads, then fire and movement: they pin you down from cover, then rush; they spare their men and pull back together on order.'],gen:['армии ЮАР','צבא דרום אפריקה','the South African Army'],uni:['в форме армии ЮАР','במדי צבא דרום אפריקה','South African Army uniform'],units_t:['ЮАР: подразделения','דרום אפריקה: היחידות','South Africa: units'],intel:['подразделения армии и полиции ЮАР','יחידות של הצבא והמשטרה של דרום אפריקה','South African army and police units']}};
+ za:{units:ZAF,analog:{ym:'za_stf',dv:'za_gecko',mg:'za_pf',eg:'za_sf',sgol:'za_pf',stz:'za_pf',sgv:'za_pf',snh:'za_pf',gol:'za_inf',tz:'za_para',gv:'za_inf',nh:'za_inf',kf:'za_inf',yh:'za_eng'},def:['za_inf','za_sf'],vehTac:['Впереди на скорости машины Gecko, за ними пехота: огонь и движение — из укрытий прижимают огнём, потом рывок; берегут людей и отходят по команде все вместе.','בראש נעים במהירות רכבי Gecko ואחריהם חי״ר: אש ותנועה — מרתקים באש ממחסות ואז מסתערים; שומרים על הלוחמים ונסוגים יחד בפקודה.','Geckos lead at speed, infantry follows: fire and movement — they pin you down from cover, then rush; they spare their men and pull back together on order.'],foot:'za_inf',eng:'za_eng',hard:()=>'za_inf',vhard:'za_para',
+  tac:['Впереди разведка, дальше огонь и движение: из укрытий прижимают огнём, потом рывок; берегут людей и отходят по команде все вместе.','בראש הסיור, ואחריו אש ותנועה: מרתקים באש ממחסות ואז מסתערים; שומרים על הלוחמים ונסוגים יחד בפקודה.','Reconnaissance leads, then fire and movement: they pin you down from cover, then rush; they spare their men and pull back together on order.'],gen:['армии ЮАР','צבא דרום אפריקה','the South African Army'],uni:['в форме армии ЮАР','במדי צבא דרום אפריקה','South African Army uniform'],units_t:['ЮАР: подразделения','דרום אפריקה: היחידות','South Africa: units'],intel:['подразделения армии и полиции ЮАР','יחידות של הצבא והמשטרה של דרום אפריקה','South African army and police units']},
+ ua:{units:UAF,analog:{ym:'ua_kord',dv:'ua_hmmwv',mg:'ua_razv',eg:'ua_sso',sgol:'ua_razv',stz:'ua_razv',sgv:'ua_razv',snh:'ua_razv',gol:'ua_mech',tz:'ua_dshv',gv:'ua_mech',nh:'ua_shturm',kf:'ua_shturm',yh:'ua_eng'},def:['ua_mech','ua_sso'],foot:'ua_shturm',eng:'ua_eng',hard:r=>r()<.5?'ua_shturm':'ua_mech',vhard:'ua_dshv',
+  tac:['Сначала смотрят дроны: основные силы выходят, когда беспилотник осмотрел объект. Впереди разведка, дальше малые группы огнём и движением; у каждой группы квадрокоптер, поэтому видят дальше. Берегут людей.','קודם מסתכלים הכטב״מים: הכוח העיקרי יוצא אחרי שהכטב״ם סרק את היעד. בראש הסיור, ואחריו חוליות קטנות באש ותנועה; לכל חוליה רחפן, ולכן הן רואות רחוק יותר. שומרים על הלוחמים.','Drones look first: the main body moves once the drone has checked the objective. Reconnaissance leads, then small groups by fire and movement; every group has a quadcopter, so they see further. They spare their men.'],
+  vehTac:['Впереди на скорости HMMWV, за ними пешие штурмовые группы; дроны смотрят вперёд, у каждой группы квадрокоптер. Берегут людей.','בראש נעים במהירות רכבי HMMWV ואחריהם חוליות הסתערות רגליות; הכטב״מים מסתכלים קדימה, לכל חוליה רחפן. שומרים על הלוחמים.','HMMWVs lead at speed, foot assault groups follow; the drones look ahead and every group has a quadcopter. They spare their men.'],
+  gen:['армии Украины','צבא אוקראינה','the Ukrainian Army'],uni:['в форме ВСУ','במדי צבא אוקראינה','Ukrainian Armed Forces uniform'],units_t:['Украина: подразделения','אוקראינה: היחידות','Ukraine: units'],intel:['подразделения Вооружённых сил Украины','יחידות של צבא אוקראינה','Ukrainian Armed Forces units']}};
+
 const natOf=o=>NAT[(o&&o.nation)||'ru']||NAT.ru;
 const NAT_S=()=>natOf(S);
 // what our teams see on a soldier of this unit
 const uniOf=e=>L2((ENU[e.rt]&&ENU[e.rt].uni)||NAT_S().uni);
-const NATIONS=[['ru',['Россия','רוסיה','Russia'],true],['za',['ЮАР','דרום אפריקה','South Africa'],true],['x1',['Другие страны — позже','מדינות נוספות — בהמשך','More countries — later'],false]];
+const NATIONS=[['ru',['Россия','רוסיה','Russia'],true],['za',['ЮАР','דרום אפריקה','South Africa'],true],['ua',['Украина','אוקראינה','Ukraine'],true],['x1',['Другие страны — позже','מדינות נוספות — בהמשך','More countries — later'],false]];
 const PLANT_T=60,PLANT_SAP=40,DET_T=300,HOLD_R=70;
 function loadMS(){let d=null;try{d=JSON.parse(localStorage.getItem(MIS_KEY)||'null');}catch(e){}if(!d||!d.seed)d={seed:1000+rnd(9000),diff:1,dens:'normal',sel:['ym','eg','gol','yh'],nation:'ru'};d.sel=(d.sel||[]).filter(t=>TU[t]&&!TU[t].off);return d;}
 function saveMS(){try{localStorage.setItem(MIS_KEY,JSON.stringify(MS));localStorage.setItem(MODE_KEY,MODE);}catch(e){}}
-function tacTxt(){const N=NAT_S(),o=S.enOrder||[],za=S.nation==='za';
-  if(o.some(t=>ENU[t].veh))return za?['Впереди на скорости машины Gecko, за ними пехота: огонь и движение — из укрытий прижимают огнём, потом рывок; берегут людей и отходят по команде все вместе.','בראש נעים במהירות רכבי Gecko ואחריהם חי״ר: אש ותנועה — מרתקים באש ממחסות ואז מסתערים; שומרים על הלוחמים ונסוגים יחד בפקודה.','Geckos lead at speed, infantry follows: fire and movement — they pin you down from cover, then rush; they spare their men and pull back together on order.']
-    :['Впереди на скорости мотоциклы, за ними пешие штурмовые группы; давят под огнём, потери их не останавливают.','בראש נעים במהירות אופנועים ואחריהם קבוצות הסתערות רגליות; לוחצים תחת אש, אבדות לא עוצרות אותם.','Motorcycles lead at speed, foot assault groups follow; they push on under fire and losses do not stop them.'];
-  if(!za&&!o.some(t=>tacOf().lead.includes(t)))return['Штурмовые группы давят под огнём, потери их не останавливают.','קבוצות ההסתערות לוחצות תחת אש, אבדות לא עוצרות אותן.','The assault groups push on under fire and losses do not stop them.'];
+function tacTxt(){const N=NAT_S(),o=S.enOrder||[];
+  if(o.some(t=>ENU[t].veh)&&N.vehTac)return N.vehTac;
+  if(N.tac0&&!o.some(t=>tacOf().lead.includes(t)))return N.tac0;
   return N.tac;}
 function enemyOrder(o){const r=mulberry(o.seed*7+o.diff*3+11),N=natOf(o);let list=o.sel.map(t=>N.analog[t]).filter(Boolean);
   if(!list.length)list=N.def.slice();if(o.diff===0&&list.length>=3)list.splice(list.findIndex(t=>t!==N.eng),1);
@@ -111,7 +141,7 @@ function newMissionState(o){const st=newState({seed:o.seed,diff:o.diff,dens:o.de
   st.enemies=order.map((t,i)=>{const R=ENU[t];const g=grp('a'+i,'army',Math.round(R.men*(o.diff===0?.8:1)),b0,{alert:true,rt:t,...(m=>({q:m.q+(o.diff>=3?.05:0),rk:m.rk,stl:m.stl,spd:m.spd}))(mechOf(t,R.men)),sap:!!R.sap,veh:!!R.veh,mode:'base',role:'',prog:0});
     g.bld=0;{const c=nearFree(st.enBase.x-90+(i%4)*60,st.enBase.y-Math.floor(i/4)*40);g.x=c?c[0]*NG+NG/2:st.enBase.x;g.y=c?c[1]*NG+NG/2:st.enBase.y;}g.tx=g.x;g.ty=g.y;return g;});
   st.units=st.units.filter(u=>u.id!=='mo');st.mol.st='none';st.mol.ammo=0;st.mol.gun=0;st.mol.cover=null;
-  st.charge={us:null,them:null};st.mres=null;st.enOrder=order;st.aiT=0;st.contact0=0;st.ek={};st.sat=null;st.euav={x:st.enBase.x,y:st.enBase.y,tx:ox,ty:oy};st.marks.euav=null;return st;}
+  st.charge={us:null,them:null};st.mres=null;st.enOrder=order;st.aiT=0;st.contact0=0;st.ek={};st.sat=null;st.euav={x:st.enBase.x,y:st.enBase.y,tx:ox,ty:oy,retask:T0+60};st.marks.euav=null;return st;}
 // ---- army AI: fire and maneuver, bounding overwatch, strongpoints, flanking, reserve, orderly withdrawal ----
 function armyGoTo(e,x,y,role){const p=nearFree(x,y);if(!p)return;e.mode='amove';e.role=role||e.role;e.bld=0;e.tx=p[0]*NG+NG/2;e.ty=p[1]*NG+NG/2;e.leg=0;e.pause=0;e.pkey=null;}
 function strongpoint(e){const b=BL.filter(b=>!S.destroyed[b.n]&&!S.enemies.some(o=>o!==e&&!o.gone&&o.bld===b.n)).reduce((a,b)=>!a||Math.hypot(b.cx-e.x,b.cy-e.y)<Math.hypot(a.cx-e.x,a.cy-e.y)?b:a,null);
@@ -126,16 +156,16 @@ function armyCommand(){const O=S.obj,A=alive().filter(e=>e.kind==='army'&&e.mode
   // their charge is ticking: hold strongpoints around the objective
   if(S.charge.them){const pts=ringPoints(A.length,60,150,-1);A.forEach((e,i)=>{if(!free(e))return;if(e.mode==='hold'&&nearO(e)<190)return;armyGoTo(e,pts[i][0],pts[i][1],'defend');});return;}
   // race: a lead element goes first, then the carrier with escort to the objective, overwatch takes buildings on the near side, one reserve held back
-  const T=tacOf(),za=S.nation==='za';let leads=A.filter(e=>T.lead.includes(e.rt)&&e.role!=='carrier');if(leads.length>=A.length)leads=leads.slice(0,A.length-1);
+  const T=tacOf(),za=T.scout;let leads=A.filter(e=>T.lead.includes(e.rt)&&e.role!=='carrier');if(leads.length>=A.length)leads=leads.slice(0,A.length-1);
   for(const e of leads){if(!free(e)||e.mode!=='base')continue;if(za){const dx=S.enBase.x-O.x,dy=S.enBase.y-O.y,l=Math.hypot(dx,dy)||1;armyGoTo(e,O.x+dx/l*150,O.y+dy/l*150,'scout');}else armyGoTo(e,O.x,O.y,'probe');}
-  const ready=!leads.length||za||S.contact0||S.t-T0>30; // Russia: the main body follows the expendable groups half a minute later; South Africa's scouts are simply faster than the main body
+  const ready=S.contact0||(T.droneFirst?(S.euav&&S.euav.recon)||S.t-T0>60:!leads.length||za||S.t-T0>30); /* Ukraine: the main body waits until its drone has looked at the objective */ // Russia: the main body follows the expendable groups half a minute later; South Africa's scouts are simply faster than the main body
   let carrier=A.find(e=>e.role==='carrier');if(!carrier){const pool=A.filter(e=>!leads.includes(e));const tOf=e=>nearO(e)/(e.veh?ARMY_VEH*.8:ARMY_BASE*(e.spd||1))+(e.sap?PLANT_SAP:PLANT_T);carrier=pool.reduce((a,e)=>!a||tOf(e)<tOf(a)?e:a,null);carrier.role='carrier';/* whoever gets there and plants soonest */}
   const others=A.filter(e=>e!==carrier&&!leads.includes(e)&&e.role!=='clear');const reserve=others.length>=3?others.reduce((a,e)=>!a||e.men<a.men?e:a,null):null;
   const escort=others.filter(e=>e!==reserve).sort((a,b)=>nearO(a)-nearO(b))[0];
   const ow=others.filter(e=>e!==reserve&&e!==escort);const pts=ringPoints(Math.max(1,ow.length),90,170,-1);
   // South Africa: our teams sit within reach of the objective and the carrier cannot plant — when they are weak (few men, or
   // pinned) and the South Africans nearby clearly outnumber them, a group goes in and clears them out, by fire and movement
-  if(za&&!S.zaWd&&nearO(carrier)<160){const ours=ekList(120).filter(k=>Math.hypot(k.x-O.x,k.y-O.y)<HOLD_R+40);
+  if(T.clear&&!S.zaWd&&nearO(carrier)<160){const ours=ekList(120).filter(k=>Math.hypot(k.x-O.x,k.y-O.y)<HOLD_R+40);
     if(ours.length){const our=ours.reduce((n,u)=>n+u.men,0),their=A.filter(e=>nearO(e)<260).reduce((n,e)=>n+e.men,0),weak=ours.every(u=>u.men<=3||(u.sup||0)>60);
       if(their>=our*1.5||weak){const tgt=ours.reduce((a,u)=>!a||u.men<a.men?u:a,null);
         const busy=A.filter(e=>e.role==='clear'&&!e.gone).length;
@@ -143,7 +173,7 @@ function armyCommand(){const O=S.obj,A=alive().filter(e=>e.kind==='army'&&e.mode
           if(g){const p=tgt.b?BN(tgt.b):tgt;armyGoTo(g,p.cx??p.x,p.cy??p.y,'clear');g.clearU=tgt.id;g.boundT=S.t+12;}}}}}
   for(const e of A)if(e.role==='clear'){const k=(S.ek||{})[e.clearU];if(!k||S.t-k.t>180||Math.hypot(k.x-O.x,k.y-O.y)>HOLD_R+60){e.role='overwatch';e.clearU=null;}}
   // the carrier keeps going: after a firefight it leaves its cover once the shooting stops (Russia at once, South Africa after a pause)
-  if(ready&&(free(carrier)&&(carrier.mode!=='hold'||S.t-(carrier.holdT||0)>(za?10:5))||carrier.mode==='base')){if(nearO(carrier)>25)armyGoTo(carrier,O.x,O.y,'carrier');}
+  if(ready&&(free(carrier)&&(carrier.mode!=='hold'||S.t-(carrier.holdT||0)>T.resume)||carrier.mode==='base')){if(nearO(carrier)>25)armyGoTo(carrier,O.x,O.y,'carrier');}
   if(carrier.mode==='hold'&&nearO(carrier)<30&&!carrier.cont.length){carrier.mode='plant';carrier.prog=carrier.prog||0;}
   if(ready&&escort&&free(escort)&&(escort.mode==='base'||escort.mode==='hold'&&nearO(escort)>120))armyGoTo(escort,(carrier.tx+carrier.x)/2,(carrier.ty+carrier.y)/2+20,'escort');
   ow.forEach((e,i)=>{if(ready&&free(e)&&(e.mode==='base'||e.mode==='hold'&&e.role!=='overwatch'))armyGoTo(e,pts[i][0],pts[i][1],'overwatch');});
@@ -157,7 +187,7 @@ function armyCommand(){const O=S.obj,A=alive().filter(e=>e.kind==='army'&&e.mode
 let PT=0,PTn=0;function pauseThink(rdt){PT+=rdt;if(PTn<2&&PT>=(PTn?4:1)){PTn++;armyCommand();}}
 function pauseReset(){PT=0;PTn=0;}
 function armyTick(dt){const O=S.obj,U=infs(),T=tacOf();
-  if(T===TAC.za&&!S.zaWd){const A=S.enemies.filter(e=>e.kind==='army'),now=A.reduce((n,e)=>n+(e.gone?0:e.men),0),all=A.reduce((n,e)=>n+e.max,0);
+  if(T.coWd&&!S.zaWd){const A=S.enemies.filter(e=>e.kind==='army'),now=A.reduce((n,e)=>n+(e.gone?0:e.men),0),all=A.reduce((n,e)=>n+e.max,0);
     if(all&&now<=all*.5){S.zaWd=S.t;const near=e=>Math.min(...ekList(600).map(k=>Math.hypot(k.x-e.x,k.y-e.y)),1e9);
       S.zaWdOrder=A.filter(e=>!e.gone&&e.men>0).sort((a,b)=>near(b)-near(a)).map(e=>e.id);
       say({call:T3('Разведка','מודיעין','Intel'),type:'x'},T3('Кобра-6, я Разведка. Перехват: противник получил приказ на отход, группы отходят по очереди, прикрывая друг друга. Приём.','צפע, כאן מודיעין. יירוט: האויב קיבל פקודה לסגת, החוליות נסוגות בזו אחר זו ומחפות זו על זו. עבור.','Cobra-6, this is Intel. Intercept: the enemy has been ordered to pull back; the groups are withdrawing one by one, covering each other. Over.'),[],{});}}
@@ -165,7 +195,7 @@ function armyTick(dt){const O=S.obj,U=infs(),T=tacOf();
     // when a group pulls back: Russia accepts heavy losses (expendable groups almost never pull back), South Africa preserves its men
     // South Africa: one order to pull back for the whole force when it is down to half; the group furthest from us goes first,
     // the one in contact last, 20 s apart, so the others are covered. Russia: each group decides by its own losses.
-    const wdNow=T===TAC.za?(S.zaWd&&S.t>=S.zaWd+20*Math.max(0,(S.zaWdOrder||[]).indexOf(e.id))||e.men<=1):e.men<=Math.ceil(e.max*(T===TAC.ru&&T.lead.includes(e.rt)?T.wdX:T.wd));
+    const wdNow=T.coWd?(S.zaWd&&S.t>=S.zaWd+20*Math.max(0,(S.zaWdOrder||[]).indexOf(e.id))||e.men<=1):e.men<=Math.ceil(e.max*(T.push&&T.lead.includes(e.rt)?T.wdX:T.wd));
     if(e.mode!=='withdraw'&&wdNow){e.mode='withdraw';e.bld=0;const p=nearFree(S.enBase.x,S.enBase.y);e.tx=p[0]*NG;e.ty=p[1]*NG;e.pkey=null;if(e.role==='carrier')e.role='';}
     // riders get off near our teams, under fire or close to the objective
     if(e.veh&&(e.cont.length||ekNear(e,220)||Math.hypot(e.x-O.x,e.y-O.y)<130)){e.veh=false;e.pkey=null;}
@@ -173,10 +203,10 @@ function armyTick(dt){const O=S.obj,U=infs(),T=tacOf();
     if(e.cont.length){S.contact0=S.contact0||S.t;
       // Russia pushes on under fire with the groups that matter for the race; everyone else (and South Africa always) goes to ground in a building
       // South Africa: fire and movement — from cover the group fires for 15 s, then, while it still has half its men, rushes forward for 12 s
-      if(T===TAC.za&&['carrier','defuse'].includes(e.role)&&e.mode==='hold'&&S.t-(e.holdT||0)>15&&e.men>e.max*.5){armyGoTo(e,O.x,O.y,e.role);e.boundT=S.t+12;}
-      if(T===TAC.za&&e.role==='clear'&&e.mode==='hold'&&S.t-(e.holdT||0)>15&&e.men>e.max*.5){const k=(S.ek||{})[e.clearU];if(k){const p=k.b?BN(k.b):null;armyGoTo(e,p?p.cx:k.x,p?p.cy:k.y,'clear');e.boundT=S.t+12;}}
+      if(T.fm&&['carrier','defuse'].includes(e.role)&&e.mode==='hold'&&S.t-(e.holdT||0)>15&&e.men>e.max*.5){armyGoTo(e,O.x,O.y,e.role);e.boundT=S.t+12;}
+      if(T.clear&&e.role==='clear'&&e.mode==='hold'&&S.t-(e.holdT||0)>15&&e.men>e.max*.5){const k=(S.ek||{})[e.clearU];if(k){const p=k.b?BN(k.b):null;armyGoTo(e,p?p.cx:k.x,p?p.cy:k.y,'clear');e.boundT=S.t+12;}}
       if(e.role==='clear'){const u=U_(e.clearU);if(u&&u.inB&&u.men>0&&Math.hypot(e.x-BN(u.inB).cx,e.y-BN(u.inB).cy)<25){e.bld=u.inB;e.x=BN(u.inB).cx;e.y=BN(u.inB).cy;e.mode='hold';e.holdT=S.t;continue;}}
-      const push=(T===TAC.ru&&['carrier','probe','defuse'].includes(e.role)&&e.men>e.max*.4||T===TAC.za&&e.boundT>S.t)&&e.mode==='amove'; /* in a firefight everyone is under suppressive fire; what stops a push is losses */
+      const push=(T.push&&['carrier','probe','defuse'].includes(e.role)&&e.men>e.max*.4||T.fm&&e.boundT>S.t)&&e.mode==='amove'; /* in a firefight everyone is under suppressive fire; what stops a push is losses */
       if(push){if(moveAlong(e,ARMY_BASE*(e.spd||1)*.6*dt)){const atO=Math.hypot(e.x-O.x,e.y-O.y)<30;if(atO&&e.role==='carrier'&&!S.charge.them){e.mode='plant';e.prog=e.prog||0;}else strongpoint(e);}continue;}
       if(e.mode==='amove')strongpoint(e);if(e.mode==='plant'||e.mode==='defuse'){e.mode='hold';}continue;}
     if(e.mode==='amove'){if((e.sup||0)>T.supStop)continue;if(e.pause>0){e.pause-=dt;continue;}

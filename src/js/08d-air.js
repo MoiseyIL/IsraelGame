@@ -5,10 +5,12 @@
 //   Russia — Orlan-10: about 16 h, cruise 100–120 km/h, a camera and a thermal camera; petrol engine, can be heard.
 //   South Africa — Denel Seeker 400: up to 16 h, cruise about 150 km/h, two sensor payloads at once; piston engine.
 //     Whether it is in service now is unclear in open sources; in the game it stands in for the army's drone.
+//   Ukraine — DeViRo Leleka-100: Ukrainian-made, electric (quiet), about 2–2.5 h in the air, cruise about 70 km/h.
 const DRONE={
   il:{n:['Elbit Skylark I-LE','Elbit Skylark I-LE','Elbit Skylark I-LE'],end:3*3600,swap:20*60,spd:25,r:320},
   ru:{n:['«Орлан-10»','«אורלן-10»','Orlan-10'],end:16*3600,spd:30,r:320,p:.9},
   za:{n:['Denel Seeker 400','Denel Seeker 400','Denel Seeker 400'],end:16*3600,spd:40,r:360,p:1},
+  ua:{n:['«Лелека-100»','«לֶלֶקה-100»','Leleka-100'],end:2.5*3600,swap:20*60,spd:20,r:300,p:.9,quiet:true},
 };
 const INTEL=()=>({call:T3('Разведка','מודיעין','Intel'),type:'x'});
 const uavUp=()=>!S.uav||!S.uav.down;
@@ -43,8 +45,8 @@ function ekTick(dt){if(!S.mission)return;const A=alive().filter(e=>e.kind==='arm
   for(const u of infs()){if(u.men<=0){delete K[u.id];continue;}
     const mv=u._ex!=null&&Math.hypot(u.x-u._ex,u.y-u._ey)>.5*dt;u._ex=u.x;u._ey=u.y;const quiet=u.pace==='stealth'?.6:1;let src=null;
     if(A.some(e=>e.cont.includes(u.id))||u.cont.some(id=>{const e=E_(id);return e&&e.kind==='army';}))src='fire';
-    else for(const e of A){const d=Math.hypot(u.x-e.x,u.y-e.y),R=u.veh?450:u.inB?0:(mv?260:160)*quiet;if(d<R&&Math.random()<.35*dt){src='eye';break;}}
-    if(!src&&eu&&!u.inB&&Math.hypot(u.x-eu.x,u.y-eu.y)<D.r&&Math.random()<(u.veh?.25:mv?.06:.02)*quiet*D.p*dt)src='uav';
+    else for(const e of A){const d=Math.hypot(u.x-e.x,u.y-e.y),R=(u.veh?450:u.inB?0:(mv?260:160)*quiet)*(tacOf().eye||1);if(d<R&&Math.random()<.35*dt){src='eye';break;}}
+    if(!src&&eu&&!eu.down&&!u.inB&&Math.hypot(u.x-eu.x,u.y-eu.y)<D.r&&Math.random()<(u.veh?.25:mv?.06:.02)*quiet*D.p*dt)src='uav';
     if(src)K[u.id]={x:u.x,y:u.y,t:S.t,men:u.men,sup:u.sup||0,b:u.inB||0,src};}
   for(const id in K)if(S.t-K[id].t>900)delete K[id];}
 const ekList=age=>Object.entries(S.ek||{}).filter(([,k])=>S.t-k.t<age).map(([id,k])=>Object.assign({id},k));
@@ -52,12 +54,16 @@ const ekNear=(p,R,age)=>ekList(age||180).some(k=>Math.hypot(k.x-p.x,k.y-p.y)<R);
 
 // the enemy drone: goes to look where our teams were last seen, otherwise watches the approaches to the objective from our side
 function euavTick(dt){if(!S.mission||!S.euav||!S.obj)return;const eu=S.euav,D=DRONE[S.nation]||DRONE.ru,O=S.obj;
+  // a short-endurance drone leaves to change its battery, like ours
+  eu.air=(eu.air||0)+dt;if(eu.down){stepTo(eu,S.enBase.x,S.enBase.y,D.spd*dt);if((eu.downT-=dt)<=0){eu.down=false;eu.air=0;}return;}
+  if(eu.air>=D.end){eu.down=true;eu.downT=D.swap||1200;return;}
+  if(Math.hypot(eu.x-O.x,eu.y-O.y)<200)eu.recon=true;
   if(S.t>=(eu.retask||0)){eu.retask=S.t+90;const k=ekList(600).filter(k=>S.t-k.t>45).sort((a,b)=>b.t-a.t)[0];
     if(k){eu.tx=k.x;eu.ty=k.y;}else{const B=S.ourBase||O,f=eu.leg=((eu.leg||0)+1)%3,s=[.15,.45,.75][f];eu.tx=O.x+(B.x-O.x)*s+(f===1?-150:f===2?150:0);eu.ty=O.y+(B.y-O.y)*s;}}
   stepTo(eu,eu.tx,eu.ty,D.spd*dt);
   // we hear it (petrol engine): a team under it reports once in a while; the Hawk sees it too
   if(S.t-(eu.heard||-1e9)<600)return;
-  const u=infs().find(u=>u.men>0&&Math.hypot(u.x-eu.x,u.y-eu.y)<260),ya=uavUp()&&Math.hypot(S.uav.x-eu.x,S.uav.y-eu.y)<320?U_('ya'):null,ob=u||ya;if(!ob)return;
+  const u=D.quiet?null:infs().find(u=>u.men>0&&Math.hypot(u.x-eu.x,u.y-eu.y)<260),ya=uavUp()&&Math.hypot(S.uav.x-eu.x,S.uav.y-eu.y)<320?U_('ya'):null,ob=u||ya;if(!ob)return;
   eu.heard=S.t;S.marks.euav={x:eu.x,y:eu.y,t:S.t};
   say(ob,T3(`Кобра-6, я ${ob.call}. ${u?'Над нами':'Вижу'} беспилотник противника, квадрат ${cell(eu.x,eu.y)}. На улицах нас видно. Приём.`,`צפע, כאן ${ob.call}. ${u?'מעלינו':'רואה'} כטב״ם של האויב, משבצת ${cell(eu.x,eu.y)}. ברחובות רואים אותנו. עבור.`,`Cobra-6, this is ${ob.call}. Enemy drone ${u?'over us':'in sight'}, grid ${cell(eu.x,eu.y)}. We can be seen in the streets. Over.`),[],{pr:2});dirty=true;}
 function drawEuav(c){const m=S.marks.euav;if(!m||S.t-m.t>600)return;const [x,y]=toS(m.x,m.y);c.save();c.globalAlpha=S.t-m.t<180?1:.55;
