@@ -5,7 +5,7 @@
 // Age: fresh for 3 min, turns grey by 10 min, disappears after 30 min without being seen.
 const TG_FRESH=180,TG_GREY=600,TG_GONE=1800,TG_DEAD=120,TG_NEAR=300;
 function tgRec(e){tgtNo(e);return S.tg.by[e.id];}
-const tgAge=r=>S.t-r.ls;
+const tgAge=r=>(S.t-r.ls)*(r.sat?3:1);
 const tgShown=r=>r.ls!=null&&!r.hide&&(r.dead?S.t-r.dead<TG_DEAD:tgAge(r)<TG_GONE);
 function tgWhere(r){return r.roof?T3(`на крыше здания ${r.bld}`,`על גג מבנה ${r.bld}`,`on the roof of building ${r.bld}`):r.bld?T3(`в здании ${r.bld}`,`במבנה ${r.bld}`,`in building ${r.bld}`):placeTxt(r.lx,r.ly);}
 const tgDir=r=>r.mv&&(r.dx||r.dy)?DIRS_TO[dirIdx(r.dx,r.dy)]:'';
@@ -18,8 +18,8 @@ function tgDanger(e){let best=null;for(const u of infs()){if(u.men<=0)continue;c
 // someone of ours sees the group now
 function seeTgt(e,ob,o){o=o||{};const r=tgRec(e);const isNew=r.ls==null||r.hide;
   if(e.mv&&e.tx!=null){r.dx=e.tx-e.x;r.dy=e.ty-e.y;}else{r.dx=0;r.dy=0;}
-  r.lx=e.x;r.ly=e.y;r.bld=(e.bld&&(!outside(e)||e.roof))?e.bld:0;r.roof=!!e.roof;r.men=e.men;r.mv=!!e.mv;r.ls=S.t;r.by=ob.call;r.army=e.kind==='army';r.uni=r.army?uniOf(e):'';r.hide=false;r.dead=0;
-  r.act=e.veh?T3('едут на машинах','נוסעים ברכבים','riding vehicles'):e.roof?T3('наблюдают с крыши','מתצפתים מהגג','watching from a roof'):e.mv?T3(`идут на ${tgDir(r)}`,`נעים ${tgDir(r)}`,`moving ${tgDir(r)}`):r.bld?T3('в здании','במבנה','inside a building'):T3('стоят','עומדים','standing');
+  r.lx=e.x;r.ly=e.y;r.bld=(e.bld&&(!outside(e)||e.roof))?e.bld:0;r.roof=!!e.roof;r.men=e.men;r.mv=!!e.mv;r.ls=S.t;r.by=ob.call;r.army=e.kind==='army';r.uni=r.army&&!o.sat?uniOf(e):'';r.hide=false;r.dead=0;r.sat=!!o.sat;
+  r.act=o.sat?T3('радарный снимок: люди или машины, кто — не различить','צילום מכ״ם: אנשים או רכבים, לא ברור מי','radar picture: people or vehicles, not who'):e.veh?T3('едут на машинах','נוסעים ברכבים','riding vehicles'):e.roof?T3('наблюдают с крыши','מתצפתים מהגג','watching from a roof'):e.mv?T3(`идут на ${tgDir(r)}`,`נעים ${tgDir(r)}`,`moving ${tgDir(r)}`):r.bld?T3('в здании','במבנה','inside a building'):T3('стоят','עומדים','standing');
   if(isNew){r.first=S.t;r.warned=false;jrAdd({t:S.t,from:T3('Карта','מפה','Map'),text:T3(`Цель ${r.no}: ${cnt(e.men)}, ${tgWhere(r)} (видит ${ob.call}).`,`מטרה ${r.no}: ${cnt(e.men)}, ${tgWhere(r)} (רואה: ${ob.call}).`,`Target ${r.no}: ${cnt(e.men)}, ${tgWhere(r)} (seen by ${ob.call}).`),eid:e.id});}
   const named=r.t!=null&&r.t>-1e8,fought=infs().some(u=>u.men>0&&u.cont.includes(e.id));
   if(!o.quiet&&!o.contact&&!r.warned&&!fought&&!(named&&S.t-r.t<180)){const dg=tgDanger(e);if(dg){r.warned=true;tgSay(e,r,ob,dg,!named);}}
@@ -33,7 +33,7 @@ function tgSay(e,r,ob,dg,isNew){const mv=r.mv?T3(`, идут на ${tgDir(r)}`,`
 function tgSeenBy(e){for(const u of infs())if(u.men>0&&u.cont.includes(e.id))return u;
   if(!outside(e))return null;
   for(const u of infs()){if(u.men<=0)continue;const d=Math.hypot(u.x-e.x,u.y-e.y);if(d>(u.optic?420:260))continue;if(e.roof||losUE(u,e))return u;}
-  const ya=U_('ya');if(ya&&S.uav&&Math.hypot(S.uav.x-e.x,S.uav.y-e.y)<320)return ya;return null;}
+  const ya=U_('ya');if(ya&&S.uav&&uavUp()&&Math.hypot(S.uav.x-e.x,S.uav.y-e.y)<320)return ya;return null;}
 // every few seconds: keep tracking known groups, add groups that opened fire on us, cross out groups that were destroyed in front of us
 function pictureTick(){if((S.t|0)%3)return;const T=(S.tg=S.tg||{n:0,by:{}});
   for(const e of alive()){const r=T.by[e.id],known=r&&r.ls!=null&&!r.hide&&!r.dead;

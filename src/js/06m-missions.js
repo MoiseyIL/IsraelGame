@@ -104,7 +104,7 @@ function newMissionState(o){const st=newState({seed:o.seed,diff:o.diff,dens:o.de
   st.enemies=order.map((t,i)=>{const R=ENU[t];const g=grp('a'+i,'army',Math.round(R.men*(o.diff===0?.8:1)),b0,{alert:true,rt:t,...(m=>({q:m.q+(o.diff>=3?.05:0),rk:m.rk,stl:m.stl,spd:m.spd}))(mechOf(t,R.men)),sap:!!R.sap,veh:!!R.veh,mode:'base',role:'',prog:0});
     g.bld=0;{const c=nearFree(st.enBase.x-90+(i%4)*60,st.enBase.y-Math.floor(i/4)*40);g.x=c?c[0]*NG+NG/2:st.enBase.x;g.y=c?c[1]*NG+NG/2:st.enBase.y;}g.tx=g.x;g.ty=g.y;return g;});
   st.units=st.units.filter(u=>u.id!=='mo');st.mol.st='none';st.mol.ammo=0;st.mol.gun=0;st.mol.cover=null;
-  st.charge={us:null,them:null};st.mres=null;st.enOrder=order;st.aiT=0;st.contact0=0;return st;}
+  st.charge={us:null,them:null};st.mres=null;st.enOrder=order;st.aiT=0;st.contact0=0;st.ek={};st.sat=null;st.euav={x:st.enBase.x,y:st.enBase.y,tx:ox,ty:oy};st.marks.euav=null;return st;}
 // ---- army AI: fire and maneuver, bounding overwatch, strongpoints, flanking, reserve, orderly withdrawal ----
 function armyGoTo(e,x,y,role){const p=nearFree(x,y);if(!p)return;e.mode='amove';e.role=role||e.role;e.bld=0;e.tx=p[0]*NG+NG/2;e.ty=p[1]*NG+NG/2;e.leg=0;e.pause=0;e.pkey=null;}
 function strongpoint(e){const b=BL.filter(b=>!S.destroyed[b.n]&&!S.enemies.some(o=>o!==e&&!o.gone&&o.bld===b.n)).reduce((a,b)=>!a||Math.hypot(b.cx-e.x,b.cy-e.y)<Math.hypot(a.cx-e.x,a.cy-e.y)?b:a,null);
@@ -128,13 +128,13 @@ function armyCommand(){const O=S.obj,A=alive().filter(e=>e.kind==='army'&&e.mode
   const ow=others.filter(e=>e!==reserve&&e!==escort);const pts=ringPoints(Math.max(1,ow.length),90,170,-1);
   // South Africa: our teams sit within reach of the objective and the carrier cannot plant — when they are weak (few men, or
   // pinned) and the South Africans nearby clearly outnumber them, a group goes in and clears them out, by fire and movement
-  if(za&&!S.zaWd&&nearO(carrier)<160){const ours=U.filter(u=>u.men>0&&Math.hypot(u.x-O.x,u.y-O.y)<HOLD_R+40);
+  if(za&&!S.zaWd&&nearO(carrier)<160){const ours=ekList(120).filter(k=>Math.hypot(k.x-O.x,k.y-O.y)<HOLD_R+40);
     if(ours.length){const our=ours.reduce((n,u)=>n+u.men,0),their=A.filter(e=>nearO(e)<260).reduce((n,e)=>n+e.men,0),weak=ours.every(u=>u.men<=3||(u.sup||0)>60);
       if(their>=our*1.5||weak){const tgt=ours.reduce((a,u)=>!a||u.men<a.men?u:a,null);
         const busy=A.filter(e=>e.role==='clear'&&!e.gone).length;
         if(busy<2){const g=A.filter(e=>e!==carrier&&e.role!=='clear'&&e.men>e.max*.5).sort((a,b)=>Math.hypot(a.x-tgt.x,a.y-tgt.y)-Math.hypot(b.x-tgt.x,b.y-tgt.y))[0];
-          if(g){const p=tgt.inB?BN(tgt.inB):tgt;armyGoTo(g,p.cx??p.x,p.cy??p.y,'clear');g.clearU=tgt.id;g.boundT=S.t+12;}}}}}
-  for(const e of A)if(e.role==='clear'){const u=U_(e.clearU);if(!u||u.men<=0||Math.hypot(u.x-O.x,u.y-O.y)>HOLD_R+60){e.role='overwatch';e.clearU=null;}}
+          if(g){const p=tgt.b?BN(tgt.b):tgt;armyGoTo(g,p.cx??p.x,p.cy??p.y,'clear');g.clearU=tgt.id;g.boundT=S.t+12;}}}}}
+  for(const e of A)if(e.role==='clear'){const k=(S.ek||{})[e.clearU];if(!k||S.t-k.t>180||Math.hypot(k.x-O.x,k.y-O.y)>HOLD_R+60){e.role='overwatch';e.clearU=null;}}
   // the carrier keeps going: after a firefight it leaves its cover once the shooting stops (Russia at once, South Africa after a pause)
   if(ready&&(free(carrier)&&(carrier.mode!=='hold'||S.t-(carrier.holdT||0)>(za?10:5))||carrier.mode==='base')){if(nearO(carrier)>25)armyGoTo(carrier,O.x,O.y,'carrier');}
   if(carrier.mode==='hold'&&nearO(carrier)<30&&!carrier.cont.length){carrier.mode='plant';carrier.prog=carrier.prog||0;}
@@ -151,7 +151,7 @@ let PT=0,PTn=0;function pauseThink(rdt){PT+=rdt;if(PTn<2&&PT>=(PTn?4:1)){PTn++;a
 function pauseReset(){PT=0;PTn=0;}
 function armyTick(dt){const O=S.obj,U=infs(),T=tacOf();
   if(T===TAC.za&&!S.zaWd){const A=S.enemies.filter(e=>e.kind==='army'),now=A.reduce((n,e)=>n+(e.gone?0:e.men),0),all=A.reduce((n,e)=>n+e.max,0);
-    if(all&&now<=all*.5){S.zaWd=S.t;const near=e=>Math.min(...U.filter(u=>u.men>0).map(u=>Math.hypot(u.x-e.x,u.y-e.y)),1e9);
+    if(all&&now<=all*.5){S.zaWd=S.t;const near=e=>Math.min(...ekList(600).map(k=>Math.hypot(k.x-e.x,k.y-e.y)),1e9);
       S.zaWdOrder=A.filter(e=>!e.gone&&e.men>0).sort((a,b)=>near(b)-near(a)).map(e=>e.id);
       say({call:T3('Разведка','מודיעין','Intel'),type:'x'},T3('Кобра-6, я Разведка. Перехват: противник получил приказ на отход, группы отходят по очереди, прикрывая друг друга. Приём.','צפע, כאן מודיעין. יירוט: האויב קיבל פקודה לסגת, החוליות נסוגות בזו אחר זו ומחפות זו על זו. עבור.','Cobra-6, this is Intel. Intercept: the enemy has been ordered to pull back; the groups are withdrawing one by one, covering each other. Over.'),[],{});}}
   for(const e of alive()){if(e.kind!=='army')continue;
@@ -161,13 +161,13 @@ function armyTick(dt){const O=S.obj,U=infs(),T=tacOf();
     const wdNow=T===TAC.za?(S.zaWd&&S.t>=S.zaWd+20*Math.max(0,(S.zaWdOrder||[]).indexOf(e.id))||e.men<=1):e.men<=Math.ceil(e.max*(T===TAC.ru&&T.lead.includes(e.rt)?T.wdX:T.wd));
     if(e.mode!=='withdraw'&&wdNow){e.mode='withdraw';e.bld=0;const p=nearFree(S.enBase.x,S.enBase.y);e.tx=p[0]*NG;e.ty=p[1]*NG;e.pkey=null;if(e.role==='carrier')e.role='';}
     // riders get off near our teams, under fire or close to the objective
-    if(e.veh&&(e.cont.length||armyNearUs(e,{near:220})||Math.hypot(e.x-O.x,e.y-O.y)<130)){e.veh=false;e.pkey=null;}
+    if(e.veh&&(e.cont.length||ekNear(e,220)||Math.hypot(e.x-O.x,e.y-O.y)<130)){e.veh=false;e.pkey=null;}
     if(e.mode==='withdraw'){if(moveAlong(e,ARMY_BASE*(e.spd||1)*1.2*dt)){e.gone=true;S.enWithdrawn=(S.enWithdrawn||0)+e.men;}continue;}
     if(e.cont.length){S.contact0=S.contact0||S.t;
       // Russia pushes on under fire with the groups that matter for the race; everyone else (and South Africa always) goes to ground in a building
       // South Africa: fire and movement — from cover the group fires for 15 s, then, while it still has half its men, rushes forward for 12 s
       if(T===TAC.za&&['carrier','defuse'].includes(e.role)&&e.mode==='hold'&&S.t-(e.holdT||0)>15&&e.men>e.max*.5){armyGoTo(e,O.x,O.y,e.role);e.boundT=S.t+12;}
-      if(T===TAC.za&&e.role==='clear'&&e.mode==='hold'&&S.t-(e.holdT||0)>15&&e.men>e.max*.5){const u=U_(e.clearU);if(u){const p=u.inB?BN(u.inB):null;armyGoTo(e,p?p.cx:u.x,p?p.cy:u.y,'clear');e.boundT=S.t+12;}}
+      if(T===TAC.za&&e.role==='clear'&&e.mode==='hold'&&S.t-(e.holdT||0)>15&&e.men>e.max*.5){const k=(S.ek||{})[e.clearU];if(k){const p=k.b?BN(k.b):null;armyGoTo(e,p?p.cx:k.x,p?p.cy:k.y,'clear');e.boundT=S.t+12;}}
       if(e.role==='clear'){const u=U_(e.clearU);if(u&&u.inB&&u.men>0&&Math.hypot(e.x-BN(u.inB).cx,e.y-BN(u.inB).cy)<25){e.bld=u.inB;e.x=BN(u.inB).cx;e.y=BN(u.inB).cy;e.mode='hold';e.holdT=S.t;continue;}}
       const push=(T===TAC.ru&&['carrier','probe','defuse'].includes(e.role)&&e.men>e.max*.4||T===TAC.za&&e.boundT>S.t)&&e.mode==='amove'; /* in a firefight everyone is under suppressive fire; what stops a push is losses */
       if(push){if(moveAlong(e,ARMY_BASE*(e.spd||1)*.6*dt)){const atO=Math.hypot(e.x-O.x,e.y-O.y)<30;if(atO&&e.role==='carrier'&&!S.charge.them){e.mode='plant';e.prog=e.prog||0;}else strongpoint(e);}continue;}
@@ -201,7 +201,7 @@ function missionDebrief(){const tot=S.enemies.filter(e=>e.kind==='army').reduce(
   $('#debrief').hidden=false;$('#bEnd').hidden=true;}
 function missionStartRadio(){const O=S.obj;hq(T3(`Всем станциям сети «Кобра», я Кобра-6. Миссия — начало. Задача: установить заряд на объекте в квадрате ${cell(O.x,O.y)} и удержать до подрыва. Противник идёт с севера с той же задачей. Приём.`,`כל התחנות ברשת «צפע», כאן צפע. המשימה מתחילה. המטרה: להציב מטען ביעד במשבצת ${cell(O.x,O.y)} ולהחזיק עד הפיצוץ. האויב מגיע מצפון עם אותה משימה. עבור.`,`All stations on the Cobra net, this is Cobra-6. Mission begins. Task: plant a charge at the objective in grid ${cell(O.x,O.y)} and hold it until detonation. The enemy is coming from the north with the same task. Over.`));
   infs().forEach(u=>say(u,T3(`Кобра-6, я ${u.call}. На исходной, к выдвижению готов. Приём.`,`צפע, כאן ${u.call}. בנקודת היציאה, מוכן לתנועה. עבור.`,`Cobra-6, this is ${u.call}. At the start line, ready to move. Over.`),[posChip(u)],{known:'full'}));
-  say({call:T3('Разведка','מודיעין','Intel'),type:'x'},T3(`Кобра-6, я Разведка. Противник — ${L2(NAT_S().intel)}, ориентировочно ${S.enOrder.length} групп: ${[...new Set(S.enOrder)].map(t=>L2(ENU[t].n)).join(', ')}. ${L2(NAT_S().tac)} Приём.`,`צפע, כאן מודיעין. האויב — ${L2(NAT_S().intel)}, בערך ${S.enOrder.length} צוותים: ${[...new Set(S.enOrder)].map(t=>L2(ENU[t].n)).join(', ')}. ${L2(NAT_S().tac)} עבור.`,`Cobra-6, this is Intel. The enemy is ${L2(NAT_S().intel)}, about ${S.enOrder.length} groups: ${[...new Set(S.enOrder)].map(t=>L2(ENU[t].n)).join(', ')}. ${L2(NAT_S().tac)} Over.`));}
+  say({call:T3('Разведка','מודיעין','Intel'),type:'x'},T3(`Кобра-6, я Разведка. Противник — ${L2(NAT_S().intel)}, ориентировочно ${S.enOrder.length} групп: ${[...new Set(S.enOrder)].map(t=>L2(ENU[t].n)).join(', ')}. ${L2(NAT_S().tac)} Есть разведывательный беспилотник ${L2(DRONE[S.nation].n)}: видит людей и машины на улицах, внутрь зданий не видит. Приём.`,`צפע, כאן מודיעין. האויב — ${L2(NAT_S().intel)}, בערך ${S.enOrder.length} צוותים: ${[...new Set(S.enOrder)].map(t=>L2(ENU[t].n)).join(', ')}. ${L2(NAT_S().tac)} יש להם כטב״ם סיור ${L2(DRONE[S.nation].n)}: רואה אנשים ורכבים ברחובות, לא בתוך מבנים. עבור.`,`Cobra-6, this is Intel. The enemy is ${L2(NAT_S().intel)}, about ${S.enOrder.length} groups: ${[...new Set(S.enOrder)].map(t=>L2(ENU[t].n)).join(', ')}. ${L2(NAT_S().tac)} They have a ${L2(DRONE[S.nation].n)} reconnaissance drone: it sees people and vehicles in the streets, not inside buildings. Over.`));}
 function missionBrief(){$('#bTitle').textContent=T3('Миссия: царь горы','משימה: מלך הגבעה','Mission: king of the hill');
   $('#bMeta').textContent=T3(`Код ${codeTxt(S.city.seed)} · рота «Кобра» против ${L2(NAT_S().gen)} · начало 02:00 · конец 06:30`,`קוד ${codeTxt(S.city.seed)} · פלוגת «צפע» מול ${L2(NAT_S().gen)} · תחילה 02:00 · סיום 06:30`,`Code ${codeTxt(S.city.seed)} · Cobra company vs ${L2(NAT_S().gen)} · start 02:00 · end 06:30`);
   $('#bSit').textContent=T3('Учебный бой с регулярной армией. В центре города — объект. Кто первым установит заряд и удержит его 5 минут до подрыва, тот победил. Противник идёт с севера с той же задачей и может обезвредить наш заряд, а мы — его. Установка занимает минуту (сапёрам — 40 секунд) и возможна, только если у объекта нет противника ближе 70 м. Противник виден только по докладам.','קרב אימון מול צבא סדיר. במרכז העיר יש יעד. מי שיציב ראשון מטען ויחזיק בו 5 דקות עד הפיצוץ — מנצח. האויב מגיע מצפון עם אותה משימה ויכול לנטרל את המטען שלנו, ואנחנו את שלו. ההצבה לוקחת דקה (לחבלנים — 40 שניות) ואפשרית רק אם אין אויב במרחק 70 מ׳ מהיעד. את האויב רואים רק לפי הדיווחים.','A training battle against a regular army. There is an objective in the town center. Whoever first plants a charge and holds it for 5 minutes until detonation wins. The enemy comes from the north with the same task and can defuse our charge, and we can defuse theirs. Planting takes a minute (sappers 40 seconds) and is only possible with no enemy within 70 m of the objective. You see the enemy only through reports.');

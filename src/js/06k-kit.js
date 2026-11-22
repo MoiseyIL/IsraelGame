@@ -50,4 +50,4 @@ const tacOf=()=>TAC[(S&&S.nation)||'ru']||TAC.ru;
 const ARMY_BASE=1.6; // the same walking pace as our teams at the fast pace in town
 const ARMY_VEH=6; // motorcycles, buggies, Geckos in town (Duvdevan's car: 7)
 // near our teams the army moves by bounds; far from them it simply walks
-const armyNearUs=(e,T)=>infs().some(u=>u.men>0&&Math.hypot(u.x-e.x,u.y-e.y)<T.near);
+const armyNearUs=(e,T)=>ekNear(e,T.near); // only our teams the enemy has seen (08d-air)

@@ -1,5 +1,7 @@
 /* ---------- acts ---------- */
-function doAct(a){if(a.k==='scan'){uavScanStart(a.x,a.y);return;}const u=a.uid?U_(a.uid):null;
+function doAct(a){if(a.k==='sat'){satAsk(a.x,a.y);return;}
+  if((a.k==='scan'||a.k==='uav')&&!uavUp()){S.uav.tx=a.x;S.uav.ty=a.y;say(U_('ya'),T3(`Кобра-6, я Ястреб. На смене батареи до ${fmt(S.t+S.uav.downT)}, потом выйду в квадрат ${cell(a.x,a.y)}. Приём.`,`צפע, כאן זיק. בהחלפת סוללה עד ${fmt(S.t+S.uav.downT)}, אחר כך אצא למשבצת ${cell(a.x,a.y)}. עבור.`,`Cobra-6, this is Hawk. Changing the battery until ${fmt(S.t+S.uav.downT)}, then I head for grid ${cell(a.x,a.y)}. Over.`),[],{front:true});return;}
+  if(a.k==='scan'){uavScanStart(a.x,a.y);return;}const u=a.uid?U_(a.uid):null;
   if(a.k==='order')orderExec(u,a);else if(a.k==='rep')sayReport(u);else if(a.k==='strike')strikeExec(a);else if(a.k==='med')medExec(a);
   else if(a.k==='atgm')atgmExec(u,a.b);
   else if(a.k==='mplant'||a.k==='mdefuse')missionAct(u,a);
@@ -41,6 +43,7 @@ function orderExec(u,a){
   say(u,(HE?(`כאן ${u.call}. ${t}${u.cont.length&&a.kind!=='retreat'?' תחת אש, היציאה תתעכב.':''}`):((EN?(`This is ${u.call}. ${t}${u.cont.length&&a.kind!=='retreat'?' Under fire, departure will be delayed.':''}`):(`Я ${u.call}. ${t}${u.cont.length&&a.kind!=='retreat'?' Под огнём, выход задержится.':''}`)))),[],{known:'st',front:true});
 }
 function sayReport(u){
+  if(u.type==='uav'&&!uavUp()){say(u,T3(`Кобра-6, я Ястреб. На смене батареи, вернусь около ${fmt(S.t+S.uav.downT)}. Приём.`,`צפע, כאן זיק. בהחלפת סוללה, אחזור בסביבות ${fmt(S.t+S.uav.downT)}. עבור.`,`Cobra-6, this is Hawk. Changing the battery, back around ${fmt(S.t+S.uav.downT)}. Over.`),[],{front:true});return;}
   if(u.type==='uav'){const seen=alive().filter(e=>outside(e)&&Math.hypot(e.x-S.uav.x,e.y-S.uav.y)<320&&(e.roof?Math.random()<.6:true));
     let t=(HE?(`צפע, כאן זיק. שוהה מעל משבצת ${cell(S.uav.x,S.uav.y)}.`):((EN?(`Cobra-6, this is Hawk. Working over grid ${cell(S.uav.x,S.uav.y)}.`):(`Кобра-6, я Ястреб. Работаю над квадратом ${cell(S.uav.x,S.uav.y)}.`))));const ch=[];
     if(seen.length){const e=seen[0];t+=' '+salute(e,e.mv?(HE?(`נעים לכיוון ${DIRS_TO[dirIdx(e.tx-e.x||0,e.ty-e.y||0)]}`):((EN?(`moving ${DIRS_TO[dirIdx(e.tx-e.x||0,e.ty-e.y||0)]}`):(`перемещаются на ${DIRS_TO[dirIdx(e.tx-e.x||0,e.ty-e.y||0)]}`)))):e.roof?(HE?('מתצפתים מהגג'):((EN?("watching from a roof"):('наблюдают с крыши')))):(HE?('עומדים'):((EN?("standing"):('стоят')))));ch.push(e.bld&&!e.mv&&e.mode!=='patrol'?bChip(e.bld,'hos'):ptChip(e));say(u,t+(HE?(' עבור.'):((EN?(" Over."):(' Приём.')))),ch,{front:true,pid:e.bld&&!e.mv&&e.mode!=='patrol'?e.bld:0});}
