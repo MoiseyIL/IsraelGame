@@ -55,21 +55,32 @@ const TU={
   pub:['Смешанный батальон лёгкой пехоты Корпуса охраны границ. Охраняет южную границу — участок Аравы на границе с Иорданией.','גדוד חי״ר קל מעורב במערך הגנת הגבולות. מגן על הגבול הדרומי — גזרת הערבה בגבול ירדן.',"Mixed light infantry battalion of the Border Defense Corps. Guards the southern border — the Arava sector on the border with Jordan."],src:'https://www.timesofisrael.com/co-ed-battalions-to-get-new-home-in-border-defense-force/'},
  ary:{c:'bdr',n:['Львы Иордана','אריות הירדן',"Lions of the Jordan"],off:true,
   pub:['Смешанный батальон лёгкой пехоты Корпуса охраны границ, охраняет северную часть Иорданской долины.','גדוד חי״ר קל מעורב במערך הגנת הגבולות, מגן על צפון בקעת הירדן.',"Mixed light infantry battalion of the Border Defense Corps, guards the northern Jordan Valley."],src:'https://www.timesofisrael.com/co-ed-battalions-to-get-new-home-in-border-defense-force/'}};
-const ABIL=t=>{const T=TU[t],a=[];
+// playable sides in missions. Ukraine: the units come from the Ukrainian table (06m), each built on the frame of
+// the closest of our units (what it can do on the map); names, men, descriptions, weapons and characteristics are Ukrainian.
+const CHS={ua_kord:'ym',ua_hmmwv:'dv',ua_sso:'eg',ua_razv:'sgol',ua_dshv:'tz',ua_mech:'gol',ua_shturm:'kf',ua_eng:'yh'};
+const UA_SH={ua_kord:['КД','קד','KD'],ua_hmmwv:['Хм','הא','Hm'],ua_sso:['СО','סו','SO'],ua_razv:['Рз','סי','Rc'],ua_dshv:['ДШ','הס','AA'],ua_mech:['Мх','ממ','Mc'],ua_shturm:['Шт','הת','As'],ua_eng:['Ин','הנ','En']};
+// radio call signs: short, like ours (the Intel net already uses «Разведка», so the recon team is «Дозор»)
+const UA_CS={ua_kord:['КОРД','קורד','KORD'],ua_hmmwv:['Хаммер','האמר','Hummer'],ua_sso:['ССО','סס״ו','SSO'],ua_razv:['Дозор','סייר','Scout'],ua_dshv:['Десант','צנחן','Para'],ua_mech:['Мехбат','ממוכן','Mech'],ua_shturm:['Штурм','הסתערות','Assault'],ua_eng:['Сапёр','חבלן','Sapper']};
+let UTU=null;
+function utu(){if(UTU)return UTU;UTU={};for(const k in CHS){const B=TU[CHS[k]],R=ENU[k];
+  UTU[k]=Object.assign({},B,{n:R.n,cs:UA_CS[k],sh:UA_SH[k],men:R.men,gm:R.gm,pub:R.pub,src:R.src,uc:false,dr:3,veh:!!R.veh,vehN:R.vehN,frame:CHS[k]});}return UTU;}
+const TUX=t=>TU[t]||utu()[t];
+const SIDES=[['il',['Израиль','ישראל','Israel']],['ua',['Украина','אוקראינה','Ukraine']]];
+const ABIL=t=>{const T=TUX(t),a=[];
   a.push(HE?`${T.men} לוחמים`:(EN?(`${T.men} soldiers`):(`${T.men} бойцов`)));a.push(T.loud?(HE?'בלי משתיקים':(EN?("no suppressors"):('без глушителей'))):(HE?'משתיקים':(EN?("suppressors"):('глушители'))));
-  if(T.veh)a.push(HE?'רכב אזרחי':(EN?("civilian car"):('гражданская машина')));if(T.sap)a.push(HE?'פירוק מטענים':(EN?("mine clearing"):('разминирование')));
+  if(T.veh)a.push(T.vehN?L2(T.vehN):HE?'רכב אזרחי':(EN?("civilian car"):('гражданская машина')));if(T.sap)a.push(HE?'פירוק מטענים':(EN?("mine clearing"):('разминирование')));
   if(T.atgm)a.push(HE?`טילים מונחים: ${T.atgm}`:(EN?(`guided missiles: ${T.atgm}`):(`управляемых ракет: ${T.atgm}`)));if(T.optic)a.push(HE?'אופטיקה רחוקה':(EN?("long-range optics"):('дальняя оптика')));
   if(T.ask)a.push(HE?'תחקור תושבים':(EN?("questioning residents"):('опрос жителей')));if(T.cp)a.push(HE?'מחסום':(EN?("checkpoint"):('блокпост')));if(T.amb)a.push(HE?'מארבים':(EN?("ambushes"):('засады')));
   a.push(HE?`רחפנים: ${T.dr??3}`:(EN?(`drones: ${T.dr??3}`):(`дронов: ${T.dr??3}`)));return a.join(' · ');};
 const stars=n=>'★'.repeat(n)+'☆'.repeat(5-n);const rng=a=>a[0]===a[1]?String(a[0]):`${a[0]}–${a[1]}`;
-const powerOf=t=>{const T=TU[t];return fpOf(CH[t][0])*(T.uc?1.3:1)+(T.atgm?2:0);};
+const powerOf=t=>{const T=TUX(t);return fpOf(CH[t][0])*(T.uc?1.3:1)+(T.atgm?2:0);};
 function loadTR(){let d=null;try{d=JSON.parse(localStorage.getItem(TRAIN_KEY)||'null');}catch(e){}
   if(!d||!d.seed)d={seed:1000+rnd(9000),diff:1,dens:'normal',sel:[],limit:false};d.sel=(d.sel||[]).filter(t=>TU[t]&&!TU[t].off);return d;}
 function saveTR(){try{localStorage.setItem(TRAIN_KEY,JSON.stringify(TR));localStorage.setItem(MODE_KEY,MODE);}catch(e){}}
 function setCity(seed,dens,g2){genCity(seed,dens,g2);buildNav();for(const k in AVC)delete AVC[k];mapCv=null;dirty=true;}
 // units of a training operation, in the order they were chosen
-function mkTrainUnits(sel){const cnt={};return sel.map((t,i)=>{const T=TU[t];cnt[t]=(cnt[t]||0)+1;const multi=sel.filter(x=>x===t).length>1;
-  const call=L2(T.n)+(multi?(HE?' ':'-')+cnt[t]:''),sh=L2(T.sh)+(multi?cnt[t]:'');
+function mkTrainUnits(sel){const cnt={};return sel.map((t,i)=>{const T=TUX(t);cnt[t]=(cnt[t]||0)+1;const multi=sel.filter(x=>x===t).length>1;
+  const call=L2(T.cs||T.n)+(multi?(HE?' ':'-')+cnt[t]:''),sh=L2(T.sh)+(multi?cnt[t]:'');
   const u=squad('t'+i,call,sh,610+(i%4)*60,2035+Math.floor(i/4)*45,T.men,!!T.uc);
   Object.assign(u,{tt:t,cls:T.c,...mechOf(t,T.men),loud:!!T.loud,amb:T.amb||0,optic:!!T.optic,atgm:T.atgm||0,ask:!!T.ask,cpU:!!T.cp,drones:T.dr??3,sap:!!T.sap,veh:!!T.veh,carU:!!T.veh});return u;});}
 // what the intelligence summary says (estimates, not the truth)

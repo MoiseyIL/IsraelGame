@@ -52,7 +52,7 @@ const TAC={
   // Ukraine, from open analyses of the war (RUSI, ISW): reconnaissance by drones before moving, small assault groups under
   // drone observation, commercial quadcopters down to small units, personnel preserved. In the game: the main body waits for
   // the drone's look at the objective, groups see further (eye), fire and movement, each group pulls back by its own losses.
-  ua:{wd:.35,wdX:.35,boundM:120,boundS:12,near:320,supStop:85,lead:["ua_razv","ua_sso"],scout:true,fm:true,droneFirst:true,eye:1.3,resume:8}};
+  ua:{wd:.3,wdX:.3,boundM:120,boundS:12,near:320,supStop:85,lead:["ua_razv","ua_sso"],scout:true,fm:true,droneFirst:true,eye:1.3,resume:8}};
 const tacOf=()=>TAC[(S&&S.nation)||'ru']||TAC.ru;
 const ARMY_BASE=1.6; // the same walking pace as our teams at the fast pace in town
 const ARMY_VEH=6; // motorcycles, buggies, Geckos in town (Duvdevan's car: 7)

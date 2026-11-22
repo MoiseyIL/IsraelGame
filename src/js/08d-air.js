@@ -14,9 +14,10 @@ const DRONE={
 };
 const INTEL=()=>({call:T3('Разведка','מודיעין','Intel'),type:'x'});
 const uavUp=()=>!S.uav||!S.uav.down;
+const OUR_D=()=>S&&S.side==='ua'?DRONE.ua:DRONE.il; // our drone: Skylark for Israel, Leleka-100 for Ukraine
 
 // ---- our drone: when the battery runs out it goes back to change it; meanwhile Intel can order a satellite picture ----
-function uavAirTick(dt){const U=S.uav,ya=U_('ya');if(!U||!ya)return;const D=DRONE.il;
+function uavAirTick(dt){const U=S.uav,ya=U_('ya');if(!U||!ya)return;const D=OUR_D();
   if(U.air==null){U.air=0;U.home=S.ourBase?{x:S.ourBase.x,y:S.ourBase.y}:{x:U.x,y:U.y};}
   if(U.down){stepTo(U,U.home.x,U.home.y,D.spd*dt);U.downT-=dt;
     if(U.downT<=0){U.down=false;U.air=0;U.warn=false;say(ya,T3(`Кобра-6, я Ястреб. Батарея заменена, снова в воздухе. Выхожу в квадрат ${cell(U.tx,U.ty)}. Приём.`,`צפע, כאן זיק. הסוללה הוחלפה, שוב באוויר. יוצא למשבצת ${cell(U.tx,U.ty)}. עבור.`,`Cobra-6, this is Hawk. Battery changed, airborne again. Heading for grid ${cell(U.tx,U.ty)}. Over.`),[],{});}
@@ -25,7 +26,7 @@ function uavAirTick(dt){const U=S.uav,ya=U_('ya');if(!U||!ya)return;const D=DRON
   if(!U.warn&&U.air>=D.end-600){U.warn=true;say(ya,T3(`Кобра-6, я Ястреб. Через 10 минут ухожу на смену батареи, примерно на 20 минут. Приём.`,`צפע, כאן זיק. בעוד 10 דקות יוצא להחלפת סוללה, לכ־20 דקות. עבור.`,`Cobra-6, this is Hawk. In 10 minutes I leave to change the battery, for about 20 minutes. Over.`),[],{});}
   if(U.air>=D.end){U.down=true;U.downT=D.swap;U.scan=null;
     say(ya,T3(`Кобра-6, я Ястреб. Батарея на исходе, ухожу на смену. Вернусь около ${fmt(S.t+D.swap)}. Пока меня нет — снимок со спутника через Разведку. Приём.`,`צפע, כאן זיק. הסוללה נגמרת, יוצא להחלפה. אחזור בסביבות ${fmt(S.t+D.swap)}. עד אז — צילום לוויין דרך המודיעין. עבור.`,`Cobra-6, this is Hawk. Battery low, leaving to change it. Back around ${fmt(S.t+D.swap)}. Until then, a satellite picture through Intel. Over.`),[],{urgent:true});dirty=true;}}
-function uavLeft(){const U=S.uav;return U.down?0:Math.max(0,DRONE.il.end-(U.air||0));}
+function uavLeft(){const U=S.uav;return U.down?0:Math.max(0,OUR_D().end-(U.air||0));}
 
 // a satellite pass: only while our drone is down; the picture comes a few minutes later, shows only what is in the open,
 // and at night it is a radar picture — people and vehicles, not who they are. The marks age three times faster.

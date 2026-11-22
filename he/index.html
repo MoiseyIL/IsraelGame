@@ -952,21 +952,32 @@ const TU={
   pub:['Смешанный батальон лёгкой пехоты Корпуса охраны границ. Охраняет южную границу — участок Аравы на границе с Иорданией.','גדוד חי״ר קל מעורב במערך הגנת הגבולות. מגן על הגבול הדרומי — גזרת הערבה בגבול ירדן.',"Mixed light infantry battalion of the Border Defense Corps. Guards the southern border — the Arava sector on the border with Jordan."],src:'https://www.timesofisrael.com/co-ed-battalions-to-get-new-home-in-border-defense-force/'},
  ary:{c:'bdr',n:['Львы Иордана','אריות הירדן',"Lions of the Jordan"],off:true,
   pub:['Смешанный батальон лёгкой пехоты Корпуса охраны границ, охраняет северную часть Иорданской долины.','גדוד חי״ר קל מעורב במערך הגנת הגבולות, מגן על צפון בקעת הירדן.',"Mixed light infantry battalion of the Border Defense Corps, guards the northern Jordan Valley."],src:'https://www.timesofisrael.com/co-ed-battalions-to-get-new-home-in-border-defense-force/'}};
-const ABIL=t=>{const T=TU[t],a=[];
+// playable sides in missions. Ukraine: the units come from the Ukrainian table (06m), each built on the frame of
+// the closest of our units (what it can do on the map); names, men, descriptions, weapons and characteristics are Ukrainian.
+const CHS={ua_kord:'ym',ua_hmmwv:'dv',ua_sso:'eg',ua_razv:'sgol',ua_dshv:'tz',ua_mech:'gol',ua_shturm:'kf',ua_eng:'yh'};
+const UA_SH={ua_kord:['КД','קד','KD'],ua_hmmwv:['Хм','הא','Hm'],ua_sso:['СО','סו','SO'],ua_razv:['Рз','סי','Rc'],ua_dshv:['ДШ','הס','AA'],ua_mech:['Мх','ממ','Mc'],ua_shturm:['Шт','הת','As'],ua_eng:['Ин','הנ','En']};
+// radio call signs: short, like ours (the Intel net already uses «Разведка», so the recon team is «Дозор»)
+const UA_CS={ua_kord:['КОРД','קורד','KORD'],ua_hmmwv:['Хаммер','האמר','Hummer'],ua_sso:['ССО','סס״ו','SSO'],ua_razv:['Дозор','סייר','Scout'],ua_dshv:['Десант','צנחן','Para'],ua_mech:['Мехбат','ממוכן','Mech'],ua_shturm:['Штурм','הסתערות','Assault'],ua_eng:['Сапёр','חבלן','Sapper']};
+let UTU=null;
+function utu(){if(UTU)return UTU;UTU={};for(const k in CHS){const B=TU[CHS[k]],R=ENU[k];
+  UTU[k]=Object.assign({},B,{n:R.n,cs:UA_CS[k],sh:UA_SH[k],men:R.men,gm:R.gm,pub:R.pub,src:R.src,uc:false,dr:3,veh:!!R.veh,vehN:R.vehN,frame:CHS[k]});}return UTU;}
+const TUX=t=>TU[t]||utu()[t];
+const SIDES=[['il',['Израиль','ישראל','Israel']],['ua',['Украина','אוקראינה','Ukraine']]];
+const ABIL=t=>{const T=TUX(t),a=[];
   a.push(HE?`${T.men} לוחמים`:(EN?(`${T.men} soldiers`):(`${T.men} бойцов`)));a.push(T.loud?(HE?'בלי משתיקים':(EN?("no suppressors"):('без глушителей'))):(HE?'משתיקים':(EN?("suppressors"):('глушители'))));
-  if(T.veh)a.push(HE?'רכב אזרחי':(EN?("civilian car"):('гражданская машина')));if(T.sap)a.push(HE?'פירוק מטענים':(EN?("mine clearing"):('разминирование')));
+  if(T.veh)a.push(T.vehN?L2(T.vehN):HE?'רכב אזרחי':(EN?("civilian car"):('гражданская машина')));if(T.sap)a.push(HE?'פירוק מטענים':(EN?("mine clearing"):('разминирование')));
   if(T.atgm)a.push(HE?`טילים מונחים: ${T.atgm}`:(EN?(`guided missiles: ${T.atgm}`):(`управляемых ракет: ${T.atgm}`)));if(T.optic)a.push(HE?'אופטיקה רחוקה':(EN?("long-range optics"):('дальняя оптика')));
   if(T.ask)a.push(HE?'תחקור תושבים':(EN?("questioning residents"):('опрос жителей')));if(T.cp)a.push(HE?'מחסום':(EN?("checkpoint"):('блокпост')));if(T.amb)a.push(HE?'מארבים':(EN?("ambushes"):('засады')));
   a.push(HE?`רחפנים: ${T.dr??3}`:(EN?(`drones: ${T.dr??3}`):(`дронов: ${T.dr??3}`)));return a.join(' · ');};
 const stars=n=>'★'.repeat(n)+'☆'.repeat(5-n);const rng=a=>a[0]===a[1]?String(a[0]):`${a[0]}–${a[1]}`;
-const powerOf=t=>{const T=TU[t];return fpOf(CH[t][0])*(T.uc?1.3:1)+(T.atgm?2:0);};
+const powerOf=t=>{const T=TUX(t);return fpOf(CH[t][0])*(T.uc?1.3:1)+(T.atgm?2:0);};
 function loadTR(){let d=null;try{d=JSON.parse(localStorage.getItem(TRAIN_KEY)||'null');}catch(e){}
   if(!d||!d.seed)d={seed:1000+rnd(9000),diff:1,dens:'normal',sel:[],limit:false};d.sel=(d.sel||[]).filter(t=>TU[t]&&!TU[t].off);return d;}
 function saveTR(){try{localStorage.setItem(TRAIN_KEY,JSON.stringify(TR));localStorage.setItem(MODE_KEY,MODE);}catch(e){}}
 function setCity(seed,dens,g2){genCity(seed,dens,g2);buildNav();for(const k in AVC)delete AVC[k];mapCv=null;dirty=true;}
 // units of a training operation, in the order they were chosen
-function mkTrainUnits(sel){const cnt={};return sel.map((t,i)=>{const T=TU[t];cnt[t]=(cnt[t]||0)+1;const multi=sel.filter(x=>x===t).length>1;
-  const call=L2(T.n)+(multi?(HE?' ':'-')+cnt[t]:''),sh=L2(T.sh)+(multi?cnt[t]:'');
+function mkTrainUnits(sel){const cnt={};return sel.map((t,i)=>{const T=TUX(t);cnt[t]=(cnt[t]||0)+1;const multi=sel.filter(x=>x===t).length>1;
+  const call=L2(T.cs||T.n)+(multi?(HE?' ':'-')+cnt[t]:''),sh=L2(T.sh)+(multi?cnt[t]:'');
   const u=squad('t'+i,call,sh,610+(i%4)*60,2035+Math.floor(i/4)*45,T.men,!!T.uc);
   Object.assign(u,{tt:t,cls:T.c,...mechOf(t,T.men),loud:!!T.loud,amb:T.amb||0,optic:!!T.optic,atgm:T.atgm||0,ask:!!T.ask,cpU:!!T.cp,drones:T.dr??3,sap:!!T.sap,veh:!!T.veh,carU:!!T.veh});return u;});}
 // what the intelligence summary says (estimates, not the truth)
@@ -1085,8 +1096,8 @@ const CH={
   shturm:[8,5,3,5,8,3,4], stormv:[7,3,2,5,6,2,2], bars:[7,4,3,4,4,3,3], sobr:[7,6,5,6,8,7,4], razv:[7,6,7,7,6,5,7], snip:[4,5,8,6,2,2,9],
   // South Africa (missions)
   za_stf:[7,6,6,6,9,8,5], za_sf:[7,7,8,7,7,6,7], za_pf:[6,6,8,7,5,5,8], za_para:[9,6,3,6,7,4,4], za_inf:[8,5,3,4,5,4,4], za_eng:[6,5,5,5,5,4,5], moto:[7,4,3,6,6,3,4], za_gecko:[7,6,6,6,6,4,6],
-  // Ukraine (missions)
-  ua_kord:[7,6,6,6,9,8,5], ua_sso:[7,7,8,7,7,6,7], ua_razv:[7,6,7,7,6,5,8], ua_hmmwv:[7,6,6,6,6,4,6], ua_dshv:[9,6,3,6,7,4,4], ua_mech:[8,5,3,4,5,4,4], ua_shturm:[8,6,3,5,8,3,5], ua_eng:[6,5,5,5,5,4,5]};
+  // Ukraine (missions): an army at war since 2022 — combat experience (resilience) and drones down to small units (reconnaissance) count
+  ua_kord:[7,7,6,6,9,8,6], ua_sso:[8,8,8,7,8,6,8], ua_razv:[7,7,7,7,6,5,9], ua_hmmwv:[8,7,6,7,6,4,7], ua_dshv:[10,7,4,6,8,4,6], ua_mech:[9,7,3,5,6,4,6], ua_shturm:[9,7,3,6,9,3,6], ua_eng:[6,6,5,5,5,4,6]};
 // special abilities: tags, not numbers; each adds a little to the final score (no more than +5)
 function chTags(t){const T=TU[t]||ENU[t]||{},a=[];
   if(T.uc)a.push([['маскировка под местных','הסוואה כמקומיים','disguised as locals'],1]);if(T.veh)a.push([T.vehN||['машина','רכב','car'],1]);
@@ -1156,7 +1167,7 @@ const TAC={
   // Ukraine, from open analyses of the war (RUSI, ISW): reconnaissance by drones before moving, small assault groups under
   // drone observation, commercial quadcopters down to small units, personnel preserved. In the game: the main body waits for
   // the drone's look at the objective, groups see further (eye), fire and movement, each group pulls back by its own losses.
-  ua:{wd:.35,wdX:.35,boundM:120,boundS:12,near:320,supStop:85,lead:["ua_razv","ua_sso"],scout:true,fm:true,droneFirst:true,eye:1.3,resume:8}};
+  ua:{wd:.3,wdX:.3,boundM:120,boundS:12,near:320,supStop:85,lead:["ua_razv","ua_sso"],scout:true,fm:true,droneFirst:true,eye:1.3,resume:8}};
 const tacOf=()=>TAC[(S&&S.nation)||'ru']||TAC.ru;
 const ARMY_BASE=1.6; // the same walking pace as our teams at the fast pace in town
 const ARMY_VEH=6; // motorcycles, buggies, Geckos in town (Duvdevan's car: 7)
@@ -1274,23 +1285,23 @@ const NAT_S=()=>natOf(S);
 const uniOf=e=>L2((ENU[e.rt]&&ENU[e.rt].uni)||NAT_S().uni);
 const NATIONS=[['ru',['Россия','רוסיה','Russia'],true],['za',['ЮАР','דרום אפריקה','South Africa'],true],['ua',['Украина','אוקראינה','Ukraine'],true],['x1',['Другие страны — позже','מדינות נוספות — בהמשך','More countries — later'],false]];
 const PLANT_T=60,PLANT_SAP=40,DET_T=300,HOLD_R=70;
-function loadMS(){let d=null;try{d=JSON.parse(localStorage.getItem(MIS_KEY)||'null');}catch(e){}if(!d||!d.seed)d={seed:1000+rnd(9000),diff:1,dens:'normal',sel:['ym','eg','gol','yh'],nation:'ru'};d.sel=(d.sel||[]).filter(t=>TU[t]&&!TU[t].off);return d;}
+function loadMS(){let d=null;try{d=JSON.parse(localStorage.getItem(MIS_KEY)||'null');}catch(e){}if(!d||!d.seed)d={seed:1000+rnd(9000),diff:1,dens:'normal',sel:['ym','eg','gol','yh'],nation:'ru'};d.side=d.side==='ua'?'ua':'il';if(d.side==='ua'&&d.nation==='ua')d.nation='ru';d.sel=(d.sel||[]).filter(t=>TUX(t)&&!TUX(t).off&&(d.side==='ua')===!!CHS[t]);return d;}
 function saveMS(){try{localStorage.setItem(MIS_KEY,JSON.stringify(MS));localStorage.setItem(MODE_KEY,MODE);}catch(e){}}
 function tacTxt(){const N=NAT_S(),o=S.enOrder||[];
   if(o.some(t=>ENU[t].veh)&&N.vehTac)return N.vehTac;
   if(N.tac0&&!o.some(t=>tacOf().lead.includes(t)))return N.tac0;
   return N.tac;}
-function enemyOrder(o){const r=mulberry(o.seed*7+o.diff*3+11),N=natOf(o);let list=o.sel.map(t=>N.analog[t]).filter(Boolean);
+function enemyOrder(o){const r=mulberry(o.seed*7+o.diff*3+11),N=natOf(o);let list=o.sel.map(t=>N.analog[CHS[t]||t]).filter(Boolean);
   if(!list.length)list=N.def.slice();if(o.diff===0&&list.length>=3)list.splice(list.findIndex(t=>t!==N.eng),1);
   // vehicles alone do not take an objective: the motorcycles / Geckos are the fast element, a foot assault group follows (ISW on the Russian motorcycle assaults)
   if(list.every(t=>ENU[t].veh))list.push(N.foot);
   if(o.diff>=2)list.push(N.hard(r));if(o.diff>=3)list.push(N.vhard);if(!list.includes(N.eng)&&r()<.6)list.push(N.eng);return list.slice(0,8);}
-const ourMen=sel=>sel.reduce((s,t)=>s+(TU[t].men||0),0);
+const ourMen=sel=>sel.reduce((s,t)=>s+(TUX(t).men||0),0);
 // power of a whole side: the sum of the units' scores (a smaller enemy team on the easy level counts proportionally less)
 const ourPow=sel=>sel.reduce((s,t)=>s+chPower(t),0),enPow=o=>Math.round(enemyOrder(o).reduce((s,t)=>s+chPower(t)*(o.diff===0?.8:1),0));
 const enMen=o=>enemyOrder(o).reduce((s,t)=>s+Math.round(ENU[t].men*(o.diff===0?.8:1)),0);
 function newMissionState(o){const st=newState({seed:o.seed,diff:o.diff,dens:o.dens,sel:o.sel});
-  st.mission=true;st.nation=o.nation||'ru';st.train=false;st.city.g=3;st.opName=['Миссия','משימה','Mission'];st.traps={};st.ieds=[];st.decoy=0;st.alarm=true;st.alarmT0=0;st.mob=true;st.mobK=0;
+  st.mission=true;st.nation=o.nation||'ru';st.side=o.side||'il';st.train=false;st.city.g=3;st.opName=['Миссия','משימה','Mission'];st.traps={};st.ieds=[];st.decoy=0;st.alarm=true;st.alarmT0=0;st.mob=true;st.mobK=0;
   const O=nearFree(M.avx[0],M.avy[0])||[M.cx/NG|0,M.cy/NG|0];const ox=O[0]*NG+NG/2,oy=O[1]*NG+NG/2;st.obj={x:ox,y:oy};
   // both start lines at the same distance from the objective and out of town (a line of teams 200 m wide, two rows deep)
   const clear=(y,dir)=>[-130,-65,0,65,130].every(dx=>[0,40*dir,-30*dir].every(dy=>!inTown(ox+dx,y+dy)&&!blockOf(ox+dx,y+dy)));
@@ -1408,7 +1419,7 @@ function missionBrief(){$('#bTitle').textContent=T3('Миссия: царь го
   $('#bSit').textContent=T3('Учебный бой с регулярной армией. В центре города — объект. Кто первым установит заряд и удержит его 5 минут до подрыва, тот победил. Противник идёт с севера с той же задачей и может обезвредить наш заряд, а мы — его. Установка занимает минуту (сапёрам — 40 секунд) и возможна, только если у объекта нет противника ближе 70 м. Противник виден только по докладам.','קרב אימון מול צבא סדיר. במרכז העיר יש יעד. מי שיציב ראשון מטען ויחזיק בו 5 דקות עד הפיצוץ — מנצח. האויב מגיע מצפון עם אותה משימה ויכול לנטרל את המטען שלנו, ואנחנו את שלו. ההצבה לוקחת דקה (לחבלנים — 40 שניות) ואפשרית רק אם אין אויב במרחק 70 מ׳ מהיעד. את האויב רואים רק לפי הדיווחים.','A training battle against a regular army. There is an objective in the town center. Whoever first plants a charge and holds it for 5 minutes until detonation wins. The enemy comes from the north with the same task and can defuse our charge, and we can defuse theirs. Planting takes a minute (sappers 40 seconds) and is only possible with no enemy within 70 m of the objective. You see the enemy only through reports.');
   const by={};infs().forEach(x=>{(by[x.tt]=by[x.tt]||[]).push(x.call);});
   const nOur=infs().reduce((s,x)=>s+x.men,0),nEn=S.enemies.filter(e=>e.kind==='army').reduce((s,e)=>s+e.max,0);
-  $('#bUnits').innerHTML=`<li><b>${esc(T3(`Численность: наших ${nOur}, противника около ${nEn}.`,`גודל הכוחות: שלנו ${nOur}, של האויב בערך ${nEn}.`,`Strength: ours ${nOur}, the enemy about ${nEn}.`))}</b></li>`+Object.keys(by).map(t=>`<li><b>${esc(by[t].join(', '))}</b>: ${esc(L2(TU[t].gm))}</li>`).join('')+`<li>${esc(T3('Поддержка: беспилотник «Ястреб», вертолёты эвакуации «Ангел». Ударного вертолёта нет.','סיוע: הכטב״ם «זיק», מסוקי הפינוי «ינשוף». אין מסוק קרב.','Support: the Hawk UAV, the Angel medevac helicopters. No attack helicopter.'))}</li><li>${esc(T3('Противник: ','האויב: ','Enemy: '))}${esc(S.enOrder.map(t=>L2(ENU[t].n)).join(', '))}</li>`;}
+  $('#bUnits').innerHTML=`<li><b>${esc(T3(`Численность: наших ${nOur}, противника около ${nEn}.`,`גודל הכוחות: שלנו ${nOur}, של האויב בערך ${nEn}.`,`Strength: ours ${nOur}, the enemy about ${nEn}.`))}</b></li>`+Object.keys(by).map(t=>`<li><b>${esc(by[t].join(', '))}</b>: ${esc(L2(TUX(t).gm))}</li>`).join('')+`<li>${esc(T3('Поддержка: беспилотник «Ястреб», вертолёты эвакуации «Ангел». Ударного вертолёта нет.','סיוע: הכטב״ם «זיק», מסוקי הפינוי «ינשוף». אין מסוק קרב.','Support: the Hawk UAV, the Angel medevac helicopters. No attack helicopter.'))}</li><li>${esc(T3('Противник: ','האויב: ','Enemy: '))}${esc(S.enOrder.map(t=>L2(ENU[t].n)).join(', '))}</li>`;}
 function missionObj(){const o=$('#obj');o.innerHTML='';const left=t=>fmt(Math.max(0,t-S.t)).slice(3);const ch=S.charge;
   const items=[[T3('Объект','יעד','Objective'),cell(S.obj.x,S.obj.y)],[T3('Наш заряд','המטען שלנו','Our charge'),ch.us?`${T3('подрыв через','פיצוץ בעוד','blows in')} ${fmt(Math.max(0,ch.us.tDet-S.t)).slice(3)}`:T3('нет','אין','none')],[T3('Заряд противника','מטען האויב','Enemy charge'),ch.them?`${T3('подрыв через','פיצוץ בעוד','blows in')} ${fmt(Math.max(0,ch.them.tDet-S.t)).slice(3)}`:T3('нет','אין','none')]];
   items.forEach(([a,b],i)=>{const s=document.createElement('span');if(i===2&&ch.them)s.className='bad';else if(i===1&&ch.us)s.className='good';s.textContent=a+': ';const bb=document.createElement('b');bb.textContent=b;s.appendChild(bb);o.appendChild(s);});}
@@ -1428,18 +1439,21 @@ function showMission(){const sel=MS.sel,h=[];const ord=enemyOrder(MS);
   h.push(tabs()+langBar()+`<div class="stamp">${T3('МИССИЯ','משימה','MISSION')}</div><h1>${T3('Царь горы','מלך הגבעה','King of the hill')}</h1>`);
   h.push(`<p class="meta">${T3('Учебный бой с регулярной армией другой страны. В центре города — объект: кто первым установит заряд и удержит его 5 минут, тот победил. Без прокачки. Позже здесь появится техника.','קרב אימון מול צבא סדיר של מדינה אחרת. במרכז העיר יש יעד: מי שמציב ראשון מטען ומחזיק בו 5 דקות — מנצח. בלי התקדמות. בהמשך יתווספו כלי רכב.','A training battle against another country\'s regular army. There is an objective in the town center: whoever first plants a charge and holds it for 5 minutes wins. No progression. Vehicles will come later.')}</p>`);
   h.push(`<h2>${T3('Параметры','פרמטרים','Settings')}</h2><div class="trow"><span>${T3('Код','קוד','Code')}</span><span class="code"><input id="mSeed" inputmode="numeric" maxlength="4" value="${MS.seed}"><button id="mNewSeed">${T3('Новый код','קוד חדש','New code')}</button></span></div>`);
-  h.push(`<div class="trow"><span>${T3('Противник','אויב','Opponent')}</span><span class="seg2">${NATIONS.map(([k,n,ok])=>`<button data-nat="${k}"${MS.nation===k?' class="on"':''}${ok?'':' disabled'}>${esc(L2(n))}</button>`).join('')}</span></div>`);
+  h.push(`<div class="trow"><span>${T3('Вы играете за','אתם משחקים בשביל','You play for')}</span><span class="seg2">${SIDES.map(([k,n])=>`<button data-side="${k}"${MS.side===k?' class="on"':''}>${esc(L2(n))}</button>`).join('')}</span></div>`);
+  h.push(`<div class="trow"><span>${T3('Противник','אויב','Opponent')}</span><span class="seg2">${NATIONS.map(([k,n,ok])=>`<button data-nat="${k}"${MS.nation===k?' class="on"':''}${ok&&!(k===MS.side)?'':' disabled'}>${esc(L2(n))}</button>`).join('')}</span></div>`);
   h.push(`<div class="trow"><span>${T3('Сложность','קושי','Difficulty')}</span><span class="seg2">${DIFF.map((d,i)=>`<button data-md="${i}"${MS.diff===i?' class="on"':''}>${L2(d)}</button>`).join('')}</span></div>`);
   h.push(`<div class="trow"><span>${T3('Застройка','בנייה','Density')}</span><span class="seg2">${Object.keys(DENS).map(k=>`<button data-mdn="${k}"${MS.dens===k?' class="on"':''}>${L2(DENS[k])}</button>`).join('')}</span></div>`);
   if(!M.classic)h.push(`<div class="tprev"><img id="tPrev" alt=""><div><b>${T3('Местность','שטח','Terrain')}:</b> ${esc(L2(TOWNL[M.type]))}<br><small>${T3('объект — в центре, мы — с юга, противник — с севера','היעד במרכז, אנחנו מדרום, האויב מצפון','objective in the center, we come from the south, the enemy from the north')}</small></div></div>`);
-  h.push(`<p class="meta">${T3('Поддержка: беспилотник «Ястреб» и вертолёты эвакуации «Ангел». Ударного вертолёта нет ни у кого. Лёгкий транспорт есть у обеих сторон: машина «Дувдевана», у противника — его аналог (мотоциклы и багги у России, Gecko у ЮАР).','סיוע: הכטב״ם «זיק» ומסוקי הפינוי «ינשוף». מסוק קרב אין לאף צד. תחבורה קלה יש לשני הצדדים: הרכב של «דובדבן», ואצל האויב — המקבילה שלו (אופנועים ובאגי ברוסיה, Gecko בדרום אפריקה).','Support: the Hawk UAV and the Angel medevac helicopters. Neither side has an attack helicopter. Both have light transport: the Duvdevan car, and its enemy counterpart (motorcycles and buggies for Russia, Geckos for South Africa).')}</p>`);
+  const CAR=MS.side==='ua'?['HMMWV','HMMWV','HMMWVs']:['машина «Дувдевана»','הרכב של «דובדבן»','the Duvdevan car'];
+  h.push(`<p class="meta">${T3('Поддержка: беспилотник «Ястреб» и вертолёты эвакуации «Ангел». Ударного вертолёта нет ни у кого. Лёгкий транспорт есть у обеих сторон: у вас '+L2(CAR)+', у противника — её аналог (мотоциклы у России, Gecko у ЮАР, HMMWV у Украины).','סיוע: הכטב״ם «זיק» ומסוקי הפינוי «ינשוף». מסוק קרב אין לאף צד. תחבורה קלה יש לשני הצדדים: אצלכם '+L2(CAR)+', ואצל האויב — המקבילה (אופנועים ברוסיה, Gecko בדרום אפריקה, HMMWV באוקראינה).','Support: the Hawk UAV and the Angel medevac helicopters. Neither side has an attack helicopter. Both have light transport: yours is '+L2(CAR)+', the enemy has its counterpart (motorcycles for Russia, Geckos for South Africa, HMMWVs for Ukraine).')}</p>`);
   h.push(`<h2>${T3('Противник (разведка)','האויב (מודיעין)','Enemy (intelligence)')}</h2><p>${T3('Отряды-аналоги ваших сил, по сложности — больше или меньше:','צוותים מקבילים לכוחות שלכם, לפי הקושי — יותר או פחות:','Counterparts of your forces, more or fewer by difficulty:')} <b>${esc(ord.map(t=>L2(ENU[t].n)).join(', '))}</b></p>`);
   {const a=ourMen(sel),b=enMen(MS),r=a?b/a:0;h.push(`<div class="mcount"><span><small>${T3('Ваши силы','הכוחות שלכם','Your forces')}</small><b>${a}</b>${T3('бойцов','לוחמים','soldiers')}<small class="pw">${T3('сила','עוצמה','power')} ${ourPow(sel)}</small></span><span class="vs">${T3('против','מול','vs')}</span><span><small>${T3('Противник (разведка)','האויב (מודיעין)','Enemy (intelligence)')}</small><b>~${b}</b>${T3('солдат','חיילים','soldiers')}<small class="pw">${T3('сила','עוצמה','power')} ~${enPow(MS)}</small></span></div><p class="meta">${a?(r>1.15?T3(`Противник сильнее числом примерно в ${r.toFixed(1).replace('.',',')} раза.`,`האויב גדול יותר בערך פי ${r.toFixed(1)}.`,`The enemy outnumbers you about ${r.toFixed(1)} to 1.`):r<.87?T3(`Вы сильнее числом примерно в ${(1/r).toFixed(1).replace('.',',')} раза.`,`אתם גדולים יותר בערך פי ${(1/r).toFixed(1)}.`,`You outnumber the enemy about ${(1/r).toFixed(1)} to 1.`):T3('Силы примерно равны по численности.','הכוחות שקולים בערך במספרם.','The forces are roughly equal in numbers.')):T3('Выберите свои отряды ниже.','בחרו את הצוותים שלכם למטה.','Pick your teams below.')} ${T3('Выучка отрядов различается — см. описания.','רמת האימון שונה בין היחידות — ראו בתיאורים.','Training differs between units — see the descriptions.')}</p>`);}
-  h.push(`<h2>${T3(`Ваши силы · ${sel.length} из ${MAXG}`,`הכוחות שלכם · ${sel.length} מתוך ${MAXG}`,`Your forces · ${sel.length} of ${MAXG}`)}</h2>`+(sel.length?`<div class="selc">${sel.map((t,i)=>`<button data-mrm="${i}">${esc(L2(TU[t].n))} ✕</button>`).join('')}</div>`:''));
+  h.push(`<h2>${T3(`Ваши силы · ${sel.length} из ${MAXG}`,`הכוחות שלכם · ${sel.length} מתוך ${MAXG}`,`Your forces · ${sel.length} of ${MAXG}`)}</h2>`+(sel.length?`<div class="selc">${sel.map((t,i)=>`<button data-mrm="${i}">${esc(L2(TUX(t).n))} ✕</button>`).join('')}</div>`:''));
   h.push(`<button class="go" id="mGo"${!sel.length?' disabled':''}>${T3('К боевому приказу','לפקודת המבצע','To the operation order')}</button>`);
   h.push(`<h2>${T3('Наши подразделения','היחידות שלנו','Our units')}</h2>`+chLegend());
-  for(const [c,cn] of UCAT){if(c==='bdr')continue;h.push(`<h3>${L2(cn)}</h3>`);for(const t of Object.keys(TU).filter(k=>TU[k].c===c)){const T=TU[t];const n=sel.filter(x=>x===t).length;
-    h.push(`<div class="ucard"><div class="uh"><b>${esc(L2(T.n))}</b><button data-madd="${t}"${sel.length>=MAXG||n>=2?' disabled':''}>${n?`+ (${n})`:'+'}</button></div><div class="ug">${esc(L2(T.gm))} <small>${ABIL(t)} · ${T3('аналог у противника','המקבילה אצל האויב','enemy counterpart')}: ${esc(L2(ENU[natOf(MS).analog[t]].n))}</small></div>${chHTML(t)}</div>`);}}
+  const OWN=MS.side==='ua'?utu():TU;
+  for(const [c,cn] of UCAT){if(c==='bdr')continue;const ks=Object.keys(OWN).filter(k=>OWN[k].c===c&&!OWN[k].off);if(!ks.length)continue;h.push(`<h3>${L2(cn)}</h3>`);for(const t of ks){const T=OWN[t];const n=sel.filter(x=>x===t).length;
+    h.push(`<div class="ucard"><div class="uh"><b>${esc(L2(T.n))}</b><button data-madd="${t}"${sel.length>=MAXG||n>=2?' disabled':''}>${n?`+ (${n})`:'+'}</button></div><div class="ug">${esc(L2(T.gm))} <small>${ABIL(t)} · ${T3('аналог у противника','המקבילה אצל האויב','enemy counterpart')}: ${esc(L2(ENU[natOf(MS).analog[CHS[t]||t]].n))}</small></div>${chHTML(t)}${OWN===TU?'':armsHTML(t)+`<details><summary>${T3('Из открытых источников','ממקורות פתוחים','From open sources')}</summary><p>${esc(L2(T.pub))}</p></details>`}</div>`);}}
   h.push(`<h2>${esc(L2(natOf(MS).units_t))}</h2><p class="meta">${T3('Сведения — только из открытых источников. Численность и характеристики в игре — игровые условности.','המידע — ממקורות פתוחים בלבד. מספר הלוחמים והמאפיינים במשחק — מוסכמות של המשחק.','Information comes only from open sources. Team sizes and ratings in the game are game conventions.')}</p>`);
   for(const t of Object.keys(natOf(MS).units)){const R=ENU[t];h.push(`<div class="ucard"><div class="uh"><b>${esc(L2(R.n))}</b><small>${R.men} ${T3('чел.','לוחמים','men')}</small></div><div class="ug"><b>${T3('В игре:','במשחק:','In the game:')}</b> ${esc(L2(R.gm))}</div>${chHTML(t)}<details><summary>${T3('Из открытых источников','ממקורות פתוחים','From open sources')}</summary><p>${esc(L2(R.pub))} <a href="${R.src}" target="_blank" rel="noopener">${T3('источник','מקור','source')}</a></p></details></div>`);}
   const d=$('#campDoc');d.innerHTML=h.join('');$('#camp').hidden=false;bindTabs();bindLang(d);
@@ -1451,6 +1465,8 @@ function showMission(){const sel=MS.sel,h=[];const ord=enemyOrder(MS);
   // another country: its units, analogs and descriptions; the map stays the same
   d.querySelectorAll('[data-nat]').forEach(b=>b.onclick=()=>{if(b.disabled||MS.nation===b.dataset.nat)return;MS.nation=b.dataset.nat;ch(false);});
   d.querySelectorAll('[data-mdn]').forEach(b=>b.onclick=()=>{MS.dens=b.dataset.mdn;ch(true);});
+  // another side: its own units; Ukraine does not fight Ukraine
+  d.querySelectorAll('[data-side]').forEach(b=>b.onclick=()=>{const v=b.dataset.side;if(MS.side===v)return;MS.side=v;MS.sel=v==='ua'?['ua_kord','ua_sso','ua_mech','ua_eng']:['ym','eg','gol','yh'];if(MS.nation===v)MS.nation='ru';ch(false);});
   d.querySelectorAll('[data-madd]').forEach(b=>b.onclick=()=>{MS.sel.push(b.dataset.madd);ch(false);});
   d.querySelectorAll('[data-mrm]').forEach(b=>b.onclick=()=>{MS.sel.splice(+b.dataset.mrm,1);ch(false);});
   $('#mGo').onclick=()=>{if(!MS.sel.length)return;$('#camp').hidden=true;setBriefHead();$('#bGo').textContent=T3('Начать миссию','להתחיל משימה','Start mission');$('#bEnd').hidden=true;$('#brief').hidden=false;$('#brief').scrollTop=0;};}
@@ -1711,9 +1727,10 @@ const DRONE={
 };
 const INTEL=()=>({call:T3('Разведка','מודיעין','Intel'),type:'x'});
 const uavUp=()=>!S.uav||!S.uav.down;
+const OUR_D=()=>S&&S.side==='ua'?DRONE.ua:DRONE.il; // our drone: Skylark for Israel, Leleka-100 for Ukraine
 
 // ---- our drone: when the battery runs out it goes back to change it; meanwhile Intel can order a satellite picture ----
-function uavAirTick(dt){const U=S.uav,ya=U_('ya');if(!U||!ya)return;const D=DRONE.il;
+function uavAirTick(dt){const U=S.uav,ya=U_('ya');if(!U||!ya)return;const D=OUR_D();
   if(U.air==null){U.air=0;U.home=S.ourBase?{x:S.ourBase.x,y:S.ourBase.y}:{x:U.x,y:U.y};}
   if(U.down){stepTo(U,U.home.x,U.home.y,D.spd*dt);U.downT-=dt;
     if(U.downT<=0){U.down=false;U.air=0;U.warn=false;say(ya,T3(`Кобра-6, я Ястреб. Батарея заменена, снова в воздухе. Выхожу в квадрат ${cell(U.tx,U.ty)}. Приём.`,`צפע, כאן זיק. הסוללה הוחלפה, שוב באוויר. יוצא למשבצת ${cell(U.tx,U.ty)}. עבור.`,`Cobra-6, this is Hawk. Battery changed, airborne again. Heading for grid ${cell(U.tx,U.ty)}. Over.`),[],{});}
@@ -1722,7 +1739,7 @@ function uavAirTick(dt){const U=S.uav,ya=U_('ya');if(!U||!ya)return;const D=DRON
   if(!U.warn&&U.air>=D.end-600){U.warn=true;say(ya,T3(`Кобра-6, я Ястреб. Через 10 минут ухожу на смену батареи, примерно на 20 минут. Приём.`,`צפע, כאן זיק. בעוד 10 דקות יוצא להחלפת סוללה, לכ־20 דקות. עבור.`,`Cobra-6, this is Hawk. In 10 minutes I leave to change the battery, for about 20 minutes. Over.`),[],{});}
   if(U.air>=D.end){U.down=true;U.downT=D.swap;U.scan=null;
     say(ya,T3(`Кобра-6, я Ястреб. Батарея на исходе, ухожу на смену. Вернусь около ${fmt(S.t+D.swap)}. Пока меня нет — снимок со спутника через Разведку. Приём.`,`צפע, כאן זיק. הסוללה נגמרת, יוצא להחלפה. אחזור בסביבות ${fmt(S.t+D.swap)}. עד אז — צילום לוויין דרך המודיעין. עבור.`,`Cobra-6, this is Hawk. Battery low, leaving to change it. Back around ${fmt(S.t+D.swap)}. Until then, a satellite picture through Intel. Over.`),[],{urgent:true});dirty=true;}}
-function uavLeft(){const U=S.uav;return U.down?0:Math.max(0,DRONE.il.end-(U.air||0));}
+function uavLeft(){const U=S.uav;return U.down?0:Math.max(0,OUR_D().end-(U.air||0));}
 
 // a satellite pass: only while our drone is down; the picture comes a few minutes later, shows only what is in the open,
 // and at night it is a radar picture — people and vehicles, not who they are. The marks age three times faster.
@@ -2254,7 +2271,7 @@ function tick(dt){
     if(u.veh&&dist<12){d.seen[u.id]=1;if(Math.random()<.4){d.gone=true;raiseAlarm();u.veh=false;S.car=null;S.marks.car=null;const k=2+(Math.random()<.5?1:0);for(let i=0;i<k&&u.men>0;i++)casualty(u);u.st='hold';u.tx=u.x;u.ty=u.y;delete S.marks.ord[u.id];say(u,(HE?(`צפע, כאן ${u.call}!! הרכב עלה על מטען, ${placeTxt(u.x,u.y)}! יש נפגעים! ממשיכים ברגל.`):((EN?(`Cobra-6, this is ${u.call}!! The car hit an IED, ${placeTxt(u.x,u.y)}! We have casualties! Continuing on foot.`):(`Кобра-6, я ${u.call}!! Машина подорвалась на СВУ, ${placeTxt(u.x,u.y)}! Есть потери! Дальше пешком.`)))),[posChip(u)],{urgent:true,known:'full'});}break;}
     if(!u.veh&&dist<10){d.seen[u.id]=1;if(Math.random()<(u.pace==='fast'?.3:.75)){d.gone=true;say(u,(HE?(`צפע, כאן ${u.call}. מטען ברחוב, ${placeTxt(d.x,d.y)}. עוקפים.`):((EN?(`Cobra-6, this is ${u.call}. Explosive device in the street, ${placeTxt(d.x,d.y)}. Going around.`):(`Кобра-6, я ${u.call}. На улице взрывное устройство, ${placeTxt(d.x,d.y)}. Обходим.`)))),[{k:'ied',x:d.x,y:d.y,label:(HE?('מטען: '):((EN?("IED: "):('СВУ: '))))+cell(d.x,d.y)}],{known:'st'});}else if(Math.random()<.5){d.gone=true;raiseAlarm();casualty(u);say(u,(HE?(`צפע, כאן ${u.call}! עלינו על מטען, ${placeTxt(u.x,u.y)}! יש פצוע!`):((EN?(`Cobra-6, this is ${u.call}! IED explosion, ${placeTxt(u.x,u.y)}! One wounded!`):(`Кобра-6, я ${u.call}! Подрыв на СВУ, ${placeTxt(u.x,u.y)}! Есть раненый!`)))),[],{urgent:true,known:'st'});}break;}}}
   // UAV
-  if(uavUp())stepTo(S.uav,S.uav.tx,S.uav.ty,DRONE.il.spd*dt);S.marks.own.ya={x:S.uav.x,y:S.uav.y};uavScanTick(dt);airTick(dt);
+  if(uavUp())stepTo(S.uav,S.uav.tx,S.uav.ty,OUR_D().spd*dt);S.marks.own.ya={x:S.uav.x,y:S.uav.y};uavScanTick(dt);airTick(dt);
   const ya=U_('ya');ya.seen=ya.seen||{};
   for(const e of alive()){if(!uavUp())break;if(!outside(e))continue;const d=Math.hypot(e.x-S.uav.x,e.y-S.uav.y);if(d>320)continue;const p=(e.roof?.012:e.mv?.08:.04)*dt;
     if(!e.leader){const r=S.tg&&S.tg.by[e.id];if(r&&r.ls!=null&&!r.hide&&!r.dead)continue;}const key=e.id+(e.mode==='move'?'m':'');if(ya.seen[key]&&S.t-ya.seen[key]<900)continue;
@@ -2655,7 +2672,7 @@ function selectUnit(id,center){selId=id;updUnits();dirty=true;const u=U_(id),k=S
   else if(u.type==='uav'&&!uavUp())openSheet(T3('Ястреб','זיק','Hawk'),T3(`Беспилотник на смене батареи, вернётся около ${fmt(S.t+S.uav.downT)}. Пока его нет, Разведка может дать снимок со спутника: через 5 минут, радиус около 600 м, только то, что на улицах; ночью снимок радарный и не различает, кто это. Метки со снимка быстро устаревают. Пролёт — раз в 30 минут.`,`הכטב״ם בהחלפת סוללה, יחזור בסביבות ${fmt(S.t+S.uav.downT)}. עד אז המודיעין יכול לתת צילום לוויין: בעוד 5 דקות, רדיוס כ־600 מ׳, רק מה שברחובות; בלילה הצילום מכ״מי ולא מבחין מי זה. הסימונים מהצילום מתיישנים מהר. מעבר — פעם ב־30 דקות.`,`The drone is changing its battery, back around ${fmt(S.t+S.uav.downT)}. Until then Intel can give a satellite picture: in 5 minutes, radius about 600 m, only what is in the streets; at night it is a radar picture and cannot tell who is who. Its marks age fast. One pass every 30 minutes.`),[
       {t:T3('Снимок со спутника','צילום לוויין','Satellite picture'),d:S.sat&&S.sat.next>S.t?T3(`следующий пролёт ${fmt(S.sat.next)}`,`המעבר הבא ${fmt(S.sat.next)}`,`next pass ${fmt(S.sat.next)}`):T3('указать район','לבחור אזור','pick an area'),dis:!!(S.sat&&S.sat.next>S.t),on:()=>startTarget('sat','ya')},
       {t:(HE?('שנה גזרה'):((EN?("Change area"):('Сменить район')))),d:T3('после смены батареи','אחרי החלפת הסוללה','after the battery change'),on:()=>startTarget('uav','ya')}]);
-  else if(u.type==='uav')openSheet((HE?('זיק'):((EN?("Hawk"):('Ястреб')))),T3(`Беспилотник по образцу ${L2(DRONE.il.n)} (открытые данные: около 3 ч в воздухе). Видит улицы и крыши в радиусе ~300 м от точки барражирования, внутрь зданий не видит. Батареи ещё на ${Math.floor(uavLeft()/3600)} ч ${Math.floor(uavLeft()%3600/60)} мин, потом смена — около 20 минут.`,`כטב״ם בדומה ל־${L2(DRONE.il.n)} (מידע גלוי: כ־3 שעות באוויר). רואה רחובות וגגות ברדיוס של כ־300 מ׳ מנקודת השהייה, לא רואה בתוך מבנים. הסוללה תספיק לעוד ${Math.floor(uavLeft()/3600)} ש׳ ${Math.floor(uavLeft()%3600/60)} דק׳, אחר כך החלפה — כ־20 דקות.`,`A drone modelled on the ${L2(DRONE.il.n)} (open data: about 3 h in the air). Sees streets and rooftops within ~300 m of its orbit point, cannot see inside buildings. Battery for another ${Math.floor(uavLeft()/3600)} h ${Math.floor(uavLeft()%3600/60)} min, then a change of about 20 minutes.`),[
+  else if(u.type==='uav')openSheet((HE?('זיק'):((EN?("Hawk"):('Ястреб')))),T3(`Беспилотник по образцу ${L2(OUR_D().n)} (открытые данные: около ${OUR_D().end/3600} ч в воздухе). Видит улицы и крыши в радиусе ~300 м от точки барражирования, внутрь зданий не видит. Батареи ещё на ${Math.floor(uavLeft()/3600)} ч ${Math.floor(uavLeft()%3600/60)} мин, потом смена — около 20 минут.`,`כטב״ם בדומה ל־${L2(OUR_D().n)} (מידע גלוי: כ־${OUR_D().end/3600} שעות באוויר). רואה רחובות וגגות ברדיוס של כ־300 מ׳ מנקודת השהייה, לא רואה בתוך מבנים. הסוללה תספיק לעוד ${Math.floor(uavLeft()/3600)} ש׳ ${Math.floor(uavLeft()%3600/60)} דק׳, אחר כך החלפה — כ־20 דקות.`,`A drone modelled on the ${L2(OUR_D().n)} (open data: about ${OUR_D().end/3600} h in the air). Sees streets and rooftops within ~300 m of its orbit point, cannot see inside buildings. Battery for another ${Math.floor(uavLeft()/3600)} h ${Math.floor(uavLeft()%3600/60)} min, then a change of about 20 minutes.`),[
       {t:(HE?('שנה גזרה'):((EN?("Change area"):('Сменить район')))),d:(HE?('בחרו נקודה'):((EN?("pick a point"):('указать точку')))),on:()=>startTarget('uav','ya')},{t:T3('Сканировать район','לסרוק אזור','Scan an area'),d:T3('обновить метки','לעדכן סימונים','update the marks'),on:()=>startTarget('scan','ya')},{t:(HE?('דווח'):((EN?("Report"):('Доложить')))),d:(HE?('מה רואה'):((EN?("what it sees"):('что видит')))),on:()=>hq((HE?('זיק, כאן צפע. דווח מה אתה רואה. עבור.'):((EN?("Hawk, this is Cobra-6. Report what you see. Over."):('Ястреб, я Кобра-6. Доложи, что наблюдаешь. Приём.')))),{k:'rep',uid:'ya'})}]);
   else if(u.type==='strike'){const M=S.mol;openSheet((HE?('שרף'):((EN?("Hammer"):('Молот')))),(HE?(`מסוק קרב. ${M.st==='station'?`בגזרה: טילים ${M.ammo}, דלק ל־${Math.round(M.fuel/60)} דק׳.`:`בבסיס, יחזור ב־${fmt(M.tA)}.`}${M.relief?` מסוק מחליף יגיע ב־${fmt(M.relief)}.`:''}
 תקיפה — רק על מבנה עם מטרה מאומתת.`):((EN?(`Attack helicopter. ${M.st==='station'?`On station: missiles ${M.ammo}, fuel for ${Math.round(M.fuel/60)} min.`:`At base, back at ${fmt(M.tA)}.`}${M.relief?` Relief at ${fmt(M.relief)}.`:''}\nStrikes only on a building with a confirmed target.`):(`Ударный вертолёт. ${M.st==='station'?`В зоне: ракет ${M.ammo}, топлива на ${Math.round(M.fuel/60)} мин.`:`На базе, вернётся в ${fmt(M.tA)}.`}${M.relief?` Смена будет в ${fmt(M.relief)}.`:''}
