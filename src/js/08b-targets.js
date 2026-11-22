@@ -55,7 +55,7 @@ function battleSum(){const U=infs().filter(u=>u.inFight&&u.men>0);if(!U.length){
   const nos=Object.keys(by).sort((a,b)=>a-b);const w=e=>e.bld&&!outside(e)?T3(`здание ${e.bld}`,`מבנה ${e.bld}`,`building ${e.bld}`):cell(e.x,e.y);
   const list=nos.map(n=>T3(`цель ${n} (${w(by[n].e)}) — ${by[n].u.join(', ')}`,`מטרה ${n} (${w(by[n].e)}) — ${by[n].u.join(', ')}`,`target ${n} (${w(by[n].e)}) — ${by[n].u.join(', ')}`)).join('; ');
   const k=(S.kek||0)-S.sum0.k,c=S.stats.kia+S.stats.wia-S.sum0.c;S.sumT=S.t;S.sum0={k:S.kek||0,c:S.stats.kia+S.stats.wia};
-  const m={from:T3('Штаб роты','מפקדת הפלוגה','Company HQ'),uid:null,text:T3(`Сводка ${fmt(S.t)}. Бой: ${list||'цели не уточнены'}. За 5 минут: противник — ${k} нейтрализовано, у нас — ${c} потерь.`,`סיכום ${fmt(S.t)}. קרב: ${list||'המטרות לא מוגדרות'}. ב־5 הדקות האחרונות: אויב — ${k} נוטרלו, אצלנו — ${c} נפגעים.`,`Summary ${fmt(S.t)}. In action: ${list||'targets not identified'}. Last 5 minutes: enemy — ${k} neutralized, ours — ${c} casualties.`),note:'',chips:[],t:S.t};
+  const m={from:T3('Штаб роты','מפקדת הפלוגה','Company HQ'),uid:null,text:T3(`Сводка ${fmt(S.t)}. Бой: ${list||'цели не уточнены'}. За 5 минут: нейтрализовано противника — ${k}, наши потери — ${c}.`,`סיכום ${fmt(S.t)}. קרב: ${list||'המטרות לא מוגדרות'}. ב־5 הדקות האחרונות: אויב — ${k} נוטרלו, אצלנו — ${c} נפגעים.`,`Summary ${fmt(S.t)}. In action: ${list||'targets not identified'}. Last 5 minutes: enemy — ${k} neutralized, ours — ${c} casualties.`),note:'',chips:[],t:S.t};
   deliver(m);}
 
 // ---- claude.ai only: the journal of the current battle is kept in the artifact's database, one document overwritten

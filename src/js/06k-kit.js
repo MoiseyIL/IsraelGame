@@ -44,7 +44,7 @@ function glFire(s,tgt,dt,b){const k=kitOf(s);if(!k.gl||s.men<2)return;if(s.glN==
 // bounds near the enemy, losses avoided. The South African part is a game interpretation: open sources describe the
 // weapons and the units, not a detailed doctrine.
 const TAC={
-  ru:{wd:.25,wdX:.1,boundM:150,boundS:8,near:250,supStop:80,lead:["stormv","bars"]},
+  ru:{wd:.25,wdX:.1,boundM:150,boundS:8,near:250,supStop:80,lead:["stormv","bars","moto"]},
   za:{wd:.4,wdX:.4,boundM:100,boundS:15,near:350,supStop:85,lead:["za_pf","za_sf"]}};
 const tacOf=()=>TAC[(S&&S.nation)||'ru']||TAC.ru;
 const ARMY_BASE=1.6; // the same walking pace as our teams at the fast pace in town
