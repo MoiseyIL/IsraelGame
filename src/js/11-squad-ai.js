@@ -8,8 +8,10 @@ function leaderDecide(u){
   u.avoid=(u.avoid||[]).filter(a=>a.until>S.t);
   const en=(u.threats||[]).map(E_).filter(e=>e&&!e.gone&&e.men>0);
   if(!en.length){if(S.t-(u.contT||0)>20){const was=u.resume&&!['hold','cordon'].includes(u.resume.st);u.threats=[];u.byp=0;resumeOrder(u);if(was)u.resumeNote=true;}return;}
-  const ourFP=u.men*(u.ammo>0?1:.2)*(u.uc?1.3:1)*(u.sup>60?.5:1)*(u.q||1);
-  const enMen=en.reduce((s,e)=>s+e.men,0),enFP=en.reduce((s,e)=>s+e.men*(e.sup>60?.5:1)*(e.bld&&!outside(e)?1.5:1),0);
+  const fpU=v=>v.men*(v.ammo>0?1:.2)*(v.uc?1.3:1)*(v.sup>60?.5:1)*(v.q||1)*(v.inB?1.5:1);
+  const mates=infs().filter(v=>v!==u&&v.men>0&&Math.hypot(v.x-u.x,v.y-u.y)<150&&v.cont.some(id=>en.some(e=>e.id===id)));
+  const ourFP=fpU(u)+mates.reduce((s,v)=>s+fpU(v),0);
+  const enMen=en.reduce((s,e)=>s+e.men,0),enFP=en.reduce((s,e)=>s+e.men*(e.q||1)*(e.sup>60?.5:1)*(e.bld&&!outside(e)?1.5:1),0);
   const ratio=ourFP/Math.max(.5,enFP);const mission=u.resume?u.resume.st:'hold';
   const stealth=['recon','snipe','obs','aim'].includes(mission)&&!S.alarm,heavyW=u.wounded>=Math.max(2,u.men/2),lowAmmo=u.ammo<20,holding=mission==='hold'||mission==='cordon';
   const tgt=en.find(e=>e.bld&&!outside(e)&&!BN(e.bld).prot&&!S.destroyed[e.bld]);
@@ -18,10 +20,11 @@ function leaderDecide(u){
   if(!holding&&!stealth&&ratio>=2&&enMen<=4&&u.men>=5&&u.ammo>40&&!heavyW&&tgt){const b=tgt.bld,B=BN(b);
     u.st='assault';u.tb=b;u.tx=B.cx;u.ty=B.cy;u.pkey=null;u.autoAs=true;u.threats=[];
     u.method=S.marks.bied&&S.marks.bied[b]?(u.sap?'sapper':'wall'):(u.sap?'sapper':'door');say(u,ASSAULT_TXT(u,b),[bChip(b,'hos')],{urgent:true,known:'st',pid:b});return;}
-  if(ratio<.8||heavyW||stealth||lowAmmo){const why=heavyW?WHY_W:lowAmmo?WHY_AMMO:stealth?WHY_STEALTH:WHY_STRONG;
-    if(holding||!u.resume){addAvoid(180);u.threats=[];const e0=en[0];const dx=u.x-e0.x,dy=u.y-e0.y,d=Math.hypot(dx,dy)||1;u.resume=null;u.st='move';u.tx=clamp(u.x+dx/d*120,0,MWm);u.ty=clamp(u.y+dy/d*120,0,MHm);u.pkey=null;say(u,WITHDRAW_TXT(u,why),[],{urgent:true,known:'st'});u.cont=[];return;}
-    if((u.byp||0)>=2){stuck();return;}
-    u.byp=(u.byp||0)+1;addAvoid(180);u.threats=[];resumeOrder(u);say(u,BYPASS_TXT(u,why),[],{urgent:true,known:'st'});u.cont=[];return;}
+  const dug=u.inB||u.posOn||u.posCov||u.st==='incover';
+  if(ratio<(dug?.4:.8)||heavyW||stealth||lowAmmo){const why=heavyW?WHY_W:lowAmmo?WHY_AMMO:stealth?WHY_STEALTH:WHY_STRONG;
+    if(holding||!u.resume){addAvoid(180);u.threats=[];const e0=en[0];const dx=u.x-e0.x,dy=u.y-e0.y,d=Math.hypot(dx,dy)||1;u.resume=null;u.st='move';u.tx=clamp(u.x+dx/d*120,0,MWm);u.ty=clamp(u.y+dy/d*120,0,MHm);u.pkey=null;if(S.t-(u.brkRep||-1e9)>=120){u.brkRep=S.t;say(u,WITHDRAW_TXT(u,why),[],{urgent:true,known:'st'});}u.cont=[];return;}
+    if((u.byp||0)>=2){stuck();return;}const quiet=S.t-(u.brkRep||-1e9)<120;if(!quiet)u.brkRep=S.t;
+    u.byp=(u.byp||0)+1;addAvoid(180);u.threats=[];resumeOrder(u);if(!quiet)say(u,BYPASS_TXT(u,why),[],{urgent:true,known:'st'});u.cont=[];return;}
   if(!u.cont.length){if(S.t-(u.contT||0)>30){const was=u.resume&&!['hold','cordon'].includes(u.resume.st);
       if(was){if((u.byp||0)>=2){stuck();return;}u.byp=(u.byp||0)+1;addAvoid(180);}
       u.threats=[];resumeOrder(u);if(was)u.resumeNote=true;}return;}
