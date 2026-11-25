@@ -2,7 +2,7 @@
 let S;
 function squad(id,call,sh,x,y,men,uc){return{id,call,sh,type:'inf',x,y,men:men||8,uc:!!uc,elite:!!uc,drones:3,droneT:0,droneB:0,method:'door',breachT:0,surpT:0,dogBonus:false,dogDone:false,cordon:0,trapNote:'',wounded:0,ammo:100,morale:85,st:'hold',tx:x,ty:y,tb:0,inB:0,clearT:0,acc:0,cont:[],seen:{},newW:0,newK:0,lastCas:0,inFight:false,lowAmmo:false,wT:0,demo:0};}
 function grp(id,kind,men,b,o){const B=BN(b);return Object.assign({id,kind,men,max:men,bld:b,x:B.cx,y:B.cy,roof:false,alert:false,leader:false,mode:'idle',wp:null,wi:0,acc:0,cont:[],gone:false,mv:false,tT:0},o||{});}
-function newState(TRN){TRN=TRN||null;
+function newState(TRN){TRN=TRN||null;critReset();
   const r=TRN?mulberry(TRN.seed*13+TRN.diff*7+1):Math.random;const pick=a=>a[Math.floor(r()*a.length)];
   // enemy composition and the intel summary depend only on the code and difficulty, not on how many buildings the town has
   const rC=TRN?mulberry(TRN.seed*17+TRN.diff*11+3):r;const MX=M.cx,MY=M.cy,RX=M.rx,RY=M.ry;const okB=BL.filter(b=>!b.prot&&b.area>(M.minA||500));
@@ -26,6 +26,7 @@ function newState(TRN){TRN=TRN||null;
     {id:'ya',call:(HE?('זיק'):((EN?("Hawk"):('Ястреб')))),sh:(HE?('ז'):((EN?("Hk"):('Я')))),type:'uav',x:M.classic?700:MX,y:M.classic?1500:Math.min(1700,MY+RY)},{id:'mo',call:(HE?('שרף'):((EN?("Hammer"):('Молот')))),sh:(HE?('ש'):((EN?("Hm"):('М')))),type:'strike',x:610,y:2140},{id:'an',call:(HE?('ינשוף'):((EN?("Angel"):('Ангел')))),sh:(HE?('י'):((EN?("An"):('А')))),type:'medevac',x:790,y:2140}];
   units[3].veh=true;units[3].carU=true;units[2].sap=true;
   if(TRN)units.splice(0,4,...mkTrainUnits(TRN.sel));else units.forEach(u=>{if(u.type==='inf')crewApply(u);});
+  units.forEach(u=>{if(u.type==='inf')u.max0=u.men;});
   let ens=[grp('eL','leader',3,L.n,{leader:true}),grp('eW','lab',2,Wk.n),grp('eR','rest',3,R.n),grp('o1','look',1,Lk1.n,{roof:true}),grp('o2','look',1,Lk2.n,{roof:true}),Object.assign(grp('eP','patrol',2,L.n,{mode:'patrol',wp:pw,wi:1}),{bld:0,x:pw[0][0],y:pw[0][1]})];
   if(TRN){const D=TRN.diff;const used=[L,T,Wk,R,decoyB];const nLead=[2,3,3,4][D]+(rC()<.5?1:0),nExtra=[0,0,1,2][D],exMen=[2+(rC()<.5?1:0),2+(rC()<.5?1:0)],nLook=[1,2,2,3][D]+(rC()<.4?1:0);ens=[grp('eL','leader',nLead,L.n,{leader:true}),grp('eW','lab',[1,2,2,3][D],Wk.n),grp('eR','rest',[2,3,3,3][D],R.n)];
     for(let i=0;i<nExtra;i++){const b=pk(okB.filter(x=>!used.includes(x)&&near(x,L,150,450)),okB.filter(x=>!used.includes(x)));used.push(b);ens.push(grp('eR'+(i+2),'rest',exMen[i],b.n));}

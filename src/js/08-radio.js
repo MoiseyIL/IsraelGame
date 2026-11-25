@@ -10,7 +10,7 @@ function flushSpots(){const B=S.spotBuf;if(!B)return;for(const k in B){const b=B
     say(b.u,T3(`Кобра-6, я ${b.u.call}. Наблюдаю противника, групп: ${b.items.length}. ${list}.${quiet} Приём.`,`צפע, כאן ${b.u.call}. רואים אויב, חוליות: ${b.items.length}. ${list}.${quiet} עבור.`,`Cobra-6, this is ${b.u.call}. Enemy in sight, groups: ${b.items.length}. ${list}.${quiet} Over.`),chips,{known:b.u.type==='inf'?'st':undefined,noSpot:true});}}
 function say(u,text,chips,o){o=o||{};chips=(chips||[]).filter(c=>c.k!=='pos'&&!(c.k==='hos'&&(c.x!=null&&!c.b||o.eid)));if(o.eid&&!o.noSpot){const tg=tgtNote(o);if(!tg)return;text=insTag(text,tg.tag);numChips(chips,tg.no);if(o.spot)o.spot=tg.d+' — '+o.spot;}
   if(o.spot&&!o.noSpot){const B=(S.spotBuf=S.spotBuf||{});const k=u.id||u.call;(B[k]=B[k]||{u:{id:u.id,call:u.call,type:u.type},t0:S.t,items:[]}).items.push({text,chips:chips||[],pid:o.pid||0,d:o.spot});return;}
-  if(o.known&&u.id&&!u.men&&u.type==='inf'){const uu=U_(u.id);if(uu)u=uu;}if(S.mission)text=text.replace(/боевиков/g,'солдат противника').replace(/מחבלים/g,'חיילי אויב').replace(/מחבל/g,'חייל אויב');const m={from:u.call,uid:u.id||null,eid:o.eid||'',qt:S.t,text,note:o.note||'',chips:chips||[],urgent:!!o.urgent,act:o.act||null,kobj:o.kobj||null,pid:o.pid||0,ek:o.ek||0,det:o.det||0,arr:!!o.arr};
+  if(o.known&&u.id&&!u.men&&u.type==='inf'){const uu=U_(u.id);if(uu)u=uu;}if(S.mission)text=text.replace(/боевиков/g,'солдат противника').replace(/מחבלים/g,'חיילי אויב').replace(/מחבל/g,'חייל אויב');const m={from:u.call,uid:u.id||null,eid:o.eid||'',qt:S.t,text,note:o.note||'',chips:chips||[],urgent:!!o.urgent,act:o.act||null,kobj:o.kobj||null,pid:o.pid||0,ek:o.ek||0,det:o.det||0,arr:!!o.arr,crit:o.crit||null};
   if(o.known&&u.type==='inf')m.known=o.known==='full'?{men:u.men,wounded:u.wounded,ammo:Math.round(u.ammo/10)*10,st:stLabel(u),full:true}:{st:stLabel(u)};
   if(S.radio.q.some(x=>x.uid&&x.uid===m.uid&&x.text===m.text))return; // the same message already waiting
   m.front=!!o.front;m.pr=o.pr!=null?o.pr:o.front?-1:m.urgent?0:o.noSpot?2:3; /* an answer to the commander's call comes at once */qPut(m);}
@@ -34,6 +34,7 @@ function deliver(m){
   if(m.pid)S.pidT[m.pid]=m.t;
   if(m.ek)S.kek=(S.kek||0)+m.ek;if(m.det)S.kdet=(S.kdet||0)+m.det;
   if(m.act)doAct(m.act);
+  if(m.crit&&m.crit!==true){critPush(m.crit);m.crit=true;}
   liveEnd(m);updUnits();updObj();
   // a short buzz for urgent traffic: only while the game runs and the sound is on, at most once in 4 s
   if(m.urgent&&soundOn&&S.speed>0&&!document.hidden&&performance.now()-(window.__vibT||0)>4000){window.__vibT=performance.now();try{navigator.vibrate&&navigator.vibrate(90);}catch(e){}}

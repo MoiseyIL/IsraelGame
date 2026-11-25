@@ -1,6 +1,6 @@
 function findCover(u,en){for(const r of [8,15,24,34,46])for(let a=0;a<16;a++){const x=u.x+Math.cos(a*Math.PI/8)*r,y=u.y+Math.sin(a*Math.PI/8)*r;if(x<0||y<0||x>MWm||y>MHm)continue;if(!navFree(Math.floor(x/NG),Math.floor(y/NG)))continue;if(en.some(e=>losPtE(x,y,e)))continue;return[x,y,null,.35];}const d=debCoverPt(u,en);return d?[d[0],d[1],d[2],DEBT[d[2].t].cov]:null;}
 const AUTO_ST=['move','hold','cordon','recon','snipe','obs','aim','search'];
-function resumeOrder(u){const r=u.resume;u.resume=null;if(!r){u.st='hold';u.tx=u.x;u.ty=u.y;return;}
+function resumeOrder(u){const r=u.resume;u.resume=null;u.ftPend=0;if(!r){u.st='hold';u.tx=u.x;u.ty=u.y;return;}
   if(r.st==='hold'||r.st==='cordon'){u.st='hold';u.tx=u.x;u.ty=u.y;return;}
   u.st=r.st==='obs'?'recon':r.st==='aim'?'snipe':r.st==='search'?'move':r.st;u.tx=r.tx;u.ty=r.ty;u.tb=r.tb;if(r.st==='search')u.searchOn=true;u.pkey=null;}
 const STUCK_TXT=(u,e)=>(HE?(`צפע, כאן ${u.call}. אי אפשר לעקוף: הרחובות בטווח אש, האויב ${e.bld&&!outside(e)?'במבנה '+e.bld:placeTxt(e.x,e.y)}. מחזיקים מחסה, מחכים להוראות.`):((EN?(`Cobra-6, this is ${u.call}. Can't get around: the streets are covered by fire, enemy ${e.bld&&!outside(e)?'in building '+e.bld:placeTxt(e.x,e.y)}. Holding cover, awaiting orders.`):(`Кобра-6, я ${u.call}. Обойти не удаётся: улицы простреливаются, противник ${e.bld&&!outside(e)?'в здании '+e.bld:placeTxt(e.x,e.y)}. Держим укрытие, ждём указаний.`))));
@@ -16,17 +16,20 @@ function leaderDecide(u){
   const stealth=['recon','snipe','obs','aim'].includes(mission)&&!S.alarm,heavyW=u.wounded>=Math.max(2,u.men/2),lowAmmo=u.ammo<20,holding=mission==='hold'||mission==='cordon';
   const tgt=en.find(e=>e.bld&&!outside(e)&&!BN(e.bld).prot&&!S.destroyed[e.bld]);
   const addAvoid=r=>{for(const e of en)u.avoid.push({x:e.x,y:e.y,r,bld:e.bld&&!outside(e)?e.bld:0,until:S.t+1800});};
-  const stuck=()=>{if(!u.stuckRep){u.stuckRep=1;say(u,STUCK_TXT(u,en[0]),[],{urgent:true,known:'st'});}};
+  const stuck=()=>stuckAsk(u,en[0]);
   if(!holding&&!stealth&&ratio>=2&&enMen<=4&&u.men>=5&&u.ammo>40&&!heavyW&&tgt){const b=tgt.bld,B=BN(b);
     u.st='assault';u.tb=b;u.tx=B.cx;u.ty=B.cy;u.pkey=null;u.autoAs=true;u.threats=[];
     u.method=S.marks.bied&&S.marks.bied[b]?(u.sap?'sapper':'wall'):(u.sap?'sapper':'door');say(u,ASSAULT_TXT(u,b),[bChip(b,'hos')],{urgent:true,known:'st',pid:b});return;}
-  const dug=u.inB||u.posOn||u.posCov||u.st==='incover';
+  if((S.wd||[]).some(w=>w.uid===u.id&&w.ph==='cover'))return; // waiting for cover: hold and fire
+  if(!holding&&!stealth&&!heavyW&&!lowAmmo&&ftGoing(u)&&(u.cont.length||S.t-(u.contT||0)<25)){if(u.ftMode&&S.t-(u.ftT||0)>180)u.ftMode=null;
+    if(!u.ftMode){if(!u.ftPend)ftAsk(u,en,ratio);return;}if(ftStep(u,en))return;}
+  const dug=u.inB||u.posOn||u.posCov||u.st==='incover'||u.wdHelp;
   if(ratio<(dug?.4:.8)||heavyW||stealth||lowAmmo){const why=heavyW?WHY_W:lowAmmo?WHY_AMMO:stealth?WHY_STEALTH:WHY_STRONG;
     if(holding||!u.resume){addAvoid(180);u.threats=[];const e0=en[0];const dx=u.x-e0.x,dy=u.y-e0.y,d=Math.hypot(dx,dy)||1;u.resume=null;u.st='move';u.tx=clamp(u.x+dx/d*120,0,MWm);u.ty=clamp(u.y+dy/d*120,0,MHm);u.pkey=null;if(S.t-(u.brkRep||-1e9)>=120){u.brkRep=S.t;say(u,WITHDRAW_TXT(u,why),[],{urgent:true,known:'st'});}u.cont=[];return;}
     if((u.byp||0)>=2){stuck();return;}const quiet=S.t-(u.brkRep||-1e9)<120;if(!quiet)u.brkRep=S.t;
-    u.byp=(u.byp||0)+1;addAvoid(180);u.threats=[];resumeOrder(u);if(!quiet)say(u,BYPASS_TXT(u,why),[],{urgent:true,known:'st'});u.cont=[];return;}
+    u.byp=(u.byp||0)+1;addAvoid(90);u.threats=[];resumeOrder(u);if(!quiet)say(u,BYPASS_TXT(u,why),[],{urgent:true,known:'st'});u.cont=[];return;}
   if(!u.cont.length){if(S.t-(u.contT||0)>30){const was=u.resume&&!['hold','cordon'].includes(u.resume.st);
-      if(was){if((u.byp||0)>=2){stuck();return;}u.byp=(u.byp||0)+1;addAvoid(180);}
+      if(was){if((u.byp||0)>=2){stuck();return;}u.byp=(u.byp||0)+1;addAvoid(90);}
       u.threats=[];resumeOrder(u);if(was)u.resumeNote=true;}return;}
   {const pin=u.sup>60;if(pin&&!u.holdPin&&(!u.holdRep||S.t-u.holdRep>120)){u.holdRep=S.t;say(u,HOLD_TXT(u),[],{known:'st',urgent:true});}u.holdPin=pin;}/* only "pinned down" is news; holding cover is what a team in a fight does anyway */}
 const RESUME_TXT=u=>(HE?(`צפע, כאן ${u.call}. האש פסקה, ממשיכים במשימה.`):((EN?(`Cobra-6, this is ${u.call}. Fire has stopped, continuing the task.`):(`Кобра-6, я ${u.call}. Огонь стих, продолжаем задачу.`))));const ASSAULT_TXT=(u,b)=>(HE?(`צפע, כאן ${u.call}. עליונות האש שלנו, האויב מעט. מאגפים ופורצים למבנה ${b}.`):((EN?(`Cobra-6, this is ${u.call}. We have fire superiority, few enemy. Flanking and assaulting building ${b}.`):(`Кобра-6, я ${u.call}. Огневое превосходство наше, противника немного. Обходим с фланга и штурмуем здание ${b}.`))));const BYPASS_TXT=(u,why)=>(HE?(`צפע, כאן ${u.call}. ${why} מתנתקים ועוקפים ברחוב אחר.`):((EN?(`Cobra-6, this is ${u.call}. ${why} Breaking contact, going around by another street.`):(`Кобра-6, я ${u.call}. ${why} Разрываем контакт, обходим другой улицей.`))));const WITHDRAW_TXT=(u,why)=>(HE?(`צפע, כאן ${u.call}. ${why} מתנתקים ויוצאים מטווח האש.`):((EN?(`Cobra-6, this is ${u.call}. ${why} Breaking contact, getting out from under fire.`):(`Кобра-6, я ${u.call}. ${why} Разрываем контакт, отходим из-под огня.`))));const HOLD_TXT=u=>(HE?(`צפע, כאן ${u.call}. מחזיקים מחסה ויורים. ${u.sup>60?(S.mission?'מרותקים באש כבדה, צריך עזרה.':'מרותקים באש כבדה, צריך סיוע של «שרף».'):'האויב מתנגד.'}`):((EN?(`Cobra-6, this is ${u.call}. Holding cover, returning fire. ${u.sup>60?(S.mission?'Pinned down by heavy fire, need help.':'Pinned down by heavy fire, need Hammer support.'):'The enemy is resisting.'}`):(`Кобра-6, я ${u.call}. Держим укрытие, ведём огонь. ${u.sup>60?(S.mission?'Прижаты плотным огнём, нужна помощь.':'Прижаты плотным огнём, нужна поддержка «Молота».'):'Противник сопротивляется.'}`))));
@@ -66,7 +69,7 @@ function posPick(x,y){const th=posThreat(x,y),hid=(px,py)=>!th||!los(px,py,th.x,
   return best||{x,y,k:'prone',cov:.6};}
 function posArrive(u){
   if(u.posOn===1){const p=posPick(u.x,u.y);u.posP=p;u.posOn=2;if(Math.hypot(p.x-u.x,p.y-u.y)>3){u.st='move';u.tx=p.x;u.ty=p.y;u.pkey=null;return true;}}
-  if(u.posOn!==2)return false;const p=u.posP;u.posOn=0;u.st='hold';u.tx=u.x;u.ty=u.y;u.posCov=p.cov;delete S.marks.ord[u.id];
+  if(u.posOn!==2)return false;const p=u.posP;u.posOn=0;u.st='hold';u.resume=null;u.tx=u.x;u.ty=u.y;u.posCov=p.cov;delete S.marks.ord[u.id];
   const th=posThreat(u.x,u.y),sec=th?T3(` Наблюдаем на ${DIRS_TO[dirIdx(th.x-u.x,th.y-u.y)]}.`,` מתצפתים ל${DIRS_TO[dirIdx(th.x-u.x,th.y-u.y)]}.`,` Watching ${DIRS_TO[dirIdx(th.x-u.x,th.y-u.y)]}.`):'';
   const inOrch=M.orch&&M.orch.some(o=>u.x>o.x0&&u.x<o.x1&&u.y>o.y0&&u.y<o.y1);
   const where=p.k==='cover'?(p.d?debAt(p.d)+' ':p.nat?(inOrch?T3('в саду, ','במטע, ','in the orchard, '):T3('в русле вади, ','בערוץ הוואדי, ','in the wadi bed, ')):T3('рядом с руинами, ','ליד ההריסות, ','by the ruins, ')):'';

@@ -1,7 +1,7 @@
 /* ---------- log ---------- */
 const logEl=$('#log');let liveEl=null;
 function nearBottom(){return logEl.scrollHeight-logEl.scrollTop-logEl.clientHeight<80;}
-function msgEl(m){const el=document.createElement('div');el.className='msg'+(m.out?' out':'')+(m.urgent?' urg':'');
+function msgEl(m){const el=document.createElement('div');el.className='msg'+(m.out?' out':'')+(m.crit?' crit':m.urgent?' urg':m.out?'':' rt');
   const mh=document.createElement('div');mh.className='mh';const w=document.createElement('span');w.className='who';w.textContent=m.from;const tm=document.createElement('span');tm.className='tm';tm.textContent=fmt(m.t);mh.append(w,tm);
   const tx=document.createElement('div');tx.className='txt';tx.textContent=m.text;el.append(mh,tx);
   if(m.note){const nt=document.createElement('div');nt.className='note';nt.textContent=m.note;el.appendChild(nt);}

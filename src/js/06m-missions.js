@@ -132,7 +132,7 @@ const ourMen=sel=>sel.reduce((s,t)=>s+(TUX(t).men||0),0);
 const ourPow=sel=>sel.reduce((s,t)=>s+chPower(t),0),enPow=o=>Math.round(enemyOrder(o).reduce((s,t)=>s+chPower(t,chTr(t,dlv(o).tr))*enGroupMen(o,t)/ENU[t].men,0));
 const enMen=o=>enemyOrder(o).reduce((s,t)=>s+enGroupMen(o,t),0);
 function newMissionState(o){const st=newState({seed:o.seed,diff:o.diff,dens:o.dens,sel:o.sel});
-  st.mission=true;st.nation=o.nation||'ru';st.side=o.side||'il';st.train=false;st.city.g=3;st.opName=['Миссия','משימה','Mission'];st.traps={};st.ieds=[];st.decoy=0;st.alarm=true;st.alarmT0=0;st.mob=true;st.mobK=0;
+  st.mission=true;st.nation=o.nation||'ru';st.side=o.side||'il';st.critPause=o.critPause!==false;st.train=false;st.city.g=3;st.opName=['Миссия','משימה','Mission'];st.traps={};st.ieds=[];st.decoy=0;st.alarm=true;st.alarmT0=0;st.mob=true;st.mobK=0;
   const O=nearFree(M.avx[0],M.avy[0])||[M.cx/NG|0,M.cy/NG|0];const ox=O[0]*NG+NG/2,oy=O[1]*NG+NG/2;st.obj={x:ox,y:oy};
   // both start lines at the same distance from the objective and out of town (a line of teams 200 m wide, two rows deep)
   const clear=(y,dir)=>[-130,-65,0,65,130].every(dx=>[0,40*dir,-30*dir].every(dy=>!inTown(ox+dx,y+dy)&&!blockOf(ox+dx,y+dy)));
@@ -236,7 +236,9 @@ function armyTick(dt){const O=S.obj,U=infs(),T=tacOf();
     else if(e.mode==='plant'||e.mode==='defuse'){const busy=U.some(u=>u.men>0&&Math.hypot(u.x-e.x,u.y-e.y)<HOLD_R);if(busy)continue;e.prog=(e.prog||0)+dt;
       // someone of ours sees them at work on the objective: a minute to react (sappers 40 s)
       if(e.mode==='plant'&&!e.plWarn){const ob=infs().find(u=>u.men>0&&Math.hypot(u.x-e.x,u.y-e.y)<300)||(uavUp()&&Math.hypot(S.uav.x-e.x,S.uav.y-e.y)<320?U_('ya'):null);
-        if(ob){e.plWarn=1;say(ob,T3(`Кобра-6, я ${ob.call}! Противник на объекте ставит заряд! Наших в круге нет. Приём.`,`צפע, כאן ${ob.call}! האויב ביעד ומציב מטען! אין משלנו בעיגול. עבור.`,`Cobra-6, this is ${ob.call}! The enemy is on the objective planting a charge! None of ours in the circle. Over.`),[],{front:true,urgent:true});}}
+        if(ob){e.plWarn=1;const v=infs().filter(x=>x.men>2&&x.st!=='broken').sort((p,q)=>Math.hypot(p.x-O.x,p.y-O.y)-Math.hypot(q.x-O.x,q.y-O.y))[0];
+          critSay(ob,T3(`Кобра-6, я ${ob.call}! Противник на объекте ставит заряд! Наших в круге нет. Приём.`,`צפע, כאן ${ob.call}! האויב ביעד ומציב מטען! אין משלנו בעיגול. עבור.`,`Cobra-6, this is ${ob.call}! The enemy is on the objective planting a charge! None of ours in the circle. Over.`),
+            critReq({key:'pl',valid:()=>e.mode==='plant'&&e.men>0&&!S.charge.them,btns:[...(v?[{t:T3(`${v.call} — в круг`,`${v.call} — לעיגול`,`${v.call} into the circle`),fn:()=>{chq(T3(`${v.call}, я Кобра-6. Срочно в круг объекта, сорвать установку. Приём.`,`${v.call}, כאן צפע. מיד לעיגול היעד, לסכל את ההנחה. עבור.`,`${v.call}, this is Cobra-6. Into the objective circle at once, stop the plant. Over.`));orderExec(v,{kind:'move',x:O.x,y:O.y+20});}}]:[]),{t:T3('Понял','הבנתי','Roger'),fn:()=>{}}]}));}}
       if(e.prog>=(e.sap?PLANT_SAP:PLANT_T)){e.prog=0;if(e.mode==='plant'&&!S.charge.them){S.charge.them={tDet:S.t+DET_T};e.mode='hold';say({call:T3('Разведка','מודיעין','Intel'),type:'x'},T3(`Кобра-6, я Разведка. Перехват: противник установил заряд на объекте. Подрыв примерно в ${fmt(S.t+DET_T)}. Приём.`,`צפע, כאן מודיעין. יירוט: האויב הציב מטען ביעד. פיצוץ בערך ב-${fmt(S.t+DET_T)}. עבור.`,`Cobra-6, this is Intel. Intercept: the enemy has planted a charge at the objective. Detonation at about ${fmt(S.t+DET_T)}. Over.`),[],{urgent:true});}
         else if(e.mode==='defuse'&&S.charge.us){S.charge.us=null;e.mode='hold';say({call:T3('Разведка','מודיעין','Intel'),type:'x'},T3('Кобра-6, я Разведка. Перехват: противник обезвредил наш заряд. Приём.','צפע, כאן מודיעין. יירוט: האויב נטרל את המטען שלנו. עבור.','Cobra-6, this is Intel. Intercept: the enemy has defused our charge. Over.'),[],{urgent:true});}}}}}
 function ourPlantTick(dt){const O=S.obj;for(const u of infs()){if(u.afterMove&&u.st==='hold'&&Math.hypot(u.x-O.x,u.y-O.y)<40){const k=u.afterMove;u.afterMove=null;missionAct(u,{k});}if(u.st!=='plant'&&u.st!=='defuse')continue;if(u.men<=0){u.st='hold';continue;}
@@ -291,6 +293,7 @@ function showMission(){const sel=MS.sel,h=[];const ord=enemyOrder(MS);
   h.push(`<div class="trow"><span>${T3('Вы играете за','אתם משחקים בשביל','You play for')}</span><span class="seg2">${SIDES.map(([k,n])=>`<button data-side="${k}"${MS.side===k?' class="on"':''}>${esc(L2(n))}</button>`).join('')}</span></div>`);
   h.push(`<div class="trow"><span>${T3('Противник','אויב','Opponent')}</span><span class="seg2">${NATIONS.map(([k,n,ok])=>`<button data-nat="${k}"${MS.nation===k?' class="on"':''}${ok&&!(k===MS.side)?'':' disabled'}>${esc(L2(n))}</button>`).join('')}</span></div>`);
   h.push(`<div class="trow"><span>${T3('Сложность','קושי','Difficulty')}</span><span class="seg2">${DIFF.map((d,i)=>`<button data-md="${i}"${MS.diff===i?' class="on"':''}>${L2(d)}</button>`).join('')}</span></div>`);
+  h.push(`<div class="trow"><span>${T3('Пауза на запросах','השהיה בבקשות','Pause on requests')}</span><span class="seg2">${[[1,T3('Вкл','פועל','On')],[0,T3('Выкл','כבוי','Off')]].map(([v,n])=>`<button data-cpz="${v}"${(MS.critPause!==false)===!!v?' class="on"':''}>${n}</button>`).join('')}</span></div>`);
   h.push(`<div class="trow"><span>${T3('Застройка','בנייה','Density')}</span><span class="seg2">${Object.keys(DENS).map(k=>`<button data-mdn="${k}"${MS.dens===k?' class="on"':''}>${L2(DENS[k])}</button>`).join('')}</span></div>`);
   if(!M.classic)h.push(`<div class="tprev"><img id="tPrev" alt=""><div><b>${T3('Местность','שטח','Terrain')}:</b> ${esc(L2(TOWNL[M.type]))}<br><small>${T3('объект — в центре, мы — с юга, противник — с севера','היעד במרכז, אנחנו מדרום, האויב מצפון','objective in the center, we come from the south, the enemy from the north')}</small></div></div>`);
   const CAR=MS.side==='ua'?['HMMWV','HMMWV','HMMWVs']:['машина «Дувдевана»','הרכב של «דובדבן»','the Duvdevan car'];
@@ -319,6 +322,7 @@ function showMission(){const sel=MS.sel,h=[];const ord=enemyOrder(MS);
   // another country: its units, analogs and descriptions; the map stays the same
   d.querySelectorAll('[data-nat]').forEach(b=>b.onclick=()=>{if(b.disabled||MS.nation===b.dataset.nat)return;MS.nation=b.dataset.nat;ch(false);});
   d.querySelectorAll('[data-mdn]').forEach(b=>b.onclick=()=>{MS.dens=b.dataset.mdn;ch(true);});
+  d.querySelectorAll('[data-cpz]').forEach(b=>b.onclick=()=>{MS.critPause=b.dataset.cpz==='1';ch(false);});
   // another side: its own units; Ukraine does not fight Ukraine
   d.querySelectorAll('[data-side]').forEach(b=>b.onclick=()=>{const v=b.dataset.side;if(MS.side===v)return;MS.side=v;MS.sel=v==='ua'?['ua_kord','ua_sso','ua_mech','ua_eng']:['ym','eg','gol','yh'];if(MS.nation===v)MS.nation='ru';ch(false);});
   d.querySelectorAll('[data-madd]').forEach(b=>b.onclick=()=>{MS.sel.push(b.dataset.madd);ch(false);});

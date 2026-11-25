@@ -81,6 +81,7 @@ function render(){
     if(u.type==='inf'){unitGlyph(c,u,sx,sy,w,h);}
     else{c.fillStyle='#14324a';c.font=(HE?('700 10px "Rubik", sans-serif'):('700 11px "Roboto Condensed", sans-serif'));c.textAlign='center';c.textBaseline='middle';c.fillText(u.type==='uav'?(HE?('כטב״ם'):((EN?("UAV"):('БПЛА')))):u.sh===(HE?('ש'):((EN?("Hm"):('М'))))?(HE?('קרב'):((EN?("FOB"):('ВОП')))):(HE?('פינוי'):('MED')),sx,sy+.5);}
     c.font=(HE?('700 11px "Rubik", sans-serif'):('700 11px "Roboto Condensed", sans-serif'));c.textAlign='center';c.textBaseline='middle';if(u.type==='inf')halo(c,u.sh,sx,sy+h/2+(u.veh?15:9),'#14324a');c.restore();}
+  drawWdLines(c);drawCritRings(c);
   if(t&&t.pt&&!t.b){const [sx,sy]=toS(t.pt.x,t.pt.y);c.save();c.strokeStyle='#e9a21a';c.lineWidth=2;c.beginPath();c.arc(sx,sy,10,0,7);c.moveTo(sx-17,sy);c.lineTo(sx+17,sy);c.moveTo(sx,sy-17);c.lineTo(sx,sy+17);c.stroke();c.restore();}
 }
 
